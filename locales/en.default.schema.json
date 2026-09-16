@@ -30,6 +30,7 @@
     "featured_collection": "Featured collection",
     "product_list": "Product list",
     "collection_tabs": "Collection tabs",
+    "shop_the_look": "Shop the look",
     "collection_cards": "Collection cards",
     "products_gap": "Products gap",
     "view_all_button": "View all button",
@@ -323,6 +324,15 @@
     "enable_sticky": "Enable sticky",
     "desktop_position": "Desktop position",
     "mobile_position": "Mobile position",
+    "media_position": "Media position",
+    "mobile_image_position": "Mobile image position",
+    "show_hotspot_on_image": "Show hotspot on image",
+    "hotspot_position": "Hotspot position",
+    "horizontal": "Horizontal",
+    "vertical": "Vertical",
+    "custom_mobile_position": "Custom mobile position",
+    "horizontal_mobile": "Horizontal (mobile)",
+    "vertical_mobile": "Vertical (mobile)",
     "alt_text": "Alt text",
     "video_source": "Source",
     "video": "Video",
@@ -634,7 +644,8 @@
     },
     "collection_navigation_icon": {
       "chevron": "Chevron",
-      "arrow": "Arrow"
+      "arrow": "Arrow",
+      "long_arrow": "Long arrow"
     },
     "collection_navigation_behavior": {
       "show_on_hover": "Show on hover",
@@ -936,6 +947,7 @@
     "button_variant": {
       "primary": "Primary",
       "secondary": "Secondary",
+      "icon_only": "Icon only",
       "tertiary": "Tertiary"
     },
     "button_icon": {
@@ -989,6 +1001,8 @@
       "diamond": "Diamond"
     },
     "position": {
+      "first": "First",
+      "last": "Last",
       "top": "Top",
       "bottom": "Bottom"
     },

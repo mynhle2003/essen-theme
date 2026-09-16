@@ -109,6 +109,12 @@
     object-fit: cover;
   }
 
+  .background-media__image .image__placeholder,
+  .background-media__placeholder {
+    background: color-mix(in srgb, var(--background-color) 88%, rgb(var(--color-foreground-rgb)));
+    fill: var(--body-color);
+  }
+
   .background-media__video > video {
     pointer-events: none;
   }

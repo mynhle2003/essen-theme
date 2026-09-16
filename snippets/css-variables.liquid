@@ -71,6 +71,8 @@
     endif
   endfor
 
+  assign default_body_rgb = default_body | color_to_rgb | remove: 'rgb(' | remove: ')' | replace: ',', ' ' | strip
+
   assign overlay_scheme_id = settings.overlay_color_scheme | default: default_scheme_id
   if settings.overlay_color_scheme.id != blank
     assign overlay_scheme_id = settings.overlay_color_scheme.id
@@ -857,6 +859,7 @@
     --heading-color: {{ default_heading }};
     --heading-highlight-color: {{ default_heading_highlight }};
     --body-color: {{ default_body }};
+    --color-foreground-rgb: {{ default_body_rgb }};
     --accent-color: {{ default_accent }};
     --border-color: {{ default_border }};
     --shadow-color: {{ default_shadow }};
@@ -984,6 +987,10 @@
     --icon-button-radius: {{ icon_button_radius }};
     --button-height: {{ button_height_desktop }}px;
     --button-height-mobile: {{ button_height_mobile }}px;
+    --swiper-nav-size: var(--button-height);
+    --swiper-nav-size-mobile: var(--button-height-mobile);
+    --swiper-nav-icon-size: var(--icon-size-medium);
+    --swiper-pagination-progressbar-size: 2px;
     --control-height-2xs: 3.0rem;
     --control-height-xs: 3.4rem;
     --control-height-sm: 4.0rem;
@@ -1161,11 +1168,14 @@
   }
 
   {% for scheme in settings.color_schemes %}
+    {% assign scheme_body = scheme.settings.text | default: default_body %}
+    {% assign scheme_body_rgb = scheme_body | color_to_rgb | remove: 'rgb(' | remove: ')' | replace: ',', ' ' | strip %}
     .{{ scheme.id }} {
       --background-color: {{ scheme.settings.background }};
       --heading-color: {{ scheme.settings.heading }};
       --heading-highlight-color: {{ scheme.settings.heading_highlight }};
       --body-color: {{ scheme.settings.text }};
+      --color-foreground-rgb: {{ scheme_body_rgb }};
       --accent-color: {{ scheme.settings.accent }};
       --border-color: {{ scheme.settings.border }};
       --shadow-color: {{ scheme.settings.shadow }};
