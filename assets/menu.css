@@ -38,24 +38,14 @@
   flex: 1 1 auto;
 }
 
-.menu-block__list,
-.menu-block__submenu {
+.menu-block__list {
   display: grid;
   min-width: 0;
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-.menu-block__list {
   gap: var(--menu-block-menu-gap, 8px);
   color: var(--menu-block-menu-color, var(--body-color));
-}
-
-.menu-block__submenu {
-  gap: var(--menu-block-menu-gap, 8px);
-  margin-block-start: var(--menu-block-menu-gap, 8px);
-  padding-inline-start: 1rem;
 }
 
 .menu-block__link {

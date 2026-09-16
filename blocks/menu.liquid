@@ -1,5 +1,6 @@
 {% doc %}
-  Renders a navigation menu with an optional heading and a mobile disclosure.
+  Renders the first level of a navigation menu with an optional heading and a
+  mobile disclosure. Nested menu links are intentionally not rendered.
 
   The parent layout owns the block width and alignment. This block owns the
   selected menu, heading presentation, link list and mobile disclosure state.
@@ -103,7 +104,7 @@
   {% if has_menu %}
     <ul class="{{ menu_list_class }}" role="list">
       {% for menu_link in selected_menu.links %}
-        <li class="menu-block__item{% if menu_link.active or menu_link.child_active %} menu-block__item--active{% endif %}{% if menu_link.links != blank %} menu-block__item--has-children{% endif %}">
+        <li class="menu-block__item{% if menu_link.active or menu_link.child_active %} menu-block__item--active{% endif %}">
           {% if menu_link.url != blank %}
             <a
               class="menu-block__link link-underline{% if menu_link.active or menu_link.child_active or menu_link.current %} link-underline--active{% endif %}"
@@ -112,24 +113,6 @@
             >{{ menu_link.title | escape }}</a>
           {% else %}
             <span class="menu-block__link menu-block__link--placeholder">{{ menu_link.title | escape }}</span>
-          {% endif %}
-
-          {% if menu_link.links != blank %}
-            <ul class="menu-block__submenu" role="list">
-              {% for child_link in menu_link.links %}
-                <li class="menu-block__item{% if child_link.active %} menu-block__item--active{% endif %}">
-                  {% if child_link.url != blank %}
-                    <a
-                      class="menu-block__link link-underline{% if child_link.active or child_link.current %} link-underline--active{% endif %}"
-                      href="{{ child_link.url | escape }}"
-                      {% if child_link.current %}aria-current="page"{% endif %}
-                    >{{ child_link.title | escape }}</a>
-                  {% else %}
-                    <span class="menu-block__link menu-block__link--placeholder">{{ child_link.title | escape }}</span>
-                  {% endif %}
-                </li>
-              {% endfor %}
-            </ul>
           {% endif %}
         </li>
       {% endfor %}
