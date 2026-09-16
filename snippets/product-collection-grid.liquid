@@ -23,8 +23,15 @@
   @param {string} [grid_class] - Additional class for the grid root
   @param {string} [item_class] - Additional class for each grid item
   @param {string} [items_data_attributes] - Additional grid data attributes
-  @param {boolean} [product_carousel] - Whether to expose the collection carousel hook
   @param {boolean} [next_slide_preview] - Whether to expose the desktop preview setting
+  @param {string} [carousel_id] - Stable ID for the carousel root
+  @param {string} [aria_label] - Accessible name for the carousel
+  @param {string} [previous_selector] - CSS selector for the previous control
+  @param {string} [next_selector] - CSS selector for the next control
+  @param {boolean} [show_pagination] - Whether to render Swiper pagination
+  @param {string} [pagination_type] - Progress bar or bullets pagination
+  @param {string} [pagination_class] - Additional pagination classes
+  @param {string} [pagination_style] - Inline pagination custom properties
   @param {object} [product_card_block] - Direct Product Card child settings and editor attributes
   @param {boolean} [product_card_override_enabled] - Whether to use legacy card setting overrides
   @param {boolean} [product_card_show_ranking_override] - Legacy card ranking override
@@ -45,6 +52,18 @@
   unless product_collection_grid_layout == 'grid' or product_collection_grid_layout == 'carousel'
     assign product_collection_grid_layout = 'grid'
   endunless
+
+  assign product_collection_grid_pagination_type = pagination_type | default: 'bullets'
+  unless product_collection_grid_pagination_type == 'progress_bar' or product_collection_grid_pagination_type == 'bullets'
+    assign product_collection_grid_pagination_type = 'bullets'
+  endunless
+
+  assign product_collection_grid_show_pagination = false
+  if show_pagination and product_collection_grid_layout == 'carousel'
+    assign product_collection_grid_show_pagination = true
+  endif
+
+  assign product_collection_grid_aria_label = aria_label | default: 'search.products' | t
 
   assign product_collection_grid_columns_desktop = columns_desktop | default: 3 | plus: 0
   assign product_collection_grid_columns_mobile = columns_mobile | default: 1 | plus: 0
@@ -138,7 +157,7 @@
   endunless
 
   assign product_collection_grid_class = 'product-collection-grid product-collection-grid--' | append: product_collection_grid_layout
-  if enable_swipe_mobile
+  if enable_swipe_mobile and product_collection_grid_layout == 'grid'
     assign product_collection_grid_class = product_collection_grid_class | append: ' product-collection-grid--swipe-mobile'
   endif
   if product_collection_grid_is_placeholder
@@ -162,15 +181,7 @@
 {% assign product_collection_grid_style = product_collection_grid_style | strip %}
 
 {% if product_collection_grid_items != blank %}
-  <div
-    class="{{ product_collection_grid_class }}"
-    data-product-collection-grid
-    data-layout="{{ product_collection_grid_layout }}"
-    {% if items_data_attributes != blank %}{{ items_data_attributes }}{% endif %}
-    {% if product_carousel %}data-product-carousel data-next-slide-preview="{{ next_slide_preview }}"{% endif %}
-    {% if grid_attributes != blank %}{{ grid_attributes }}{% endif %}
-    style="{{ product_collection_grid_style }}"
-  >
+  {% capture product_collection_grid_content %}
     {% for product_collection_grid_item in product_collection_grid_items limit: product_collection_grid_item_limit %}
       {% liquid
         assign product_collection_grid_card_product = product_collection_grid_item
@@ -180,7 +191,7 @@
           assign product_collection_grid_card_placeholder = true
         endif
       %}
-      <div class="product-collection-grid__item product-card-layout__item{% if item_class != blank %} {{ item_class }}{% endif %}">
+      <div class="{% if product_collection_grid_layout == 'carousel' %}swiper-slide {% endif %}product-collection-grid__item product-card-layout__item{% if item_class != blank %} {{ item_class }}{% endif %}">
         {% render 'product-card',
           product: product_collection_grid_card_product,
           placeholder: product_collection_grid_card_placeholder,
@@ -191,5 +202,55 @@
         %}
       </div>
     {% endfor %}
-  </div>
+  {% endcapture %}
+
+  {% if product_collection_grid_layout == 'carousel' %}
+    {% capture product_collection_grid_carousel_attributes %}
+      data-product-collection-grid
+      data-layout="carousel"
+      data-product-carousel
+      data-next-slide-preview="{% if next_slide_preview %}true{% else %}false{% endif %}"
+      data-swiper-columns-desktop="{{ product_collection_grid_columns_desktop }}"
+      data-swiper-columns-mobile="{{ product_collection_grid_columns_mobile }}"
+      data-swiper-gap-desktop="{{ product_collection_grid_gap_horizontal }}"
+      data-swiper-gap-mobile="{{ product_collection_grid_gap_horizontal_mobile }}"
+      data-swiper-pagination-type="{{ product_collection_grid_pagination_type }}"
+      {% if previous_selector != blank %}data-swiper-previous-selector="{{ previous_selector | escape }}"{% endif %}
+      {% if next_selector != blank %}data-swiper-next-selector="{{ next_selector | escape }}"{% endif %}
+      {% if items_data_attributes != blank %}{{ items_data_attributes }}{% endif %}
+      {% if grid_attributes != blank %}{{ grid_attributes }}{% endif %}
+      style="{{ product_collection_grid_style }}"
+    {% endcapture %}
+
+    {% capture product_collection_grid_pagination %}
+      {% if product_collection_grid_show_pagination %}
+        <div
+          class="swiper-pagination{% if pagination_class != blank %} {{ pagination_class }}{% endif %}"
+          data-product-collection-pagination
+          data-pagination-type="{{ product_collection_grid_pagination_type }}"
+          {% if pagination_style != blank %}style="{{ pagination_style }}"{% endif %}
+        ></div>
+      {% endif %}
+    {% endcapture %}
+
+    {% render 'swiper-carousel',
+      id: carousel_id,
+      content: product_collection_grid_content,
+      root_class: product_collection_grid_class,
+      root_attributes: product_collection_grid_carousel_attributes,
+      aria_label: product_collection_grid_aria_label,
+      pagination: product_collection_grid_pagination
+    %}
+  {% else %}
+    <div
+      class="{{ product_collection_grid_class }}"
+      data-product-collection-grid
+      data-layout="grid"
+      {% if items_data_attributes != blank %}{{ items_data_attributes }}{% endif %}
+      {% if grid_attributes != blank %}{{ grid_attributes }}{% endif %}
+      style="{{ product_collection_grid_style }}"
+    >
+      {{ product_collection_grid_content }}
+    </div>
+  {% endif %}
 {% endif %}

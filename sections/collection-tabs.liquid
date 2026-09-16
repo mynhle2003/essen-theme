@@ -104,6 +104,11 @@
   </div>
 </div>
 
+{% if section.settings.layout_type == 'carousel' %}
+  {% render 'swiper-stylesheet' %}
+  <script type="module" src="{{ 'product-collection-carousel.js' | asset_url }}"></script>
+{% endif %}
+
 {% stylesheet %}
   .collection-tabs__spacing {
     width: 100%;

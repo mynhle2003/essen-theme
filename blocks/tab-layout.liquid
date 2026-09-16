@@ -392,117 +392,6 @@
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const getCarouselItems = (carousel) => {
-    const scroller = carousel?.querySelector('[data-product-carousel][data-layout="carousel"]');
-    if (!scroller) return { scroller: null, items: [] };
-
-    return {
-      scroller,
-      items: Array.from(scroller.children).filter((item) => item.matches('.product-collection-grid__item'))
-    };
-  };
-
-  const getCarouselIndex = (scroller, items) => {
-    if (!scroller || items.length === 0) return 0;
-
-    let closestIndex = 0;
-    let closestDistance = Number.POSITIVE_INFINITY;
-    items.forEach((item, index) => {
-      const distance = Math.abs(item.offsetLeft - scroller.scrollLeft);
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestIndex = index;
-      }
-    });
-
-    return closestIndex;
-  };
-
-  const updateCarouselControls = (carousel) => {
-    const { scroller, items } = getCarouselItems(carousel);
-    if (!scroller) return;
-
-    const maxScroll = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
-    const currentIndex = getCarouselIndex(scroller, items);
-    const progress = maxScroll === 0 ? 100 : Math.min(100, Math.max(0, (scroller.scrollLeft / maxScroll) * 100));
-    const previousButton = carousel.querySelector('[data-collection-carousel-previous]');
-    const nextButton = carousel.querySelector('[data-collection-carousel-next]');
-    const progressBar = carousel.querySelector('[data-collection-carousel-progress]');
-    const progressFill = carousel.querySelector('[data-collection-carousel-progress-fill]');
-    const pageButtons = Array.from(carousel.querySelectorAll('[data-collection-carousel-page]'));
-
-    if (previousButton) previousButton.disabled = scroller.scrollLeft <= 1;
-    if (nextButton) nextButton.disabled = scroller.scrollLeft >= maxScroll - 1;
-
-    if (progressBar) {
-      progressBar.setAttribute('aria-valuenow', String(Math.round(progress)));
-      progressBar.style.setProperty('--collection-tab-pagination-progress', progress + '%');
-    }
-    if (progressFill) progressFill.style.width = progress + '%';
-
-    pageButtons.forEach((pageButton, index) => {
-      const isActive = index === currentIndex;
-      pageButton.setAttribute('aria-selected', String(isActive));
-      pageButton.tabIndex = isActive ? 0 : -1;
-    });
-  };
-
-  const scrollCarouselTo = (carousel, index, wrap = false) => {
-    const { scroller, items } = getCarouselItems(carousel);
-    if (!scroller || items.length === 0) return;
-
-    let targetIndex = index;
-    if (wrap) {
-      targetIndex = (index + items.length) % items.length;
-    } else {
-      targetIndex = Math.min(items.length - 1, Math.max(0, index));
-    }
-
-    const target = items[targetIndex];
-    if (!target) return;
-
-    scroller.scrollTo({
-      left: target.offsetLeft,
-      behavior: prefersReducedMotion() ? 'auto' : 'smooth'
-    });
-  };
-
-  const synchronizeCarousels = (state) => {
-    const carousels = new Set(state.scope.querySelectorAll('[data-collection-tab-carousel]'));
-
-    state.carouselStates.forEach((carouselState, carousel) => {
-      if (!carousels.has(carousel)) {
-        if (carouselState.interval) window.clearInterval(carouselState.interval);
-        state.carouselStates.delete(carousel);
-      }
-    });
-
-    carousels.forEach((carousel) => {
-      const { scroller } = getCarouselItems(carousel);
-      if (!scroller || state.carouselStates.has(carousel)) {
-        updateCarouselControls(carousel);
-        return;
-      }
-
-      const carouselState = { scroller, interval: null };
-      state.carouselStates.set(carousel, carouselState);
-      scroller.addEventListener('scroll', () => updateCarouselControls(carousel), {
-        passive: true,
-        signal: state.controller.signal
-      });
-
-      if (carousel.dataset.autoplay === 'true' && state.scope.dataset.autoplay === 'true') {
-        carouselState.interval = window.setInterval(() => {
-          if (document.hidden || carousel.matches(':hover') || carousel.contains(document.activeElement)) return;
-          const currentIndex = getCarouselIndex(scroller, getCarouselItems(carousel).items);
-          scrollCarouselTo(carousel, currentIndex + 1, true);
-        }, 5000);
-      }
-
-      updateCarouselControls(carousel);
-    });
-  };
-
   const animatePanel = (state, panel) => {
     state.panelAnimation?.cancel();
     state.panelAnimation = null;
@@ -549,7 +438,6 @@
 
   const setActiveTab = (state, selectedId, shouldFocus, shouldAnimate) => {
     synchronizeEntries(state);
-    synchronizeCarousels(state);
     const selectedEntry = state.entries.find((entry) => entry.trigger.dataset.tabId === selectedId) || state.entries[0];
     if (!selectedEntry) return;
     const previousEntry = state.entries.includes(state.activeEntry) ? state.activeEntry : null;
@@ -603,8 +491,7 @@
       controller,
       observer: null,
       panelAnimation: null,
-      synchronizationQueued: false,
-      carouselStates: new Map()
+      synchronizationQueued: false
     };
 
     synchronizeEntries(state);
@@ -624,21 +511,6 @@
         setActiveTab(state, target.dataset.tabId, false, true);
         return;
       }
-
-      const carouselTarget = event.target instanceof Element ? event.target : null;
-      const carousel = carouselTarget?.closest('[data-collection-tab-carousel]');
-      if (!carousel || !scope.contains(carousel)) return;
-
-      const previousButton = carouselTarget.closest('[data-collection-carousel-previous]');
-      const nextButton = carouselTarget.closest('[data-collection-carousel-next]');
-      const pageButton = carouselTarget.closest('[data-collection-carousel-page]');
-      const { scroller, items } = getCarouselItems(carousel);
-      if (!scroller || items.length === 0) return;
-
-      const currentIndex = getCarouselIndex(scroller, items);
-      if (previousButton) scrollCarouselTo(carousel, currentIndex - 1);
-      if (nextButton) scrollCarouselTo(carousel, currentIndex + 1);
-      if (pageButton) scrollCarouselTo(carousel, Number(pageButton.dataset.collectionCarouselPage));
     }, { signal: controller.signal });
 
     scope.addEventListener('keydown', (event) => {
@@ -680,10 +552,6 @@
       state.controller.abort();
       state.observer?.disconnect();
       state.panelAnimation?.cancel();
-      state.carouselStates.forEach((carouselState) => {
-        if (carouselState.interval) window.clearInterval(carouselState.interval);
-      });
-      state.carouselStates.clear();
       state.entries.forEach((entry) => {
         if (entry.tab.isConnected && !entry.tab.contains(entry.trigger)) {
           entry.tab.insertBefore(entry.trigger, entry.tab.firstChild);

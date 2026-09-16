@@ -1,0 +1,40 @@
+{% doc %}
+  Renders the shared Swiper viewport. The caller owns slide markup and can
+  provide any Swiper module options through the shared JavaScript factory.
+  Every item in content must be a direct child of the generated wrapper and
+  must have the swiper-slide class.
+
+  @param {string} [content] - Rendered direct slide markup
+  @param {string} [root_class] - Additional class for the Swiper root
+  @param {string} [root_attributes] - Additional attributes for the root
+  @param {string} [wrapper_class] - Additional class for the Swiper wrapper
+  @param {string} [wrapper_attributes] - Additional attributes for the wrapper
+  @param {string} [id] - Optional stable root ID
+  @param {string} [aria_label] - Accessible name for the carousel
+  @param {string} [layout] - Layout mode: carousel or grid
+  @param {string} [pagination] - Optional rendered pagination markup
+{% enddoc %}
+
+{% liquid
+  assign carousel_layout = layout | default: 'carousel'
+  unless carousel_layout == 'carousel' or carousel_layout == 'grid'
+    assign carousel_layout = 'carousel'
+  endunless
+%}
+
+<div
+  class="swiper swiper-carousel--{{ carousel_layout }}{% if root_class != blank %} {{ root_class }}{% endif %}"
+  data-swiper-carousel
+  data-swiper-layout="{{ carousel_layout }}"
+  {% if id != blank %}id="{{ id | escape }}"{% endif %}
+  {% if aria_label != blank %}aria-label="{{ aria_label | escape }}"{% endif %}
+  {% if root_attributes != blank %}{{ root_attributes }}{% endif %}
+>
+  <div
+    class="swiper-wrapper{% if wrapper_class != blank %} {{ wrapper_class }}{% endif %}"
+    {% if wrapper_attributes != blank %}{{ wrapper_attributes }}{% endif %}
+  >
+    {{ content }}
+  </div>
+  {% if pagination != blank %}{{ pagination }}{% endif %}
+</div>

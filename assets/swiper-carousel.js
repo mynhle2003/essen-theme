@@ -1,0 +1,140 @@
+import { A11y, Swiper } from './swiper-loader.js';
+
+const instances = new WeakMap();
+const CONTROL_EVENTS = ['afterInit', 'fromEdge', 'lock', 'resize', 'slideChange', 'toEdge', 'unlock', 'update'];
+
+const isElement = (value) => value?.nodeType === 1 && typeof value.matches === 'function';
+
+const resolveElements = (target, scope) => {
+  if (!target) return [];
+  if (isElement(target)) return [target];
+  if (typeof target === 'string') return Array.from(scope?.querySelectorAll(target) || []);
+  if (Array.isArray(target)) return target.flatMap((item) => resolveElements(item, scope));
+  if (typeof target.length === 'number') return Array.from(target).filter(isElement);
+  return [];
+};
+
+const uniqueModules = (modules) => Array.from(new Set([A11y, ...modules].filter(Boolean)));
+
+const buildSwiperOptions = (options) => {
+  const { modules = [], ...swiperOptions } = options;
+  const normalizedModules = Array.isArray(modules) ? modules : [modules];
+
+  return {
+    modules: uniqueModules(normalizedModules),
+    watchOverflow: true,
+    ...swiperOptions,
+    a11y: {
+      enabled: true,
+      ...(swiperOptions.a11y || {})
+    }
+  };
+};
+
+const setControlState = (control, disabled) => {
+  if ('disabled' in control) control.disabled = disabled;
+  control.setAttribute('aria-disabled', String(disabled));
+};
+
+const getSwiperFromTarget = (target) => {
+  if (!target) return null;
+  if (target.el) return target;
+  if (isElement(target)) return instances.get(target)?.swiper || target.swiper || null;
+  return null;
+};
+
+export const bindSwiperControls = (swiper, controls = {}) => {
+  if (!swiper || swiper.destroyed) return () => {};
+
+  const controlOptions = controls && controls !== true ? controls : {};
+  const scope = controlOptions.scope || swiper.el;
+  const previousControls = resolveElements(
+    controlOptions.previous || '[data-swiper-previous]',
+    scope,
+  );
+  const nextControls = resolveElements(controlOptions.next || '[data-swiper-next]', scope);
+  if (!previousControls.length && !nextControls.length) return () => {};
+
+  const controller = new AbortController();
+  const eventOptions = { signal: controller.signal };
+  const update = () => {
+    if (swiper.destroyed) return;
+
+    const isLocked = Boolean(swiper.isLocked);
+    const isLooping = Boolean(swiper.params.loop);
+    const previousDisabled = isLocked || (!isLooping && swiper.isBeginning);
+    const nextDisabled = isLocked || (!isLooping && swiper.isEnd);
+
+    previousControls.forEach((control) => {
+      setControlState(control, previousDisabled);
+      if (swiper.el.id) control.setAttribute('aria-controls', swiper.el.id);
+    });
+    nextControls.forEach((control) => {
+      setControlState(control, nextDisabled);
+      if (swiper.el.id) control.setAttribute('aria-controls', swiper.el.id);
+    });
+  };
+
+  previousControls.forEach((control) => {
+    control.addEventListener('click', (event) => {
+      if (event.currentTarget.getAttribute('aria-disabled') === 'true') return;
+      swiper.slidePrev();
+    }, eventOptions);
+  });
+  nextControls.forEach((control) => {
+    control.addEventListener('click', (event) => {
+      if (event.currentTarget.getAttribute('aria-disabled') === 'true') return;
+      swiper.slideNext();
+    }, eventOptions);
+  });
+
+  CONTROL_EVENTS.forEach((eventName) => {
+    swiper.on(eventName, update);
+  });
+
+  update();
+  return () => {
+    controller.abort();
+    CONTROL_EVENTS.forEach((eventName) => {
+      swiper.off(eventName, update);
+    });
+  };
+};
+
+export const createSwiperCarousel = (element, options = {}) => {
+  if (!isElement(element) || element.dataset.swiperLayout === 'grid') return null;
+
+  const existing = getSwiperFromTarget(element);
+  if (existing && !existing.destroyed) return existing;
+
+  const { controls, ...swiperOptions } = options;
+  const swiper = new Swiper(element, buildSwiperOptions(swiperOptions));
+  const controlsCleanup = controls ? bindSwiperControls(swiper, controls) : null;
+  instances.set(element, { controlsCleanup, swiper });
+  element.dataset.swiperReady = 'true';
+  return swiper;
+};
+
+export const updateSwiperCarousel = (target) => {
+  const swiper = getSwiperFromTarget(target);
+  if (!swiper || swiper.destroyed) return null;
+  swiper.update();
+  return swiper;
+};
+
+export const destroySwiperCarousel = (target, deleteInstance = true, cleanupStyles = true) => {
+  const element = target?.el || (isElement(target) ? target : null);
+  const record = element ? instances.get(element) : null;
+  const swiper = record?.swiper || getSwiperFromTarget(target);
+
+  record?.controlsCleanup?.();
+  if (swiper && !swiper.destroyed) swiper.destroy(deleteInstance, cleanupStyles);
+  if (element) {
+    delete element.dataset.swiperReady;
+    instances.delete(element);
+  }
+
+  return null;
+};
+
+export const getSwiperCarousel = getSwiperFromTarget;

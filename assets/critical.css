@@ -1019,6 +1019,20 @@ legend {
   scroll-snap-align: start;
 }
 
+.product-collection-grid.swiper {
+  display: block;
+  overflow: hidden;
+}
+
+.product-collection-grid.swiper > .swiper-wrapper {
+  display: flex;
+  gap: 0;
+}
+
+.product-collection-grid.swiper > .swiper-wrapper > .product-collection-grid__item {
+  max-width: none;
+}
+
 .product-collection-grid__item {
   width: 100%;
   max-width: 100%;

@@ -18,7 +18,15 @@
   if product_list_product_card_block != blank and product_list_product_card_block.blocks != blank
     assign product_list_product_card_block = product_list_product_card_block.blocks | first
   endif
+
+  assign product_list_carousel_id = 'ProductListCarousel-' | append: block.id
+  assign product_list_aria_label = product_list_collection.title | default: 'search.products' | t
 %}
+
+{% if product_list_layout == 'carousel' %}
+  {% render 'swiper-stylesheet' %}
+  <script type="module" src="{{ 'product-collection-carousel.js' | asset_url }}"></script>
+{% endif %}
 
 <div
   class="product-list"
@@ -26,28 +34,55 @@
   data-layout="{{ product_list_layout }}"
   {{ block.shopify_attributes }}
 >
-  {% render 'product-collection-grid',
-    collection: product_list_collection,
-    max_products: block.settings.max_products,
-    layout_type: product_list_layout,
-    columns_desktop: block.settings.columns_desktop,
-    columns_mobile: block.settings.columns_mobile,
-    enable_swipe_mobile: block.settings.enable_swipe_mobile,
-    custom_columns: block.settings.custom_columns,
-    custom_columns_desktop: block.settings.custom_columns_desktop,
-    custom_columns_mobile: block.settings.custom_columns_mobile,
-    gap_horizontal: block.settings.gap_horizontal,
-    gap_vertical: block.settings.gap_vertical,
-    gap_horizontal_mobile: block.settings.gap_horizontal_mobile,
-    gap_vertical_mobile: block.settings.gap_vertical_mobile,
-    show_placeholders: true,
-    show_placeholders_for_empty_collection: true,
-    placeholder_count: 8,
-    grid_class: 'product-list__items',
-    item_class: 'product-list__item',
-    items_data_attributes: 'data-product-list-items',
-    product_card_block: product_list_product_card_block
-  %}
+  <div class="product-list__carousel" data-product-list-carousel>
+    {% render 'product-collection-grid',
+      collection: product_list_collection,
+      max_products: block.settings.max_products,
+      layout_type: product_list_layout,
+      columns_desktop: block.settings.columns_desktop,
+      columns_mobile: block.settings.columns_mobile,
+      enable_swipe_mobile: block.settings.enable_swipe_mobile,
+      custom_columns: block.settings.custom_columns,
+      custom_columns_desktop: block.settings.custom_columns_desktop,
+      custom_columns_mobile: block.settings.custom_columns_mobile,
+      gap_horizontal: block.settings.gap_horizontal,
+      gap_vertical: block.settings.gap_vertical,
+      gap_horizontal_mobile: block.settings.gap_horizontal_mobile,
+      gap_vertical_mobile: block.settings.gap_vertical_mobile,
+      show_placeholders: true,
+      show_placeholders_for_empty_collection: true,
+      placeholder_count: 8,
+      grid_class: 'product-list__items',
+      item_class: 'product-list__item',
+      items_data_attributes: 'data-product-list-items',
+      carousel_id: product_list_carousel_id,
+      aria_label: product_list_aria_label,
+      previous_selector: '[data-product-list-previous]',
+      next_selector: '[data-product-list-next]',
+      product_card_block: product_list_product_card_block
+    %}
+
+    {% if product_list_layout == 'carousel' %}
+      <div class="product-list__navigation" data-product-list-navigation>
+        <button
+          class="btn btn-secondary btn--secondary btn--icon product-list__carousel-button"
+          type="button"
+          data-product-list-previous
+          aria-label="{{ 'collection_tabs.previous' | t | escape }}"
+        >
+          {% render 'icon', icon: 'chevron-left', bare: true %}
+        </button>
+        <button
+          class="btn btn-secondary btn--secondary btn--icon product-list__carousel-button"
+          type="button"
+          data-product-list-next
+          aria-label="{{ 'collection_tabs.next' | t | escape }}"
+        >
+          {% render 'icon', icon: 'chevron-right', bare: true %}
+        </button>
+      </div>
+    {% endif %}
+  </div>
 </div>
 
 {% comment %}
@@ -63,6 +98,19 @@
   .product-list {
     width: 100%;
     min-width: 0;
+  }
+
+  .product-list__carousel {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .product-list__navigation {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-block-start: 1rem;
   }
 {% endstylesheet %}
 

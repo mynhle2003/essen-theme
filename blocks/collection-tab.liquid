@@ -83,6 +83,8 @@
   assign collection_tab_id = block.id | default: 'collection-tab'
   assign collection_tab_trigger_id = 'CollectionTabTrigger-' | append: collection_tab_id
   assign collection_tab_panel_id = 'CollectionTabPanel-' | append: collection_tab_id
+  assign collection_tab_carousel_id = 'CollectionTabCarousel-' | append: collection_tab_id
+  assign collection_tab_pagination_class = 'collection-tab__pagination collection-tab__pagination--' | append: collection_tab_pagination_type
 
   assign collection_tab_has_products = false
   if collection_tab_collection != blank and collection_tab_collection.products != blank
@@ -158,8 +160,15 @@
           grid_class: 'collection-tab__products',
           item_class: 'collection-tab__product',
           items_data_attributes: 'data-collection-tab-products',
-          product_carousel: true,
           next_slide_preview: section.settings.show_next_slide_preview_on_desktop,
+          carousel_id: collection_tab_carousel_id,
+          aria_label: collection_tab_label,
+          previous_selector: '[data-collection-carousel-previous]',
+          next_selector: '[data-collection-carousel-next]',
+          show_pagination: collection_tab_show_pagination,
+          pagination_type: collection_tab_pagination_type,
+          pagination_class: collection_tab_pagination_class,
+          pagination_style: collection_tab_pagination_style,
           product_card_block: collection_tab_product_card_block
         %}
 
@@ -195,53 +204,6 @@
           </div>
         {% endif %}
 
-        {% if collection_tab_show_pagination %}
-          <div
-            class="collection-tab__pagination collection-tab__pagination--{{ collection_tab_pagination_type }}"
-            data-collection-carousel-pagination
-            style="{{ collection_tab_pagination_style }}"
-          >
-            {% if collection_tab_pagination_type == 'progress_bar' %}
-              <span
-                class="collection-tab__pagination-track"
-                role="progressbar"
-                aria-label="{{ 'accessibility.pagination' | t | escape }}"
-                aria-valuemin="0"
-                aria-valuemax="100"
-                aria-valuenow="0"
-                data-collection-carousel-progress
-              >
-                <span class="collection-tab__pagination-fill" data-collection-carousel-progress-fill></span>
-              </span>
-            {% else %}
-              <div class="collection-tab__pagination-bullets" role="tablist" aria-label="{{ 'accessibility.pagination' | t | escape }}">
-                {% if collection_tab_collection != blank and collection_tab_collection.products != blank %}
-                  {% for collection_tab_item in collection_tab_collection.products limit: collection_tab_max_products %}
-                    <button
-                      class="collection-tab__pagination-bullet"
-                      type="button"
-                      role="tab"
-                      aria-label="{{ 'accessibility.pagination' | t | escape }} {{ forloop.index }}"
-                      aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
-                      data-collection-carousel-page="{{ forloop.index0 }}"
-                    ></button>
-                  {% endfor %}
-                {% elsif collection_tab_collection == blank and request.design_mode %}
-                  {% for collection_tab_placeholder_index in (1..collection_tab_max_products) %}
-                  <button
-                    class="collection-tab__pagination-bullet"
-                    type="button"
-                    role="tab"
-                    aria-label="{{ 'accessibility.pagination' | t | escape }} {{ forloop.index }}"
-                    aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
-                    data-collection-carousel-page="{{ forloop.index0 }}"
-                  ></button>
-                  {% endfor %}
-                {% endif %}
-              </div>
-            {% endif %}
-          </div>
-        {% endif %}
       </div>
     {% endif %}
 
@@ -268,12 +230,6 @@
     position: relative;
     width: 100%;
     min-width: 0;
-  }
-
-  @media (min-width: 768px) {
-    .product-collection-grid--carousel[data-next-slide-preview='true'] {
-      grid-auto-columns: calc(var(--product-collection-grid-item-width-desktop) * 0.9);
-    }
   }
 
   .collection-tab__carousel-navigation {
@@ -310,29 +266,26 @@
   }
 
   .collection-tab__pagination {
+    position: relative !important;
+    inset: auto !important;
     display: flex;
+    align-items: center;
     justify-content: center;
     width: 100%;
-    padding-top: var(--collection-tab-pagination-top-padding, 50px);
+    margin-block: var(--collection-tab-pagination-top-padding, 50px) 0;
+    transform: none !important;
   }
 
-  .collection-tab__pagination-track {
-    display: block;
-    width: min(100%, var(--collection-tab-pagination-max-width, 100%));
+  .collection-tab__pagination--progress_bar.swiper-pagination-progressbar {
     height: 2px;
-    overflow: hidden;
     background: color-mix(in srgb, var(--body-color) 20%, transparent);
   }
 
-  .collection-tab__pagination-fill {
-    display: block;
-    width: var(--collection-tab-pagination-progress, 0%);
-    height: 100%;
+  .collection-tab__pagination--progress_bar .swiper-pagination-progressbar-fill {
     background: var(--body-color);
-    transition: width var(--motion-duration-standard) var(--motion-ease-standard);
   }
 
-  .collection-tab__pagination-bullets {
+  .collection-tab__pagination--bullets {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -340,17 +293,14 @@
     width: min(100%, var(--collection-tab-pagination-max-width, 100%));
   }
 
-  .collection-tab__pagination-bullet {
+  .collection-tab__pagination--bullets .swiper-pagination-bullet {
     width: 0.5rem;
     height: 0.5rem;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
     background: color-mix(in srgb, var(--body-color) 30%, transparent);
-    cursor: pointer;
+    margin: 0;
   }
 
-  .collection-tab__pagination-bullet[aria-selected='true'] {
+  .collection-tab__pagination--bullets .swiper-pagination-bullet-active {
     background: var(--body-color);
   }
 
@@ -367,14 +317,8 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .collection-tab__carousel-navigation--show_on_hover,
-    .collection-tab__pagination-fill {
+    .collection-tab__carousel-navigation--show_on_hover {
       transition: none;
-    }
-
-    .product-collection-grid--carousel {
-      scroll-behavior: auto;
-      scroll-snap-type: none;
     }
   }
 {% endstylesheet %}

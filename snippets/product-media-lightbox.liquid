@@ -2,6 +2,7 @@
   Renders the Product media lightbox owned by the Product media block.
 
   @param {product} product - Product whose media is displayed
+  @param {string} [id] - Optional stable Swiper root ID
 {% enddoc %}
 
 <dialog class="product-media-lightbox" data-product-media-lightbox aria-label="{{ 'products.media_gallery' | t: product: product.title | escape }}">
@@ -23,20 +24,25 @@
       </button>
     {% endif %}
 
-    <div class="swiper product-media-lightbox__viewport" data-product-lightbox-swiper>
-      <div class="swiper-wrapper">
-        {% for media in product.media %}
-          {% if media.media_type == 'image' or media.preview_image != blank %}
-            {% assign lightbox_image = media.preview_image %}
-            {% if media.media_type == 'image' %}{% assign lightbox_image = media %}{% endif %}
-            {% assign lightbox_alt = media.alt | default: product.title %}
-            <figure class="swiper-slide product-media-lightbox__slide" data-product-lightbox-slide data-media-id="{{ media.id }}">
-              {{ lightbox_image | image_url: width: 3000 | image_tag: widths: '800, 1200, 1600, 2000, 2400, 3000', sizes: '100vw', loading: 'lazy', alt: lightbox_alt }}
-            </figure>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
+    {% capture product_media_lightbox_content %}
+      {% for media in product.media %}
+        {% if media.media_type == 'image' or media.preview_image != blank %}
+          {% assign lightbox_image = media.preview_image %}
+          {% if media.media_type == 'image' %}{% assign lightbox_image = media %}{% endif %}
+          {% assign lightbox_alt = media.alt | default: product.title %}
+          <figure class="swiper-slide product-media-lightbox__slide" data-product-lightbox-slide data-media-id="{{ media.id }}">
+            {{ lightbox_image | image_url: width: 3000 | image_tag: widths: '800, 1200, 1600, 2000, 2400, 3000', sizes: '100vw', loading: 'lazy', alt: lightbox_alt }}
+          </figure>
+        {% endif %}
+      {% endfor %}
+    {% endcapture %}
+
+    {% render 'swiper-carousel',
+      id: id,
+      content: product_media_lightbox_content,
+      root_class: 'product-media-lightbox__viewport',
+      root_attributes: 'data-product-lightbox-swiper'
+    %}
 
     {% if product.media.size > 1 %}
       <button class="product-media-lightbox__navigation product-media-lightbox__navigation--next icon-button" type="button" aria-label="{{ 'products.next_media' | t | escape }}" data-product-lightbox-next>

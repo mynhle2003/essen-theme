@@ -1,0 +1,18 @@
+.swiper-carousel--grid {
+  overflow: visible;
+}
+
+.swiper-carousel--grid > .swiper-wrapper {
+  display: grid;
+  grid-template-columns: repeat(var(--swiper-carousel-grid-columns, 1), minmax(0, 1fr));
+  gap: var(--swiper-carousel-grid-gap, var(--layout-grid-gap, 1.6rem));
+  transform: none !important;
+}
+
+.swiper-carousel--grid > .swiper-wrapper > .swiper-slide {
+  width: auto !important;
+}
+
+.swiper-carousel--grid > .swiper-pagination {
+  display: none;
+}

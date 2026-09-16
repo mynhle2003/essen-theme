@@ -1,4 +1,5 @@
-import { A11y, EffectFade, Pagination, Swiper, Thumbs } from './swiper-loader.js';
+import { EffectFade, Pagination, Thumbs } from './swiper-loader.js';
+import { createSwiperCarousel, destroySwiperCarousel } from './swiper-carousel.js';
 
 class ProductMediaGallery extends HTMLElement {
   connectedCallback() {
@@ -61,8 +62,8 @@ class ProductMediaGallery extends HTMLElement {
   }
 
   destroyGallery() {
-    this.mainSwiper?.destroy(true, true);
-    this.thumbnailSwiper?.destroy(true, true);
+    destroySwiperCarousel(this.mainSwiper);
+    destroySwiperCarousel(this.thumbnailSwiper);
     this.mainSwiper = null;
     this.thumbnailSwiper = null;
     this.activeGalleryMode = null;
@@ -95,8 +96,7 @@ class ProductMediaGallery extends HTMLElement {
     const gap = Number.parseFloat(getComputedStyle(this).getPropertyValue(gapProperty)) || 0;
 
     if (showThumbnails && this.thumbnailElement) {
-      this.thumbnailSwiper = new Swiper(this.thumbnailElement, {
-        modules: [A11y],
+      this.thumbnailSwiper = createSwiperCarousel(this.thumbnailElement, {
         slidesPerView: 'auto',
         spaceBetween: gap,
         direction: !isMobile && this.dataset.desktopLayout === 'left_thumbnails' ? 'vertical' : 'horizontal',
@@ -107,12 +107,17 @@ class ProductMediaGallery extends HTMLElement {
     }
 
     const pagination = this.querySelector('[data-product-media-pagination]');
-    this.mainSwiper = new Swiper(main, {
-      modules: showPagination ? [A11y, Pagination, Thumbs] : [A11y, Thumbs],
+    this.mainSwiper = createSwiperCarousel(main, {
+      modules: showPagination ? [Pagination, Thumbs] : [Thumbs],
       slidesPerView: 1,
       spaceBetween: gap,
       speed: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 300,
       watchOverflow: true,
+      controls: {
+        scope: this,
+        previous: '[data-product-media-previous]',
+        next: '[data-product-media-next]'
+      },
       ...(showPagination && pagination ? { pagination: { el: pagination, clickable: true } } : {}),
       ...(this.thumbnailSwiper ? { thumbs: { swiper: this.thumbnailSwiper, autoScrollOffset: 1 } } : {}),
       a11y: { enabled: true },
@@ -141,24 +146,8 @@ class ProductMediaGallery extends HTMLElement {
   }
 
   handleClick(event) {
-    if (event.target.closest('[data-product-media-previous]')) {
-      this.mainSwiper?.slidePrev();
-      return;
-    }
-    if (event.target.closest('[data-product-media-next]')) {
-      this.mainSwiper?.slideNext();
-      return;
-    }
     if (event.target.closest('[data-product-lightbox-close]')) {
       this.lightbox?.close();
-      return;
-    }
-    if (event.target.closest('[data-product-lightbox-previous]')) {
-      this.lightboxSwiper?.slidePrev();
-      return;
-    }
-    if (event.target.closest('[data-product-lightbox-next]')) {
-      this.lightboxSwiper?.slideNext();
       return;
     }
 
@@ -226,11 +215,16 @@ class ProductMediaGallery extends HTMLElement {
 
     const viewport = this.querySelector('[data-product-lightbox-swiper]');
     if (!viewport) return;
-    this.lightboxSwiper = new Swiper(viewport, {
-      modules: [A11y, EffectFade],
+    this.lightboxSwiper = createSwiperCarousel(viewport, {
+      modules: [EffectFade],
       effect: 'fade',
       fadeEffect: { crossFade: true },
       speed: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 240,
+      controls: {
+        scope: this.lightbox,
+        previous: '[data-product-lightbox-previous]',
+        next: '[data-product-lightbox-next]'
+      },
       a11y: { enabled: true },
     });
     const index = Array.from(this.lightboxSwiper.slides).findIndex(
@@ -249,7 +243,7 @@ class ProductMediaGallery extends HTMLElement {
   }
 
   destroyLightbox(restoreFocus = true) {
-    this.lightboxSwiper?.destroy(true, true);
+    destroySwiperCarousel(this.lightboxSwiper);
     this.lightboxSwiper = null;
     document.documentElement.classList.remove('product-media-lightbox-open');
     if (restoreFocus && this.lightboxOpener?.isConnected) this.lightboxOpener.focus();
