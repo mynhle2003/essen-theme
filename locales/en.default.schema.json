@@ -635,7 +635,8 @@
     },
     "section_width": {
       "page_width": "Page width",
-      "full_width": "Full width"
+      "full_width": "Full width",
+      "full_width_no_padding": "Full width (No padding)"
     },
     "section_height": {
       "auto": "Auto",

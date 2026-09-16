@@ -1,8 +1,12 @@
 {% liquid
   assign image_cards_container_width = 'page-width'
+  assign image_cards_container_no_padding = false
   case section.settings.section_width
     when 'full_width'
       assign image_cards_container_width = 'full-width'
+    when 'full_width_no_padding'
+      assign image_cards_container_width = 'full-width'
+      assign image_cards_container_no_padding = true
   endcase
 
   assign image_cards_height_mode = section.settings.height | default: 'auto'
@@ -91,7 +95,7 @@
 
 {% if section.blocks.size > 0 or request.design_mode %}
   <div
-    class="section-spacing image-cards-section image-cards-section--height-{{ image_cards_height_mode }} image-cards-section--direction-{{ image_cards_direction }} image-cards-section--mobile-direction-{{ image_cards_mobile_direction }} color-scheme section-color-scope {{ image_cards_scheme }}{% if image_cards_height_mode == 'auto' and image_cards_all_fill_desktop %} image-cards-section--auto-fill-desktop{% endif %}{% if image_cards_height_mode == 'auto' and image_cards_all_fill_mobile %} image-cards-section--auto-fill-mobile{% endif %}"
+    class="section-spacing image-cards-section image-cards-section--height-{{ image_cards_height_mode }} image-cards-section--direction-{{ image_cards_direction }} image-cards-section--mobile-direction-{{ image_cards_mobile_direction }} color-scheme section-color-scope {{ image_cards_scheme }}{% if image_cards_container_no_padding %} image-cards-section--no-padding{% endif %}{% if image_cards_height_mode == 'auto' and image_cards_all_fill_desktop %} image-cards-section--auto-fill-desktop{% endif %}{% if image_cards_height_mode == 'auto' and image_cards_all_fill_mobile %} image-cards-section--auto-fill-mobile{% endif %}"
     {% if image_cards_style != blank %}style="{{ image_cards_style }}"{% endif %}
   >
     {% if section.settings.background_image != blank %}
@@ -100,7 +104,7 @@
       </div>
     {% endif %}
 
-    <div class="container {{ image_cards_container_width }} image-cards-section__container">
+    <div class="container {{ image_cards_container_width }} image-cards-section__container{% if image_cards_container_no_padding %} image-cards-section__container--no-padding{% endif %}">
       <div class="image-cards-section__grid">
         {% content_for 'blocks' %}
       </div>
@@ -118,6 +122,10 @@
     padding-top: var(--image-cards-padding-top, 0px);
     padding-bottom: var(--image-cards-padding-bottom, 0px);
     background-color: var(--image-cards-background-color, var(--background-color));
+  }
+
+  .image-cards-section--no-padding {
+    padding-inline: 0;
   }
 
   .image-cards-section__background {
@@ -144,6 +152,10 @@
     position: relative;
     z-index: 1;
     height: 100%;
+  }
+
+  .image-cards-section .container.image-cards-section__container--no-padding {
+    padding-inline: 0;
   }
 
   .image-cards-section__grid {
@@ -242,6 +254,10 @@
         {
           "value": "full_width",
           "label": "t:options.section_width.full_width"
+        },
+        {
+          "value": "full_width_no_padding",
+          "label": "t:options.section_width.full_width_no_padding"
         }
       ],
       "default": "page_width"
