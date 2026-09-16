@@ -20,9 +20,9 @@ const getCarouselScope = (carousel) =>
   carousel.parentElement ||
   carousel;
 
-const getSlidesPerView = (value, showPreview) => {
+const getSlidesPerView = (value) => {
   const slidesPerView = Math.min(6, toNumber(value, 1));
-  return showPreview ? slidesPerView + 0.15 : slidesPerView;
+  return Math.max(1, Math.floor(slidesPerView));
 };
 
 const getPaginationType = (value) => (value === 'progress_bar' ? 'progressbar' : 'bullets');
@@ -49,15 +49,14 @@ const getFirstDataValue = (elements, key) => {
 };
 
 const buildOptions = (carousel, scope) => {
-  const showPreview = carousel.dataset.nextSlidePreview === 'true';
   const pagination = carousel.querySelector('[data-product-collection-pagination]');
   const paginationType = getPaginationType(pagination?.dataset.paginationType || carousel.dataset.swiperPaginationType);
   const options = {
-    slidesPerView: getSlidesPerView(carousel.dataset.swiperColumnsMobile, false),
+    slidesPerView: getSlidesPerView(carousel.dataset.swiperColumnsMobile),
     spaceBetween: toNumber(carousel.dataset.swiperGapMobile, 0),
     breakpoints: {
       [desktopBreakpoint]: {
-        slidesPerView: getSlidesPerView(carousel.dataset.swiperColumnsDesktop, showPreview),
+        slidesPerView: getSlidesPerView(carousel.dataset.swiperColumnsDesktop),
         spaceBetween: toNumber(carousel.dataset.swiperGapDesktop, 0),
       },
     },

@@ -14,8 +14,8 @@
     "appearance": "Appearance",
     "block": "Block",
     "basic": "Basic",
-    "cards": "Cards",
     "border": "Border",
+    "cards": "Cards",
     "button": "Button",
     "buttons": "Buttons",
     "button_1": "Button 1",
@@ -64,6 +64,7 @@
     "divider": "Divider",
     "image": "Image",
     "image_card": "Image card",
+    "image_cards": "Image cards",
     "icon": "Icon",
     "video": "Video",
     "footer": "Footer",
@@ -307,7 +308,6 @@
     "desktop_columns": "Desktop columns",
     "tablet_columns": "Tablet columns",
     "mobile_columns": "Mobile columns",
-    "custom_columns": "Custom columns",
     "label_spacing": "Label spacing",
     "only_show_selected_variant_media": "Only show media of the selected variant",
     "helper_text": "Helper text",
@@ -607,8 +607,7 @@
       "one": "1",
       "two": "2",
       "three": "3",
-      "four": "4",
-      "custom": "Custom"
+      "four": "4"
     },
     "column_width": {
       "fill": "Fill",
@@ -637,6 +636,11 @@
     "section_width": {
       "page_width": "Page width",
       "full_width": "Full width"
+    },
+    "section_height": {
+      "auto": "Auto",
+      "full_screen": "Full screen",
+      "custom": "Custom"
     },
     "collection_navigation_position": {
       "outside": "Outside",

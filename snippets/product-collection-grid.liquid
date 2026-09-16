@@ -10,9 +10,6 @@
   @param {string} [columns_desktop] - Desktop column setting
   @param {string} [columns_mobile] - Mobile column setting
   @param {boolean} [enable_swipe_mobile] - Whether to enable mobile swipe
-  @param {boolean} [custom_columns] - Whether custom column counts are active
-  @param {number} [custom_columns_desktop] - Custom desktop columns
-  @param {number} [custom_columns_mobile] - Custom mobile columns
   @param {number} [gap_horizontal] - Desktop horizontal gap in pixels
   @param {number} [gap_vertical] - Desktop vertical gap in pixels
   @param {number} [gap_horizontal_mobile] - Mobile horizontal gap in pixels
@@ -23,7 +20,7 @@
   @param {string} [grid_class] - Additional class for the grid root
   @param {string} [item_class] - Additional class for each grid item
   @param {string} [items_data_attributes] - Additional grid data attributes
-  @param {boolean} [next_slide_preview] - Whether to expose the desktop preview setting
+  @param {boolean} [next_slide_preview] - Whether to reveal the next slide on desktop
   @param {string} [carousel_id] - Stable ID for the carousel root
   @param {string} [aria_label] - Accessible name for the carousel
   @param {string} [previous_selector] - CSS selector for the previous control
@@ -70,10 +67,6 @@
 
   assign product_collection_grid_columns_desktop = columns_desktop | default: 3 | plus: 0
   assign product_collection_grid_columns_mobile = columns_mobile | default: 1 | plus: 0
-  if custom_columns
-    assign product_collection_grid_columns_desktop = custom_columns_desktop | default: product_collection_grid_columns_desktop | plus: 0
-    assign product_collection_grid_columns_mobile = custom_columns_mobile | default: product_collection_grid_columns_mobile | plus: 0
-  endif
   if product_collection_grid_columns_desktop < 1 or product_collection_grid_columns_desktop > 6
     assign product_collection_grid_columns_desktop = 3
   endif
@@ -212,7 +205,6 @@
       data-product-collection-grid
       data-layout="carousel"
       data-product-carousel
-      data-next-slide-preview="{% if next_slide_preview %}true{% else %}false{% endif %}"
       data-swiper-columns-desktop="{{ product_collection_grid_columns_desktop }}"
       data-swiper-columns-mobile="{{ product_collection_grid_columns_mobile }}"
       data-swiper-gap-desktop="{{ product_collection_grid_gap_horizontal }}"
@@ -243,6 +235,7 @@
       root_attributes: product_collection_grid_carousel_attributes,
       aria_label: product_collection_grid_aria_label,
       pagination: product_collection_grid_pagination,
+      show_next_slide_preview: next_slide_preview,
       autoplay: autoplay,
       pause_on_hover: autoplay_pause_on_hover,
       autoplay_delay: autoplay_delay

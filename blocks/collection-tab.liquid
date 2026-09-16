@@ -57,12 +57,22 @@
   endunless
 
   assign collection_tab_navigation_style = section.settings.navigation_style | default: 'secondary'
-  unless collection_tab_navigation_style == 'primary' or collection_tab_navigation_style == 'secondary' or collection_tab_navigation_style == 'tertiary'
+  if collection_tab_navigation_style == 'tertiary'
+    assign collection_tab_navigation_style = 'icon_only'
+  endif
+  unless collection_tab_navigation_style == 'primary' or collection_tab_navigation_style == 'secondary' or collection_tab_navigation_style == 'icon_only'
     assign collection_tab_navigation_style = 'secondary'
   endunless
 
+  assign collection_tab_navigation_button_variant = collection_tab_navigation_style
+  assign collection_tab_navigation_button_modifier = blank
+  if collection_tab_navigation_style == 'icon_only'
+    assign collection_tab_navigation_button_variant = 'tertiary'
+    assign collection_tab_navigation_button_modifier = 'swiper-nav-button--icon-only'
+  endif
+
   assign collection_tab_navigation_icon = section.settings.navigation_icon | default: 'chevron'
-  unless collection_tab_navigation_icon == 'chevron' or collection_tab_navigation_icon == 'arrow'
+  unless collection_tab_navigation_icon == 'chevron' or collection_tab_navigation_icon == 'arrow' or collection_tab_navigation_icon == 'long_arrow'
     assign collection_tab_navigation_icon = 'chevron'
   endunless
 
@@ -71,10 +81,35 @@
     assign collection_tab_navigation_behavior = 'show_on_hover'
   endunless
 
+  assign collection_tab_layout_direction = section.settings.layout_direction | default: 'vertical'
+  unless collection_tab_layout_direction == 'horizontal' or collection_tab_layout_direction == 'vertical'
+    assign collection_tab_layout_direction = 'vertical'
+  endunless
+
+  assign collection_tab_tab_position = section.settings.tab_position | default: 'left'
+  unless collection_tab_tab_position == 'left' or collection_tab_tab_position == 'center' or collection_tab_tab_position == 'right'
+    assign collection_tab_tab_position = 'left'
+  endunless
+
+  assign collection_tab_navigation_in_controls = false
+  if collection_tab_layout == 'carousel' and section.settings.show_navigation_on_desktop and collection_tab_layout_direction == 'vertical' and collection_tab_tab_position == 'left' and collection_tab_navigation_position == 'outside' and collection_tab_navigation_style == 'icon_only' and collection_tab_navigation_behavior == 'always'
+    assign collection_tab_navigation_in_controls = true
+  endif
+
   assign collection_tab_pagination_type = section.settings.pagination_type | default: 'progress_bar'
   unless collection_tab_pagination_type == 'progress_bar' or collection_tab_pagination_type == 'bullets'
     assign collection_tab_pagination_type = 'progress_bar'
   endunless
+
+  assign collection_tab_pagination_size = 'var(--swiper-pagination-progressbar-size, 4px)'
+  if collection_tab_pagination_type == 'bullets'
+    assign collection_tab_pagination_size = 'var(--swiper-pagination-bullet-size, 0.5rem)'
+  endif
+
+  assign collection_tab_pagination_limit_width = false
+  if collection_tab_pagination_type == 'progress_bar' and section.settings.pagination_limit_width
+    assign collection_tab_pagination_limit_width = true
+  endif
 
   assign collection_tab_pagination_top_padding = section.settings.pagination_top_padding | default: 50 | plus: 0
   if collection_tab_pagination_top_padding < 0 or collection_tab_pagination_top_padding > 100
@@ -90,6 +125,9 @@
   if collection_tab_layout == 'carousel' and section.settings.show_navigation_on_desktop
     assign collection_tab_show_navigation = true
   endif
+  if collection_tab_navigation_in_controls
+    assign collection_tab_show_navigation = false
+  endif
 
   assign collection_tab_show_pagination = false
   if collection_tab_layout == 'carousel' and section.settings.show_pagination_on_desktop
@@ -100,7 +138,7 @@
   assign collection_tab_trigger_id = 'CollectionTabTrigger-' | append: collection_tab_id
   assign collection_tab_panel_id = 'CollectionTabPanel-' | append: collection_tab_id
   assign collection_tab_carousel_id = 'CollectionTabCarousel-' | append: collection_tab_id
-  assign collection_tab_pagination_class = 'collection-tab__pagination collection-tab__pagination--' | append: collection_tab_pagination_type
+  assign collection_tab_pagination_class = 'swiper-pagination--below collection-tab__pagination collection-tab__pagination--' | append: collection_tab_pagination_type
 
   assign collection_tab_has_products = false
   if collection_tab_collection != blank and collection_tab_collection.products != blank
@@ -116,10 +154,15 @@
 %}
 
 {% capture collection_tab_pagination_style %}
-  --collection-tab-pagination-top-padding: {{ collection_tab_pagination_top_padding }}px;
-  {% if section.settings.pagination_limit_width %}--collection-tab-pagination-max-width: {{ collection_tab_pagination_max_width }}px;{% endif %}
+  --swiper-pagination-spacing: {{ collection_tab_pagination_top_padding }}px;
+  {% if collection_tab_pagination_limit_width %}--swiper-pagination-width: min(100%, {{ collection_tab_pagination_max_width }}px);{% endif %}
 {% endcapture %}
 {% assign collection_tab_pagination_style = collection_tab_pagination_style | strip %}
+
+{% capture collection_tab_navigation_center_style %}
+  {% if collection_tab_show_pagination %}--swiper-navigation-center-offset: calc(({{ collection_tab_pagination_top_padding }}px + {{ collection_tab_pagination_size }}) / 2);{% endif %}
+{% endcapture %}
+{% assign collection_tab_navigation_center_style = collection_tab_navigation_center_style | strip %}
 
 <div
   class="collection-tab"
@@ -167,9 +210,6 @@
           layout_type: collection_tab_layout,
           columns_desktop: section.settings.columns_desktop,
           columns_mobile: section.settings.columns_mobile,
-          custom_columns: section.settings.custom_columns,
-          custom_columns_desktop: section.settings.custom_columns_desktop,
-          custom_columns_mobile: section.settings.custom_columns_mobile,
           gap_horizontal: section.settings.product_gap_desktop,
           gap_vertical: section.settings.product_gap_desktop,
           gap_horizontal_mobile: section.settings.product_gap_mobile,
@@ -188,37 +228,33 @@
           pagination_type: collection_tab_pagination_type,
           pagination_class: collection_tab_pagination_class,
           pagination_style: collection_tab_pagination_style,
+          autoplay: collection_tab_autoplay_enabled,
+          autoplay_pause_on_hover: collection_tab_autoplay_pause_on_hover,
+          autoplay_delay: collection_tab_autoplay_delay,
           product_card_block: collection_tab_product_card_block
         %}
 
         {% if collection_tab_show_navigation %}
           <div
-            class="collection-tab__carousel-navigation collection-tab__carousel-navigation--{{ collection_tab_navigation_position }} collection-tab__carousel-navigation--{{ collection_tab_navigation_behavior }}"
+            class="swiper-carousel__navigation--centered collection-tab__carousel-navigation collection-tab__carousel-navigation--{{ collection_tab_navigation_position }} collection-tab__carousel-navigation--{{ collection_tab_navigation_behavior }}"
             data-collection-carousel-navigation
+            {% if collection_tab_navigation_center_style != blank %}style="{{ collection_tab_navigation_center_style }}"{% endif %}
           >
             <button
-              class="btn btn-{{ collection_tab_navigation_style }} btn--{{ collection_tab_navigation_style }} btn--icon collection-tab__carousel-button"
+              class="btn btn-{{ collection_tab_navigation_button_variant }} btn--{{ collection_tab_navigation_button_variant }} btn--icon{% if collection_tab_navigation_button_modifier != blank %} {{ collection_tab_navigation_button_modifier }}{% endif %} swiper-nav-button swiper-nav-button--prev collection-tab__carousel-button"
               type="button"
               data-collection-carousel-previous
               aria-label="{{ 'collection_tabs.previous' | t | escape }}"
             >
-              {% if collection_tab_navigation_icon == 'arrow' %}
-                {% render 'icon', icon: 'arrow-left', bare: true %}
-              {% else %}
-                {% render 'icon', icon: 'chevron-left', bare: true %}
-              {% endif %}
+              {% render 'carousel-navigation-icon', icon: collection_tab_navigation_icon, direction: 'previous' %}
             </button>
             <button
-              class="btn btn-{{ collection_tab_navigation_style }} btn--{{ collection_tab_navigation_style }} btn--icon collection-tab__carousel-button"
+              class="btn btn-{{ collection_tab_navigation_button_variant }} btn--{{ collection_tab_navigation_button_variant }} btn--icon{% if collection_tab_navigation_button_modifier != blank %} {{ collection_tab_navigation_button_modifier }}{% endif %} swiper-nav-button swiper-nav-button--next collection-tab__carousel-button"
               type="button"
               data-collection-carousel-next
               aria-label="{{ 'collection_tabs.next' | t | escape }}"
             >
-              {% if collection_tab_navigation_icon == 'arrow' %}
-                {% render 'icon', icon: 'arrow-right', bare: true %}
-              {% else %}
-                {% render 'icon', icon: 'chevron-right', bare: true %}
-              {% endif %}
+              {% render 'carousel-navigation-icon', icon: collection_tab_navigation_icon, direction: 'next' %}
             </button>
           </div>
         {% endif %}
@@ -254,7 +290,6 @@
   .collection-tab__carousel-navigation {
     position: absolute;
     z-index: 1;
-    top: 50%;
     right: 0;
     left: 0;
     display: flex;
@@ -266,8 +301,15 @@
   }
 
   .collection-tab__carousel-navigation--outside {
-    right: -0.5rem;
-    left: -0.5rem;
+    padding-inline: 0;
+  }
+
+  .collection-tab__carousel-navigation--outside .swiper-nav-button--prev {
+    margin-inline-start: calc(-1 * var(--swiper-nav-size) / 2);
+  }
+
+  .collection-tab__carousel-navigation--outside .swiper-nav-button--next {
+    margin-inline-end: calc(-1 * var(--swiper-nav-size) / 2);
   }
 
   .collection-tab__carousel-navigation--show_on_hover {
@@ -284,43 +326,21 @@
     pointer-events: auto;
   }
 
-  .collection-tab__pagination {
-    position: relative !important;
-    inset: auto !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    margin-block: var(--collection-tab-pagination-top-padding, 50px) 0;
-    transform: none !important;
-  }
-
-  .collection-tab__pagination--progress_bar.swiper-pagination-progressbar {
-    height: 2px;
-    background: color-mix(in srgb, var(--body-color) 20%, transparent);
-  }
-
-  .collection-tab__pagination--progress_bar .swiper-pagination-progressbar-fill {
-    background: var(--body-color);
+  .collection-tab__pagination--progress_bar {
+    --swiper-pagination-progressbar-bg-color: color-mix(in srgb, var(--body-color) 20%, transparent);
+    --swiper-pagination-color: var(--body-color);
   }
 
   .collection-tab__pagination--bullets {
+    --swiper-pagination-bullet-size: 0.5rem;
+    --swiper-pagination-bullet-horizontal-gap: 0;
+    --swiper-pagination-bullet-inactive-color: color-mix(in srgb, var(--body-color) 30%, transparent);
+    --swiper-pagination-bullet-inactive-opacity: 1;
+    --swiper-pagination-color: var(--body-color);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    width: min(100%, var(--collection-tab-pagination-max-width, 100%));
-  }
-
-  .collection-tab__pagination--bullets .swiper-pagination-bullet {
-    width: 0.5rem;
-    height: 0.5rem;
-    background: color-mix(in srgb, var(--body-color) 30%, transparent);
-    margin: 0;
-  }
-
-  .collection-tab__pagination--bullets .swiper-pagination-bullet-active {
-    background: var(--body-color);
   }
 
   .collection-tab__empty {

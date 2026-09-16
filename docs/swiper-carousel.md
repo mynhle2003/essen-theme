@@ -50,6 +50,35 @@ and `autoplay_delay` to `swiper-carousel`; it exposes the normalized values as
 motion preferences, pauses on hover when configured, and uses the delay in
 milliseconds.
 
+Navigation buttons use the shared `swiper-nav-button` class with optional
+`swiper-nav-button--prev`, `swiper-nav-button--next`, and
+`swiper-nav-button--icon-only` modifiers. The icon-only modifier lets the
+button fit its rendered SVG instead of using the default navigation control
+size. Global
+`--swiper-nav-size`, `--swiper-nav-size-mobile`, and `--swiper-nav-icon-size`
+control the button and SVG dimensions. The button radius always follows
+`--navigation-radius`, while a component may override these variables on its
+carousel root when its navigation needs a different scale.
+
+Pagination consumes Swiper's `--swiper-pagination-progressbar-size` token for
+progress bars. Use pagination-specific custom properties on a component when
+its colors or bullet sizing need a local override; keep pagination width and
+placement in the owning component. Add `swiper-pagination--below` when the
+pagination should flow below the carousel; it provides shared position,
+spacing, width, and centering behavior through `--swiper-pagination-spacing`
+and `--swiper-pagination-width`. Use
+`swiper-carousel__navigation--centered` for overlay controls that should stay
+centered on the slide area when below-flow pagination is present; set
+`--swiper-navigation-center-offset` to the pagination flow offset.
+
+Pass `show_next_slide_preview: true` to `swiper-carousel` when a desktop
+carousel should reveal the next item. The shared contract keeps the numeric
+`slidesPerView` value at the configured column count and uses the component
+viewport's controlled visual overflow to reveal a 15% preview
+(`--swiper-carousel-preview-size`), so the visible items retain their
+configured column width. The preview is desktop-only and does not affect grid
+layouts or mobile slide counts.
+
 ## JavaScript
 
 Use the shared factory from a section or feature module:

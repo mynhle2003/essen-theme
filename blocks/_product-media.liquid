@@ -158,10 +158,10 @@
       {% endif %}
 
       {% if media_product.media.size > 1 %}
-        <button class="product-media-gallery__navigation product-media-gallery__navigation--previous icon-button" type="button" aria-label="{{ 'products.previous_media' | t | escape }}" data-product-media-previous>
+        <button class="product-media-gallery__navigation product-media-gallery__navigation--previous icon-button swiper-nav-button swiper-nav-button--prev" type="button" aria-label="{{ 'products.previous_media' | t | escape }}" data-product-media-previous>
           {% render 'icon', icon: 'chevron-left', bare: true %}
         </button>
-        <button class="product-media-gallery__navigation product-media-gallery__navigation--next icon-button" type="button" aria-label="{{ 'products.next_media' | t | escape }}" data-product-media-next>
+        <button class="product-media-gallery__navigation product-media-gallery__navigation--next icon-button swiper-nav-button swiper-nav-button--next" type="button" aria-label="{{ 'products.next_media' | t | escape }}" data-product-media-next>
           {% render 'icon', icon: 'chevron-right', bare: true %}
         </button>
       {% endif %}

@@ -326,6 +326,7 @@
 {% javascript %}
 (() => {
   const instances = new WeakMap();
+  const EXTERNAL_NAVIGATION_EVENTS = ['afterInit', 'fromEdge', 'lock', 'resize', 'slideChange', 'toEdge', 'unlock', 'update'];
 
   const synchronizeEntries = (state) => {
     const existingEntries = new Map(state.entries.map((entry) => [entry.tab, entry]));
@@ -436,6 +437,56 @@
     viewAll.setAttribute('tabindex', '-1');
   };
 
+  const getExternalNavigation = (state) => state.scope.querySelector('[data-collection-tabs-navigation]');
+
+  const getActiveCarousel = (state) =>
+    state.activeEntry?.tab.querySelector('[data-product-carousel][data-layout="carousel"]') || null;
+
+  const updateExternalNavigation = (state) => {
+    const navigation = getExternalNavigation(state);
+    if (!navigation) {
+      state.externalNavigationCleanup?.();
+      state.externalNavigationCleanup = null;
+      state.externalNavigationSwiper = null;
+      return;
+    }
+
+    const previous = navigation.querySelector('[data-collection-tabs-navigation-previous]');
+    const next = navigation.querySelector('[data-collection-tabs-navigation-next]');
+    const swiper = getActiveCarousel(state)?.swiper;
+    const activeSwiper = swiper && !swiper.destroyed ? swiper : null;
+
+    if (state.externalNavigationSwiper !== activeSwiper) {
+      state.externalNavigationCleanup?.();
+      state.externalNavigationCleanup = null;
+      state.externalNavigationSwiper = activeSwiper;
+
+      if (activeSwiper && typeof activeSwiper.on === 'function') {
+        const update = () => updateExternalNavigation(state);
+        EXTERNAL_NAVIGATION_EVENTS.forEach((eventName) => activeSwiper.on(eventName, update));
+        state.externalNavigationCleanup = () => {
+          EXTERNAL_NAVIGATION_EVENTS.forEach((eventName) => activeSwiper.off(eventName, update));
+        };
+      }
+    }
+
+    const isLocked = !activeSwiper || Boolean(activeSwiper.isLocked);
+    const isLooping = Boolean(activeSwiper?.params?.loop);
+    [
+      [previous, isLocked || (!isLooping && Boolean(activeSwiper?.isBeginning))],
+      [next, isLocked || (!isLooping && Boolean(activeSwiper?.isEnd))]
+    ].forEach(([control, disabled]) => {
+      if (!control) return;
+      control.disabled = disabled;
+      control.setAttribute('aria-disabled', String(disabled));
+      if (activeSwiper?.el?.id) {
+        control.setAttribute('aria-controls', activeSwiper.el.id);
+      } else {
+        control.removeAttribute('aria-controls');
+      }
+    });
+  };
+
   const setActiveTab = (state, selectedId, shouldFocus, shouldAnimate) => {
     synchronizeEntries(state);
     const selectedEntry = state.entries.find((entry) => entry.trigger.dataset.tabId === selectedId) || state.entries[0];
@@ -454,6 +505,7 @@
     state.activeEntry = selectedEntry;
     state.layout.dataset.tabLayoutActive = selectedEntry.trigger.dataset.tabId;
     updateViewAll(state, selectedEntry.trigger);
+    updateExternalNavigation(state);
     if (shouldFocus) selectedEntry.trigger.focus();
 
     if (shouldAnimate && previousEntry && previousEntry !== selectedEntry) {
@@ -491,7 +543,9 @@
       controller,
       observer: null,
       panelAnimation: null,
-      synchronizationQueued: false
+      synchronizationQueued: false,
+      externalNavigationSwiper: null,
+      externalNavigationCleanup: null
     };
 
     synchronizeEntries(state);
@@ -502,7 +556,12 @@
 
     if (typeof MutationObserver !== 'undefined') {
       state.observer = new MutationObserver(() => scheduleSynchronization(state));
-      state.observer.observe(scope, { childList: true, subtree: true });
+      state.observer.observe(scope, {
+        attributes: true,
+        attributeFilter: ['data-swiper-ready'],
+        childList: true,
+        subtree: true
+      });
     }
 
     scope.addEventListener('click', (event) => {
@@ -510,6 +569,23 @@
       if (target && scope.contains(target)) {
         setActiveTab(state, target.dataset.tabId, false, true);
         return;
+      }
+    }, { signal: controller.signal });
+
+    scope.addEventListener('click', (event) => {
+      const target = event.target instanceof Element
+        ? event.target.closest('[data-collection-tabs-navigation-previous], [data-collection-tabs-navigation-next]')
+        : null;
+      if (!target || !scope.contains(target)) return;
+
+      const swiper = state.externalNavigationSwiper || getActiveCarousel(state)?.swiper;
+      if (!swiper || swiper.destroyed || target.disabled || target.getAttribute('aria-disabled') === 'true') return;
+
+      event.preventDefault();
+      if (target.matches('[data-collection-tabs-navigation-previous]')) {
+        swiper.slidePrev();
+      } else {
+        swiper.slideNext();
       }
     }, { signal: controller.signal });
 
@@ -549,6 +625,9 @@
       const state = instances.get(layout);
       if (!state) return;
 
+      state.externalNavigationCleanup?.();
+      state.externalNavigationCleanup = null;
+      state.externalNavigationSwiper = null;
       state.controller.abort();
       state.observer?.disconnect();
       state.panelAnimation?.cancel();

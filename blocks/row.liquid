@@ -11,14 +11,14 @@
 {% liquid
   assign row_columns_desktop = block.settings.columns_desktop | default: '3'
   case row_columns_desktop
+    when '1'
+      assign row_columns_desktop = 1
     when '2'
       assign row_columns_desktop = 2
     when '3'
       assign row_columns_desktop = 3
     when '4'
       assign row_columns_desktop = 4
-    when 'custom'
-      assign row_columns_desktop = block.settings.columns_desktop_custom | default: 3 | plus: 0
     else
       assign row_columns_desktop = 3
   endcase
@@ -36,8 +36,6 @@
       assign row_columns_tablet = 3
     when '4'
       assign row_columns_tablet = 4
-    when 'custom'
-      assign row_columns_tablet = block.settings.columns_tablet_custom | default: 2 | plus: 0
     else
       assign row_columns_tablet = 2
   endcase
@@ -53,8 +51,6 @@
       assign row_columns_mobile = 2
     when '3'
       assign row_columns_mobile = 3
-    when 'custom'
-      assign row_columns_mobile = block.settings.columns_mobile_custom | default: 1 | plus: 0
     else
       assign row_columns_mobile = 1
   endcase
@@ -220,22 +216,12 @@
       "id": "columns_desktop",
       "label": "t:labels.desktop_columns",
       "options": [
+        { "value": "1", "label": "t:options.row_columns.one" },
         { "value": "2", "label": "t:options.row_columns.two" },
         { "value": "3", "label": "t:options.row_columns.three" },
-        { "value": "4", "label": "t:options.row_columns.four" },
-        { "value": "custom", "label": "t:options.row_columns.custom" }
+        { "value": "4", "label": "t:options.row_columns.four" }
       ],
       "default": "3"
-    },
-    {
-      "type": "range",
-      "id": "columns_desktop_custom",
-      "label": "t:labels.custom_columns",
-      "min": 1,
-      "max": 6,
-      "step": 1,
-      "default": 3,
-      "visible_if": "{{ block.settings.columns_desktop == 'custom' }}"
     },
     {
       "type": "select",
@@ -245,20 +231,9 @@
         { "value": "1", "label": "t:options.row_columns.one" },
         { "value": "2", "label": "t:options.row_columns.two" },
         { "value": "3", "label": "t:options.row_columns.three" },
-        { "value": "4", "label": "t:options.row_columns.four" },
-        { "value": "custom", "label": "t:options.row_columns.custom" }
+        { "value": "4", "label": "t:options.row_columns.four" }
       ],
       "default": "2"
-    },
-    {
-      "type": "range",
-      "id": "columns_tablet_custom",
-      "label": "t:labels.custom_columns",
-      "min": 1,
-      "max": 6,
-      "step": 1,
-      "default": 2,
-      "visible_if": "{{ block.settings.columns_tablet == 'custom' }}"
     },
     {
       "type": "select",
@@ -267,20 +242,9 @@
       "options": [
         { "value": "1", "label": "t:options.row_columns.one" },
         { "value": "2", "label": "t:options.row_columns.two" },
-        { "value": "3", "label": "t:options.row_columns.three" },
-        { "value": "custom", "label": "t:options.row_columns.custom" }
+        { "value": "3", "label": "t:options.row_columns.three" }
       ],
       "default": "1"
-    },
-    {
-      "type": "range",
-      "id": "columns_mobile_custom",
-      "label": "t:labels.custom_columns",
-      "min": 1,
-      "max": 6,
-      "step": 1,
-      "default": 1,
-      "visible_if": "{{ block.settings.columns_mobile == 'custom' }}"
     },
     {
       "type": "range",
