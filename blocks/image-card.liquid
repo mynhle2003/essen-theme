@@ -16,7 +16,7 @@
   assign image_card_size_desktop = '100vw'
   if image_card_width_desktop_mode == 'custom'
     assign image_card_width_desktop_value = block.settings.width_custom_desktop | default: 100 | plus: 0
-    if image_card_width_desktop_value < 1 or image_card_width_desktop_value > 100
+    if image_card_width_desktop_value < 10 or image_card_width_desktop_value > 100
       assign image_card_width_desktop_value = 100
     endif
     assign image_card_width_desktop = image_card_width_desktop_value | append: '%'
@@ -37,7 +37,7 @@
   assign image_card_size_mobile = '100vw'
   if image_card_width_mobile_mode == 'custom'
     assign image_card_width_mobile_value = block.settings.width_custom_mobile | default: 100 | plus: 0
-    if image_card_width_mobile_value < 1 or image_card_width_mobile_value > 100
+    if image_card_width_mobile_value < 10 or image_card_width_mobile_value > 100
       assign image_card_width_mobile_value = 100
     endif
     assign image_card_width_mobile = image_card_width_mobile_value | append: '%'
@@ -137,6 +137,12 @@
   if block.settings.enable_sticky
     assign image_card_class = image_card_class | append: ' image-card--sticky'
   endif
+  if image_card_width_desktop_mode == 'custom'
+    assign image_card_class = image_card_class | append: ' image-card--width-desktop-custom'
+  endif
+  if image_card_width_mobile_mode == 'custom'
+    assign image_card_class = image_card_class | append: ' image-card--width-mobile-custom'
+  endif
   assign image_card_class = image_card_class | append: ' image-card--height-desktop-' | append: image_card_height_desktop
   assign image_card_class = image_card_class | append: ' image-card--height-mobile-' | append: image_card_height_mobile
   assign image_card_class = image_card_class | append: ' image-card--position-desktop-' | append: image_card_position_desktop
@@ -219,6 +225,10 @@
     background-color: var(--background-color);
     color: var(--body-color);
     isolation: isolate;
+  }
+
+  .image-card--width-desktop-custom {
+    flex: 0 0 var(--image-card-width, 100%);
   }
 
   .image-card--height-desktop-ratio_4_5 {
@@ -364,6 +374,14 @@
       max-width: min(var(--image-card-max-width-mobile, var(--image-card-max-width, 100%)), 100%);
       aspect-ratio: var(--image-card-ratio-mobile, var(--image-card-ratio, 1));
       height: auto;
+    }
+
+    .image-card--width-desktop-custom {
+      flex: 0 1 auto;
+    }
+
+    .image-card--width-mobile-custom {
+      flex: 0 0 var(--image-card-width-mobile, var(--image-card-width, 100%));
     }
 
     .image-card--height-mobile-ratio_4_5 {
@@ -542,7 +560,7 @@
       "type": "range",
       "id": "width_custom_desktop",
       "label": "t:labels.desktop_custom_width",
-      "min": 1,
+      "min": 10,
       "max": 100,
       "step": 1,
       "unit": "%",
@@ -600,7 +618,7 @@
       "type": "range",
       "id": "width_custom_mobile",
       "label": "t:labels.mobile_custom_width",
-      "min": 1,
+      "min": 10,
       "max": 100,
       "step": 1,
       "unit": "%",
@@ -832,10 +850,43 @@
     {
       "name": "t:general.image_card",
       "category": "t:general.cards",
+      "settings": {
+        "padding_top": 32,
+        "padding_bottom": 32,
+        "padding_left": 32,
+        "padding_right": 32
+      },
       "blocks": [
-        { "type": "heading" },
-        { "type": "text" },
-        { "type": "button" }
+        {
+          "type": "eyebrow",
+          "settings": {
+            "text": "<p>Eyebrow</p>"
+          }
+        },
+        {
+          "type": "heading",
+          "settings": {
+            "text": "<p>Heading</p>",
+            "heading_size": "lg",
+            "html_tag": "h2"
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "button_label": "Button label",
+            "button_style": "primary",
+            "button_open_in_new_tab": false,
+            "show_icon": false,
+            "icon": "arrow",
+            "icon_position": "after",
+            "icon_size": "inherit",
+            "icon_width": 20,
+            "width": "fit",
+            "width_mobile": "fit",
+            "customize_mobile_padding": false
+          }
+        }
       ]
     }
   ]
