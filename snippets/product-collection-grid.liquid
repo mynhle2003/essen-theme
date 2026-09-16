@@ -32,6 +32,9 @@
   @param {string} [pagination_type] - Progress bar or bullets pagination
   @param {string} [pagination_class] - Additional pagination classes
   @param {string} [pagination_style] - Inline pagination custom properties
+  @param {boolean} [autoplay] - Whether the carousel auto-rotates
+  @param {boolean} [autoplay_pause_on_hover] - Whether pointer hover pauses autoplay
+  @param {number} [autoplay_delay] - Autoplay delay in milliseconds
   @param {object} [product_card_block] - Direct Product Card child settings and editor attributes
   @param {boolean} [product_card_override_enabled] - Whether to use legacy card setting overrides
   @param {boolean} [product_card_show_ranking_override] - Legacy card ranking override
@@ -239,7 +242,10 @@
       root_class: product_collection_grid_class,
       root_attributes: product_collection_grid_carousel_attributes,
       aria_label: product_collection_grid_aria_label,
-      pagination: product_collection_grid_pagination
+      pagination: product_collection_grid_pagination,
+      autoplay: autoplay,
+      pause_on_hover: autoplay_pause_on_hover,
+      autoplay_delay: autoplay_delay
     %}
   {% else %}
     <div

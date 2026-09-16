@@ -21,6 +21,9 @@
   @param {string} [grid_class] - Additional class for the grid root
   @param {string} [item_class] - Additional class for each grid item
   @param {string} [items_data_attributes] - Additional grid data attributes
+  @param {boolean} [autoplay] - Whether the carousel auto-rotates
+  @param {boolean} [autoplay_pause_on_hover] - Whether pointer hover pauses autoplay
+  @param {number} [autoplay_delay] - Autoplay delay in milliseconds
   @param {boolean} [product_card_override_enabled] - Whether to use legacy parent card settings
   @param {boolean} [product_card_show_ranking_override] - Legacy card ranking override
   @param {string} [product_card_color_type_override] - Legacy card color type override
@@ -56,6 +59,9 @@
   grid_class: grid_class,
   item_class: item_class,
   items_data_attributes: items_data_attributes,
+  autoplay: autoplay,
+  autoplay_pause_on_hover: autoplay_pause_on_hover,
+  autoplay_delay: autoplay_delay,
   product_card_block: product_collection_grid_card_block,
   product_card_override_enabled: product_card_override_enabled,
   product_card_show_ranking_override: product_card_show_ranking_override,

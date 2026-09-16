@@ -329,6 +329,8 @@
     "external_video_url": "External URL",
     "autoplay": "Autoplay",
     "auto_rotate_slides": "Auto-rotate slides",
+    "pause_on_hover": "Pause on hover",
+    "speed": "Speed",
     "loop_video": "Loop video",
     "cover_image": "Cover image",
     "aspect_ratio": "Aspect ratio",

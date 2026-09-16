@@ -39,6 +39,15 @@ const getControls = (carousel, scope) => {
   };
 };
 
+const getFirstDataValue = (elements, key) => {
+  for (const element of elements) {
+    const value = element?.dataset?.[key];
+    if (value !== undefined && value !== '') return value;
+  }
+
+  return null;
+};
+
 const buildOptions = (carousel, scope) => {
   const showPreview = carousel.dataset.nextSlidePreview === 'true';
   const pagination = carousel.querySelector('[data-product-collection-pagination]');
@@ -67,23 +76,37 @@ const buildOptions = (carousel, scope) => {
   return options;
 };
 
-const shouldAutoplay = (scope) =>
-  scope.matches('[data-collection-tab-carousel]') &&
-  scope.dataset.autoplay === 'true' &&
-  scope.closest('[data-collection-tabs]')?.dataset.autoplay === 'true' &&
-  !prefersReducedMotion();
+const getAutoplaySettings = (carousel, scope) => {
+  const section = scope.closest('[data-collection-tabs]');
+  const settingsSources = [carousel, scope, section];
+  const autoplay = getFirstDataValue(settingsSources, 'swiperAutoplay');
+  const pauseOnHover = getFirstDataValue(settingsSources, 'swiperAutoplayPauseOnHover');
+  const delay = getFirstDataValue(settingsSources, 'swiperAutoplayDelay');
+  const legacyAutoplay =
+    scope.matches('[data-collection-tab-carousel]') &&
+    scope.dataset.autoplay === 'true' &&
+    section?.dataset.autoplay === 'true';
+
+  return {
+    enabled: (autoplay === null ? legacyAutoplay : autoplay === 'true') && !prefersReducedMotion(),
+    pauseOnHover: pauseOnHover !== 'false',
+    delay: Math.min(60000, Math.max(1000, toNumber(delay, 4000))),
+  };
+};
 
 const isVisible = (element) => element.getClientRects().length > 0;
 
 const startAutoplay = (state) => {
-  if (!shouldAutoplay(state.scope)) return;
+  const autoplay = getAutoplaySettings(state.carousel, state.scope);
+  if (!autoplay.enabled) return;
 
   state.interval = window.setInterval(() => {
     if (
       document.hidden ||
       !isVisible(state.carousel) ||
-      state.scope.matches(':hover') ||
-      state.scope.contains(document.activeElement)
+      (autoplay.pauseOnHover && state.scope.matches(':hover')) ||
+      state.scope.contains(document.activeElement) ||
+      state.swiper.isLocked
     ) {
       return;
     }
@@ -93,7 +116,7 @@ const startAutoplay = (state) => {
     } else {
       state.swiper.slideNext();
     }
-  }, 5000);
+  }, autoplay.delay);
 };
 
 const observeVisibility = (state) => {

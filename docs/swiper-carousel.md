@@ -43,6 +43,13 @@ The built-in Product List block and Collection Tab block use the same
 grid, while `carousel` adds Swiper slide markup and delegates initialization to
 `product-collection-carousel.js`.
 
+Autoplay is an opt-in component contract. Pass `autoplay`, `pause_on_hover`,
+and `autoplay_delay` to `swiper-carousel`; it exposes the normalized values as
+`data-swiper-autoplay`, `data-swiper-autoplay-pause-on-hover`, and
+`data-swiper-autoplay-delay` on the Swiper root. The runtime respects reduced
+motion preferences, pauses on hover when configured, and uses the delay in
+milliseconds.
+
 ## JavaScript
 
 Use the shared factory from a section or feature module:

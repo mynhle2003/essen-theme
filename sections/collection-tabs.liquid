@@ -19,6 +19,27 @@
     assign collection_tabs_mobile_alignment = 'left'
   endunless
 
+  assign collection_tabs_layout_type = section.settings.layout_type | default: 'carousel'
+  unless collection_tabs_layout_type == 'grid' or collection_tabs_layout_type == 'carousel'
+    assign collection_tabs_layout_type = 'carousel'
+  endunless
+
+  assign collection_tabs_autoplay_enabled = false
+  if collection_tabs_layout_type == 'carousel' and section.settings.autoplay
+    assign collection_tabs_autoplay_enabled = true
+  endif
+
+  assign collection_tabs_autoplay_pause_on_hover = true
+  if section.settings.autoplay_pause_on_hover == false or section.settings.autoplay_pause_on_hover == 'false'
+    assign collection_tabs_autoplay_pause_on_hover = false
+  endif
+
+  assign collection_tabs_autoplay_speed = section.settings.autoplay_speed | default: 4 | plus: 0
+  if collection_tabs_autoplay_speed < 1 or collection_tabs_autoplay_speed > 10
+    assign collection_tabs_autoplay_speed = 4
+  endif
+  assign collection_tabs_autoplay_delay = collection_tabs_autoplay_speed | times: 1000
+
   assign collection_tabs_controls_alignment = 'flex-start'
   case collection_tabs_tab_position
     when 'center'
@@ -84,8 +105,11 @@
       data-collection-tabs-ready="false"
       data-layout-direction="{{ collection_tabs_layout_direction }}"
       data-controls-alignment="{{ collection_tabs_controls_alignment }}"
-      data-layout-type="{{ section.settings.layout_type | default: 'carousel' }}"
-      data-autoplay="{{ section.settings.autoplay }}"
+      data-layout-type="{{ collection_tabs_layout_type }}"
+      data-autoplay="{{ collection_tabs_autoplay_enabled }}"
+      data-swiper-autoplay="{{ collection_tabs_autoplay_enabled }}"
+      data-swiper-autoplay-pause-on-hover="{{ collection_tabs_autoplay_pause_on_hover }}"
+      data-swiper-autoplay-delay="{{ collection_tabs_autoplay_delay }}"
     >
       <div class="collection-tabs__controls" data-collection-tabs-controls>
         <div class="collection-tabs__controls-group">
@@ -594,6 +618,24 @@
       "visible_if": "{{ section.settings.layout_type == 'carousel' }}"
     },
     {
+      "type": "checkbox",
+      "id": "autoplay_pause_on_hover",
+      "label": "t:labels.pause_on_hover",
+      "default": true,
+      "visible_if": "{{ section.settings.layout_type == 'carousel' and section.settings.autoplay }}"
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "t:labels.speed",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 4,
+      "visible_if": "{{ section.settings.layout_type == 'carousel' and section.settings.autoplay }}"
+    },
+    {
       "type": "header",
       "content": "t:general.appearance"
     },
@@ -688,6 +730,8 @@
         "pagination_limit_width": true,
         "pagination_max_width": 260,
         "autoplay": false,
+        "autoplay_pause_on_hover": true,
+        "autoplay_speed": 4,
         "color_scheme": "scheme-1",
         "padding_top": 16,
         "padding_bottom": 32,

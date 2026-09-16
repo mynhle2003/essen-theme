@@ -30,6 +30,22 @@
     assign collection_tab_layout = 'carousel'
   endunless
 
+  assign collection_tab_autoplay_enabled = false
+  if collection_tab_layout == 'carousel' and section.settings.autoplay
+    assign collection_tab_autoplay_enabled = true
+  endif
+
+  assign collection_tab_autoplay_pause_on_hover = true
+  if section.settings.autoplay_pause_on_hover == false or section.settings.autoplay_pause_on_hover == 'false'
+    assign collection_tab_autoplay_pause_on_hover = false
+  endif
+
+  assign collection_tab_autoplay_speed = section.settings.autoplay_speed | default: 4 | plus: 0
+  if collection_tab_autoplay_speed < 1 or collection_tab_autoplay_speed > 10
+    assign collection_tab_autoplay_speed = 4
+  endif
+  assign collection_tab_autoplay_delay = collection_tab_autoplay_speed | times: 1000
+
   assign collection_tab_product_card_block = block.blocks | first
   if collection_tab_product_card_block != blank and collection_tab_product_card_block.blocks != blank
     assign collection_tab_product_card_block = collection_tab_product_card_block.blocks | first
@@ -140,7 +156,10 @@
         class="collection-tab__carousel"
         data-collection-tab-carousel
         data-tab-id="{{ collection_tab_id | escape }}"
-        data-autoplay="{{ section.settings.autoplay }}"
+        data-autoplay="{{ collection_tab_autoplay_enabled }}"
+        data-swiper-autoplay="{{ collection_tab_autoplay_enabled }}"
+        data-swiper-autoplay-pause-on-hover="{{ collection_tab_autoplay_pause_on_hover }}"
+        data-swiper-autoplay-delay="{{ collection_tab_autoplay_delay }}"
       >
         {% render 'product-collection-grid',
           collection: collection_tab_collection,
