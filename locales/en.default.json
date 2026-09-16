@@ -47,7 +47,8 @@
     "collection_tabs": "Collection tabs",
     "share": "Share",
     "link_copied": "Link copied.",
-    "share_error": "Unable to share."
+    "share_error": "Unable to share.",
+    "image_card_link": "Open image card"
   },
   "blog": {
     "article_comments": "Comments",

@@ -14,6 +14,7 @@
     "appearance": "Appearance",
     "block": "Block",
     "basic": "Basic",
+    "cards": "Cards",
     "border": "Border",
     "button": "Button",
     "buttons": "Buttons",
@@ -61,6 +62,7 @@
     "eyebrow": "P3 / Eyebrow",
     "divider": "Divider",
     "image": "Image",
+    "image_card": "Image card",
     "icon": "Icon",
     "video": "Video",
     "footer": "Footer",
@@ -315,7 +317,12 @@
     "image_ratio": "Image ratio",
     "custom_image_ratio": "Custom image ratio",
     "mobile_image": "Mobile image",
+    "mobile_video": "Mobile video",
     "show_image_first_mobile": "Show image first on mobile",
+    "show_overlay": "Show overlay",
+    "enable_sticky": "Enable sticky",
+    "desktop_position": "Desktop position",
+    "mobile_position": "Mobile position",
     "alt_text": "Alt text",
     "video_source": "Source",
     "video": "Video",
@@ -882,6 +889,16 @@
       "wide": "Wide - 16:9",
       "custom": "Custom"
     },
+    "image_card_height": {
+      "ratio_1_1": "Ratio (1:1)",
+      "ratio_4_5": "Ratio (4:5)",
+      "ratio_3_2": "Ratio (3:2)",
+      "ratio_4_3": "Ratio (4:3)",
+      "ratio_16_9": "Ratio (16:9)",
+      "ratio_2_3": "Ratio (2:3)",
+      "ratio_3_4": "Ratio (3:4)",
+      "ratio_9_16": "Ratio (9:16)"
+    },
     "video_source": {
       "uploaded": "Uploaded",
       "external_url": "External URL"
@@ -972,6 +989,17 @@
     "position": {
       "top": "Top",
       "bottom": "Bottom"
+    },
+    "image_card_position": {
+      "top_left": "Top left",
+      "top_center": "Top center",
+      "top_right": "Top right",
+      "center_left": "Center left",
+      "center_center": "Center",
+      "center_right": "Center right",
+      "bottom_left": "Bottom left",
+      "bottom_center": "Bottom center",
+      "bottom_right": "Bottom right"
     },
     "swatch_type": {
       "color": "Color",
