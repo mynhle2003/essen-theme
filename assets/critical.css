@@ -802,6 +802,17 @@ input[type='submit'].btn.btn--tertiary:hover {
   flex: 0 0 auto;
 }
 
+.swiper-nav-button--outline,
+.btn.swiper-nav-button--outline {
+  --button-border-width: max(1px, var(--button-secondary-border-width, 1px));
+  --button-border: var(--button-secondary-border, currentColor);
+  --button-background: transparent;
+  --button-foreground: var(--button-secondary-text, currentColor);
+  --button-hover-border: var(--button-secondary-hover-border, var(--button-border));
+  --button-hover-background: transparent;
+  --button-hover-foreground: var(--button-secondary-hover-text, var(--button-foreground));
+}
+
 .swiper-nav-button--icon-only,
 .btn.swiper-nav-button--icon-only {
   --swiper-nav-size: var(--swiper-nav-icon-size, var(--icon-size-medium));

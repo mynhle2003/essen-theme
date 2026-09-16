@@ -55,7 +55,7 @@
   if shop_the_look_products_navigation_style == 'tertiary'
     assign shop_the_look_products_navigation_style = 'icon_only'
   endif
-  unless shop_the_look_products_navigation_style == 'primary' or shop_the_look_products_navigation_style == 'secondary' or shop_the_look_products_navigation_style == 'icon_only'
+  unless shop_the_look_products_navigation_style == 'primary' or shop_the_look_products_navigation_style == 'secondary' or shop_the_look_products_navigation_style == 'outline' or shop_the_look_products_navigation_style == 'icon_only'
     assign shop_the_look_products_navigation_style = 'icon_only'
   endunless
 
@@ -64,6 +64,9 @@
   if shop_the_look_products_navigation_style == 'icon_only'
     assign shop_the_look_products_navigation_button_variant = 'tertiary'
     assign shop_the_look_products_navigation_button_modifier = 'swiper-nav-button--icon-only'
+  elsif shop_the_look_products_navigation_style == 'outline'
+    assign shop_the_look_products_navigation_button_variant = 'secondary'
+    assign shop_the_look_products_navigation_button_modifier = 'swiper-nav-button--outline'
   endif
 
   assign shop_the_look_products_navigation_icon = block.settings.navigation_icon | default: 'chevron'
@@ -705,6 +708,7 @@
       "options": [
         { "value": "primary", "label": "t:options.button_variant.primary" },
         { "value": "secondary", "label": "t:options.button_variant.secondary" },
+        { "value": "outline", "label": "t:options.button_variant.outline" },
         { "value": "icon_only", "label": "t:options.button_variant.icon_only" }
       ],
       "default": "icon_only",

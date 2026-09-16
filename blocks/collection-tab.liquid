@@ -60,7 +60,7 @@
   if collection_tab_navigation_style == 'tertiary'
     assign collection_tab_navigation_style = 'icon_only'
   endif
-  unless collection_tab_navigation_style == 'primary' or collection_tab_navigation_style == 'secondary' or collection_tab_navigation_style == 'icon_only'
+  unless collection_tab_navigation_style == 'primary' or collection_tab_navigation_style == 'secondary' or collection_tab_navigation_style == 'outline' or collection_tab_navigation_style == 'icon_only'
     assign collection_tab_navigation_style = 'secondary'
   endunless
 
@@ -69,6 +69,9 @@
   if collection_tab_navigation_style == 'icon_only'
     assign collection_tab_navigation_button_variant = 'tertiary'
     assign collection_tab_navigation_button_modifier = 'swiper-nav-button--icon-only'
+  elsif collection_tab_navigation_style == 'outline'
+    assign collection_tab_navigation_button_variant = 'secondary'
+    assign collection_tab_navigation_button_modifier = 'swiper-nav-button--outline'
   endif
 
   assign collection_tab_navigation_icon = section.settings.navigation_icon | default: 'chevron'
@@ -80,21 +83,6 @@
   unless collection_tab_navigation_behavior == 'show_on_hover' or collection_tab_navigation_behavior == 'always'
     assign collection_tab_navigation_behavior = 'show_on_hover'
   endunless
-
-  assign collection_tab_layout_direction = section.settings.layout_direction | default: 'vertical'
-  unless collection_tab_layout_direction == 'horizontal' or collection_tab_layout_direction == 'vertical'
-    assign collection_tab_layout_direction = 'vertical'
-  endunless
-
-  assign collection_tab_tab_position = section.settings.tab_position | default: 'left'
-  unless collection_tab_tab_position == 'left' or collection_tab_tab_position == 'center' or collection_tab_tab_position == 'right'
-    assign collection_tab_tab_position = 'left'
-  endunless
-
-  assign collection_tab_navigation_in_controls = false
-  if collection_tab_layout == 'carousel' and section.settings.show_navigation_on_desktop and collection_tab_layout_direction == 'vertical' and collection_tab_tab_position == 'left' and collection_tab_navigation_position == 'outside' and collection_tab_navigation_style == 'icon_only' and collection_tab_navigation_behavior == 'always'
-    assign collection_tab_navigation_in_controls = true
-  endif
 
   assign collection_tab_pagination_type = section.settings.pagination_type | default: 'progress_bar'
   unless collection_tab_pagination_type == 'progress_bar' or collection_tab_pagination_type == 'bullets'
@@ -124,9 +112,6 @@
   assign collection_tab_show_navigation = false
   if collection_tab_layout == 'carousel' and section.settings.show_navigation_on_desktop
     assign collection_tab_show_navigation = true
-  endif
-  if collection_tab_navigation_in_controls
-    assign collection_tab_show_navigation = false
   endif
 
   assign collection_tab_show_pagination = false

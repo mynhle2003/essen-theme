@@ -14,36 +14,6 @@
     assign collection_tabs_tab_position = 'left'
   endunless
 
-  assign collection_tabs_navigation_position = section.settings.navigation_position | default: 'inside'
-  unless collection_tabs_navigation_position == 'inside' or collection_tabs_navigation_position == 'outside'
-    assign collection_tabs_navigation_position = 'inside'
-  endunless
-
-  assign collection_tabs_navigation_style = section.settings.navigation_style | default: 'secondary'
-  if collection_tabs_navigation_style == 'tertiary'
-    assign collection_tabs_navigation_style = 'icon_only'
-  endif
-  unless collection_tabs_navigation_style == 'primary' or collection_tabs_navigation_style == 'secondary' or collection_tabs_navigation_style == 'icon_only'
-    assign collection_tabs_navigation_style = 'secondary'
-  endunless
-
-  assign collection_tabs_navigation_button_variant = collection_tabs_navigation_style
-  assign collection_tabs_navigation_button_modifier = blank
-  if collection_tabs_navigation_style == 'icon_only'
-    assign collection_tabs_navigation_button_variant = 'tertiary'
-    assign collection_tabs_navigation_button_modifier = 'swiper-nav-button--icon-only'
-  endif
-
-  assign collection_tabs_navigation_icon = section.settings.navigation_icon | default: 'chevron'
-  unless collection_tabs_navigation_icon == 'chevron' or collection_tabs_navigation_icon == 'arrow' or collection_tabs_navigation_icon == 'long_arrow'
-    assign collection_tabs_navigation_icon = 'chevron'
-  endunless
-
-  assign collection_tabs_navigation_behavior = section.settings.navigation_behavior | default: 'show_on_hover'
-  unless collection_tabs_navigation_behavior == 'show_on_hover' or collection_tabs_navigation_behavior == 'always'
-    assign collection_tabs_navigation_behavior = 'show_on_hover'
-  endunless
-
   assign collection_tabs_mobile_alignment = section.settings.mobile_alignment | default: 'left'
   unless collection_tabs_mobile_alignment == 'left' or collection_tabs_mobile_alignment == 'center' or collection_tabs_mobile_alignment == 'right'
     assign collection_tabs_mobile_alignment = 'left'
@@ -69,16 +39,6 @@
     assign collection_tabs_autoplay_speed = 4
   endif
   assign collection_tabs_autoplay_delay = collection_tabs_autoplay_speed | times: 1000
-
-  assign collection_tabs_show_navigation = false
-  if collection_tabs_layout_type == 'carousel' and section.settings.show_navigation_on_desktop
-    assign collection_tabs_show_navigation = true
-  endif
-
-  assign collection_tabs_navigation_in_controls = false
-  if collection_tabs_show_navigation and collection_tabs_layout_direction == 'vertical' and collection_tabs_tab_position == 'left' and collection_tabs_navigation_position == 'outside' and collection_tabs_navigation_style == 'icon_only' and collection_tabs_navigation_behavior == 'always'
-    assign collection_tabs_navigation_in_controls = true
-  endif
 
   assign collection_tabs_controls_alignment = 'flex-start'
   case collection_tabs_tab_position
@@ -145,8 +105,6 @@
       data-collection-tabs-ready="false"
       data-layout-direction="{{ collection_tabs_layout_direction }}"
       data-tab-position="{{ collection_tabs_tab_position }}"
-      data-navigation-position="{{ collection_tabs_navigation_position }}"
-      data-navigation-placement="{% if collection_tabs_navigation_in_controls %}controls{% else %}carousel{% endif %}"
       data-controls-alignment="{{ collection_tabs_controls_alignment }}"
       data-layout-type="{{ collection_tabs_layout_type }}"
       data-autoplay="{{ collection_tabs_autoplay_enabled }}"
@@ -161,29 +119,6 @@
         </div>
         <div class="collection-tabs__actions">
           {% content_for 'block', type: 'collection-tabs-view-all', id: 'collection-tabs-view-all' %}
-          {% if collection_tabs_navigation_in_controls %}
-            <div
-              class="collection-tabs__navigation collection-tabs__navigation--{{ collection_tabs_navigation_behavior }}"
-              data-collection-tabs-navigation
-            >
-              <button
-                class="btn btn-{{ collection_tabs_navigation_button_variant }} btn--{{ collection_tabs_navigation_button_variant }} btn--icon{% if collection_tabs_navigation_button_modifier != blank %} {{ collection_tabs_navigation_button_modifier }}{% endif %} swiper-nav-button swiper-nav-button--prev collection-tabs__navigation-button"
-                type="button"
-                data-collection-tabs-navigation-previous
-                aria-label="{{ 'collection_tabs.previous' | t | escape }}"
-              >
-                {% render 'carousel-navigation-icon', icon: collection_tabs_navigation_icon, direction: 'previous' %}
-              </button>
-              <button
-                class="btn btn-{{ collection_tabs_navigation_button_variant }} btn--{{ collection_tabs_navigation_button_variant }} btn--icon{% if collection_tabs_navigation_button_modifier != blank %} {{ collection_tabs_navigation_button_modifier }}{% endif %} swiper-nav-button swiper-nav-button--next collection-tabs__navigation-button"
-                type="button"
-                data-collection-tabs-navigation-next
-                aria-label="{{ 'collection_tabs.next' | t | escape }}"
-              >
-                {% render 'carousel-navigation-icon', icon: collection_tabs_navigation_icon, direction: 'next' %}
-              </button>
-            </div>
-          {% endif %}
         </div>
       </div>
       <div
@@ -303,35 +238,6 @@
       align-self: end;
     }
 
-    .collection-tabs__layout[data-navigation-placement='controls'] > .collection-tabs__controls > .collection-tabs__actions {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 0.5rem;
-      min-width: 0;
-    }
-
-    .collection-tabs__layout[data-navigation-placement='controls'] > .collection-tabs__controls > .collection-tabs__actions > .collection-tabs-view-all {
-      order: 1;
-    }
-
-    .collection-tabs__navigation {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      order: 2;
-    }
-
-    .collection-tabs__navigation--show_on_hover {
-      opacity: 0;
-      transition: opacity var(--motion-duration-standard) var(--motion-ease-standard);
-    }
-
-    .collection-tabs__controls:hover .collection-tabs__navigation--show_on_hover,
-    .collection-tabs__controls:focus-within .collection-tabs__navigation--show_on_hover {
-      opacity: 1;
-    }
-
     .collection-tabs__layout[data-layout-direction='horizontal'] {
       display: grid;
       grid-template-columns: minmax(220px, 0.3fr) minmax(0, 0.7fr);
@@ -408,9 +314,6 @@
       padding-bottom: var(--collection-tabs-padding-bottom-mobile, var(--collection-tabs-padding-bottom, 32px));
     }
 
-    .collection-tabs__navigation {
-      display: none;
-    }
   }
 {% endstylesheet %}
 
@@ -603,6 +506,7 @@
       "options": [
         { "value": "primary", "label": "t:options.button_variant.primary" },
         { "value": "secondary", "label": "t:options.button_variant.secondary" },
+        { "value": "outline", "label": "t:options.button_variant.outline" },
         { "value": "icon_only", "label": "t:options.button_variant.icon_only" }
       ],
       "default": "secondary",

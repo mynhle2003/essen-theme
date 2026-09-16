@@ -45,7 +45,7 @@
   if product_list_navigation_style == 'tertiary'
     assign product_list_navigation_style = 'icon_only'
   endif
-  unless product_list_navigation_style == 'primary' or product_list_navigation_style == 'secondary' or product_list_navigation_style == 'icon_only'
+  unless product_list_navigation_style == 'primary' or product_list_navigation_style == 'secondary' or product_list_navigation_style == 'outline' or product_list_navigation_style == 'icon_only'
     assign product_list_navigation_style = 'secondary'
   endunless
 
@@ -54,6 +54,9 @@
   if product_list_navigation_style == 'icon_only'
     assign product_list_navigation_button_variant = 'tertiary'
     assign product_list_navigation_button_modifier = 'swiper-nav-button--icon-only'
+  elsif product_list_navigation_style == 'outline'
+    assign product_list_navigation_button_variant = 'secondary'
+    assign product_list_navigation_button_modifier = 'swiper-nav-button--outline'
   endif
 
   assign product_list_navigation_icon = block.settings.navigation_icon | default: 'chevron'
@@ -412,6 +415,7 @@
       "options": [
         { "value": "primary", "label": "t:options.button_variant.primary" },
         { "value": "secondary", "label": "t:options.button_variant.secondary" },
+        { "value": "outline", "label": "t:options.button_variant.outline" },
         { "value": "icon_only", "label": "t:options.button_variant.icon_only" }
       ],
       "default": "secondary",

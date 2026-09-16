@@ -952,6 +952,7 @@
     "button_variant": {
       "primary": "Primary",
       "secondary": "Secondary",
+      "outline": "Outline",
       "icon_only": "Icon only",
       "tertiary": "Tertiary"
     },
