@@ -19,9 +19,33 @@
     assign icon_name = 'arrow-right'
   endunless
 
+  assign icon_translation_name = icon_name | replace: '-', '_'
+  case icon_name
+    when 'menu'
+      assign icon_translation_name = 'bars_3'
+    when 'chevron'
+      assign icon_translation_name = 'chevron_down'
+    when 'close'
+      assign icon_translation_name = 'x_mark'
+    when 'search'
+      assign icon_translation_name = 'magnifying_glass'
+    when 'bag'
+      assign icon_translation_name = 'shopping_bag'
+    when 'shipping'
+      assign icon_translation_name = 'truck'
+    when 'discount'
+      assign icon_translation_name = 'tag'
+    when 'remove'
+      assign icon_translation_name = 'trash'
+    when 'note'
+      assign icon_translation_name = 'document_text'
+    when 'coupon'
+      assign icon_translation_name = 'receipt_percent'
+  endcase
+
   assign icon_label = blank
   if icon_source == 'library'
-    assign icon_label_key = 'accessibility.icon_' | append: icon_name
+    assign icon_label_key = 'accessibility.icon_' | append: icon_translation_name
     assign icon_label = icon_label_key | t
   endif
 
