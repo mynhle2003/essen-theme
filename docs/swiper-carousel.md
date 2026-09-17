@@ -60,6 +60,13 @@ control the button and SVG dimensions. The button radius always follows
 `--navigation-radius`, while a component may override these variables on its
 carousel root when its navigation needs a different scale.
 
+For shared hover navigation, add `swiper-carousel__container` to the wrapper
+that contains the Swiper viewport and navigation, then add
+`swiper-carousel__navigation--show_on_hover` to the navigation element. On
+hover-capable desktop devices, the shared stylesheet fades the buttons in and
+slides them inward by half their configured size; touch layouts keep the
+controls available without requiring hover.
+
 Pagination consumes Swiper's `--swiper-pagination-progressbar-size` token for
 progress bars. Use pagination-specific custom properties on a component when
 its colors or bullet sizing need a local override; keep pagination width and

@@ -186,3 +186,44 @@
 .swiper-carousel__navigation--centered {
   top: calc(50% - var(--swiper-navigation-center-offset, 0px));
 }
+
+@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+  .swiper-carousel__container > .swiper-carousel__navigation--show_on_hover .swiper-nav-button {
+    --swiper-navigation-hover-translate: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(var(--swiper-navigation-hover-translate));
+    transition: all var(--motion-duration-standard) var(--motion-ease-standard);
+  }
+
+  .swiper-carousel__container > .swiper-carousel__navigation--show_on_hover .swiper-nav-button--prev {
+    --swiper-navigation-hover-translate: calc(-1 * var(--swiper-nav-size) / 2);
+  }
+
+  .swiper-carousel__container > .swiper-carousel__navigation--show_on_hover .swiper-nav-button--next {
+    --swiper-navigation-hover-translate: calc(var(--swiper-nav-size) / 2);
+  }
+
+  .swiper-carousel__container:is(:hover, :focus-within) > .swiper-carousel__navigation--show_on_hover .swiper-nav-button,
+  .swiper-carousel__container > .swiper-carousel__navigation--show_on_hover .swiper-nav-button:is(:hover, :focus-visible) {
+    --swiper-navigation-hover-translate: 0;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .swiper-carousel__container:hover > .swiper-carousel__navigation--show_on_hover .swiper-nav-button.swiper-button-lock {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .swiper-carousel__container:hover > .swiper-carousel__navigation--show_on_hover .swiper-nav-button.swiper-button-disabled:not(.swiper-button-lock) {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swiper-carousel__container > .swiper-carousel__navigation--show_on_hover .swiper-nav-button {
+    transition: none;
+    transform: none;
+  }
+}

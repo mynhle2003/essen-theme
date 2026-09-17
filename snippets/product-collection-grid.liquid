@@ -1,8 +1,9 @@
 {% doc %}
   Renders the shared responsive product collection grid used by Product List
   and Collection Tab. Parents provide the resource and setting source; this
-  renderer owns normalization, placeholders, columns, gaps, item markup, and
-  the canonical Product Card snippet.
+  renderer owns normalization, placeholders, columns, gaps and the shared
+  carousel/grid shell. Callers can provide pre-rendered item content when a
+  nested theme block must own each item.
 
   @param {object} [collection] - Collection resource to render
   @param {number} [max_products] - Maximum number of products to render
@@ -32,6 +33,7 @@
   @param {boolean} [autoplay] - Whether the carousel auto-rotates
   @param {boolean} [autoplay_pause_on_hover] - Whether pointer hover pauses autoplay
   @param {number} [autoplay_delay] - Autoplay delay in milliseconds
+  @param {string} [items_content] - Optional pre-rendered item markup. When provided, the caller owns item rendering.
   @param {object} [product_card_block] - Direct Product Card child settings and editor attributes
   @param {boolean} [product_card_override_enabled] - Whether to use legacy card setting overrides
   @param {boolean} [product_card_show_ranking_override] - Legacy card ranking override
@@ -188,7 +190,10 @@
 {% endcapture %}
 {% assign product_collection_grid_style = product_collection_grid_style | strip %}
 
-{% if product_collection_grid_items != blank %}
+{% assign product_collection_grid_content = blank %}
+{% if items_content != blank %}
+  {% assign product_collection_grid_content = items_content %}
+{% elsif product_collection_grid_items != blank %}
   {% capture product_collection_grid_content %}
     {% for product_collection_grid_item in product_collection_grid_items limit: product_collection_grid_item_limit %}
       {% liquid
@@ -211,7 +216,9 @@
       </div>
     {% endfor %}
   {% endcapture %}
+{% endif %}
 
+{% if product_collection_grid_content != blank %}
   {% if product_collection_grid_layout == 'carousel' %}
     {% capture product_collection_grid_carousel_attributes %}
       data-product-collection-grid

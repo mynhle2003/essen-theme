@@ -182,7 +182,7 @@
   data-layout="{{ shop_the_look_products_layout }}"
   {{ block.shopify_attributes }}
 >
-  <div class="shop-the-look-products__carousel">
+  <div class="shop-the-look-products__carousel swiper-carousel__container">
     {% if shop_the_look_products_layout == 'carousel' %}
       {% capture shop_the_look_products_carousel_attributes %}
         data-product-collection-grid
@@ -222,7 +222,7 @@
 
     {% if shop_the_look_products_layout == 'carousel' and shop_the_look_products_show_navigation %}
       <div
-        class="swiper-carousel__navigation--centered shop-the-look-products__navigation shop-the-look-products__navigation--{{ shop_the_look_products_navigation_position }} shop-the-look-products__navigation--{{ shop_the_look_products_navigation_behavior }}"
+        class="swiper-carousel__navigation--centered swiper-carousel__navigation--{{ shop_the_look_products_navigation_behavior }} shop-the-look-products__navigation shop-the-look-products__navigation--{{ shop_the_look_products_navigation_position }} shop-the-look-products__navigation--{{ shop_the_look_products_navigation_behavior }}"
         data-shop-the-look-navigation
         {% if shop_the_look_products_navigation_center_style != blank %}style="{{ shop_the_look_products_navigation_center_style }}"{% endif %}
       >
@@ -307,16 +307,6 @@
     margin-inline-end: calc(-1 * var(--swiper-nav-size) / 2);
   }
 
-  .shop-the-look-products__navigation--show_on_hover {
-    opacity: 0;
-    transition: opacity var(--motion-duration-standard) var(--motion-ease-standard);
-  }
-
-  .shop-the-look-products__carousel:hover .shop-the-look-products__navigation--show_on_hover,
-  .shop-the-look-products__carousel:focus-within .shop-the-look-products__navigation--show_on_hover {
-    opacity: 1;
-  }
-
   .shop-the-look-products__navigation-button {
     pointer-events: auto;
   }
@@ -338,11 +328,6 @@
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .shop-the-look-products__navigation--show_on_hover {
-      transition: none;
-    }
-  }
 {% endstylesheet %}
 
 {% javascript %}

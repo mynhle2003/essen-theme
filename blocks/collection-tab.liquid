@@ -1,10 +1,8 @@
 {% doc %}
   Renders one collection tab in a Collection Cards section. The block owns
-  the collection resource and tab label. Product Card is the only fixed direct
+  the collection resource and tab label. Product Card is the only fixed static
   child, rendered once per product in the selected collection; section settings
-  own the shared product-list presentation. Collection Tab intentionally has no
-  dynamic child-block slot, so Product Card cannot be added, duplicated, or
-  reordered and remains the final child in the composition.
+  own the shared product-list presentation.
 
   @example
   {% content_for 'block', type: 'collection-tab', id: 'collection-tab' %}
@@ -45,11 +43,6 @@
     assign collection_tab_autoplay_speed = 4
   endif
   assign collection_tab_autoplay_delay = collection_tab_autoplay_speed | times: 1000
-
-  assign collection_tab_product_card_block = block.blocks | first
-  if collection_tab_product_card_block != blank and collection_tab_product_card_block.blocks != blank
-    assign collection_tab_product_card_block = collection_tab_product_card_block.blocks | first
-  endif
 
   assign collection_tab_navigation_position = section.settings.navigation_position | default: 'inside'
   unless collection_tab_navigation_position == 'inside' or collection_tab_navigation_position == 'outside'
@@ -138,6 +131,18 @@
     assign collection_tab_has_products = true
   endif
 
+  assign collection_tab_items = blank
+  assign collection_tab_item_limit = collection_tab_max_products
+  assign collection_tab_is_placeholder = false
+  if collection_tab_has_products
+    assign collection_tab_items = collection_tab_collection.products
+  elsif collection_tab_collection == blank and request.design_mode
+    assign collection_tab_placeholder_count = collection_tab_max_products
+    assign collection_tab_items = (1..collection_tab_placeholder_count)
+    assign collection_tab_item_limit = collection_tab_placeholder_count
+    assign collection_tab_is_placeholder = true
+  endif
+
   assign collection_tab_show_grid = false
   if collection_tab_has_products
     assign collection_tab_show_grid = true
@@ -145,6 +150,24 @@
     assign collection_tab_show_grid = true
   endif
 %}
+
+{% capture collection_tab_items_content %}
+  {% if collection_tab_items != blank %}
+    {% for collection_tab_item in collection_tab_items limit: collection_tab_item_limit %}
+      {% liquid
+        assign collection_tab_card_product = collection_tab_item
+        assign collection_tab_card_placeholder = false
+        if collection_tab_is_placeholder
+          assign collection_tab_card_product = blank
+          assign collection_tab_card_placeholder = true
+        endif
+      %}
+      <div class="{% if collection_tab_layout == 'carousel' %}swiper-slide {% endif %}product-collection-grid__item product-card-layout__item collection-tab__product">
+        {% content_for 'block', type: 'product-card', id: 'product-card', product: collection_tab_card_product, closest.product: collection_tab_card_product, placeholder: collection_tab_card_placeholder %}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endcapture %}
 
 {% capture collection_tab_pagination_style %}
   {% if collection_tab_show_pagination %}
@@ -192,7 +215,7 @@
   >
     {% if collection_tab_show_grid %}
       <div
-        class="collection-tab__carousel"
+        class="collection-tab__carousel swiper-carousel__container"
         data-collection-tab-carousel
         data-tab-id="{{ collection_tab_id | escape }}"
         data-autoplay="{{ collection_tab_autoplay_enabled }}"
@@ -227,12 +250,12 @@
           autoplay: collection_tab_autoplay_enabled,
           autoplay_pause_on_hover: collection_tab_autoplay_pause_on_hover,
           autoplay_delay: collection_tab_autoplay_delay,
-          product_card_block: collection_tab_product_card_block
+          items_content: collection_tab_items_content
         %}
 
         {% if collection_tab_show_navigation %}
           <div
-            class="swiper-carousel__navigation--centered collection-tab__carousel-navigation collection-tab__carousel-navigation--{{ collection_tab_navigation_position }} collection-tab__carousel-navigation--{{ collection_tab_navigation_behavior }}"
+            class="swiper-carousel__navigation--centered swiper-carousel__navigation--{{ collection_tab_navigation_behavior }} collection-tab__carousel-navigation collection-tab__carousel-navigation--{{ collection_tab_navigation_position }} collection-tab__carousel-navigation--{{ collection_tab_navigation_behavior }}"
             data-collection-carousel-navigation
             {% if collection_tab_navigation_center_style != blank %}style="{{ collection_tab_navigation_center_style }}"{% endif %}
           >
@@ -263,7 +286,6 @@
     {% endif %}
   </div>
 </div>
-
 {% stylesheet %}
   .collection-tab {
     min-width: 0;
@@ -308,16 +330,6 @@
     margin-inline-end: calc(-1 * var(--swiper-nav-size) / 2);
   }
 
-  .collection-tab__carousel-navigation--show_on_hover {
-    opacity: 0;
-    transition: opacity var(--motion-duration-standard) var(--motion-ease-standard);
-  }
-
-  .collection-tab__carousel:hover .collection-tab__carousel-navigation--show_on_hover,
-  .collection-tab__carousel:focus-within .collection-tab__carousel-navigation--show_on_hover {
-    opacity: 1;
-  }
-
   .collection-tab__carousel-button {
     pointer-events: auto;
   }
@@ -333,26 +345,15 @@
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .collection-tab__carousel-navigation--show_on_hover {
-      transition: none;
-    }
-  }
 {% endstylesheet %}
-
-{% comment %}
-  Keep the static Product Card target discoverable to Theme Check and the
-  Theme Editor. The shared renderer uses the direct child settings for every
-  item because content_for is not available inside snippets.
-{% endcomment %}
-{% if false %}
-  {% content_for 'block', type: 'product-card', id: 'product-card' %}
-{% endif %}
 
 {% schema %}
 {
-  "name": "t:general.collection_tab",
+  "name": "t:general.collection_card",
   "tag": null,
+  "blocks": [
+    { "type": "product-card" }
+  ],
   "settings": [
     {
       "type": "text",
@@ -367,7 +368,7 @@
   ],
   "presets": [
     {
-      "name": "t:general.collection_tab",
+      "name": "t:general.collection_card",
       "category": "t:general.collection",
       "settings": {
         "label": "",

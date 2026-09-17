@@ -31,9 +31,11 @@ const buildSwiperOptions = (options) => {
   };
 };
 
-const setControlState = (control, disabled) => {
+const setControlState = (control, disabled, locked = false) => {
   if ('disabled' in control) control.disabled = disabled;
   control.setAttribute('aria-disabled', String(disabled));
+  control.classList.toggle('swiper-button-disabled', disabled && !locked);
+  control.classList.toggle('swiper-button-lock', locked);
 };
 
 const getSwiperFromTarget = (target) => {
@@ -66,11 +68,11 @@ export const bindSwiperControls = (swiper, controls = {}) => {
     const nextDisabled = isLocked || (!isLooping && swiper.isEnd);
 
     previousControls.forEach((control) => {
-      setControlState(control, previousDisabled);
+      setControlState(control, previousDisabled, isLocked);
       if (swiper.el.id) control.setAttribute('aria-controls', swiper.el.id);
     });
     nextControls.forEach((control) => {
-      setControlState(control, nextDisabled);
+      setControlState(control, nextDisabled, isLocked);
       if (swiper.el.id) control.setAttribute('aria-controls', swiper.el.id);
     });
   };

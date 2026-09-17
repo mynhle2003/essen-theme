@@ -1,6 +1,6 @@
 {% doc %}
-  Renders a responsive product collection using one controlled Product Card
-  child for every product. The block owns the collection query, item count,
+  Renders a responsive product collection using one static Product Card theme
+  block for every product. The block owns the collection query, item count,
   grid/carousel layout, columns, and gaps; Product Card owns presentation.
 
   @example
@@ -14,9 +14,21 @@
     assign product_list_layout = 'grid'
   endunless
 
-  assign product_list_product_card_block = block.blocks | first
-  if product_list_product_card_block != blank and product_list_product_card_block.blocks != blank
-    assign product_list_product_card_block = product_list_product_card_block.blocks | first
+  assign product_list_max_products = block.settings.max_products | default: 6 | plus: 0
+  if product_list_max_products < 1 or product_list_max_products > 24
+    assign product_list_max_products = 6
+  endif
+
+  assign product_list_items = blank
+  assign product_list_item_limit = product_list_max_products
+  assign product_list_is_placeholder = false
+  if product_list_collection != blank and product_list_collection.products != blank
+    assign product_list_items = product_list_collection.products
+  else
+    assign product_list_placeholder_count = 8
+    assign product_list_items = (1..product_list_placeholder_count)
+    assign product_list_item_limit = product_list_placeholder_count
+    assign product_list_is_placeholder = true
   endif
 
   assign product_list_carousel_id = 'ProductListCarousel-' | append: block.id
@@ -131,6 +143,24 @@
   assign product_list_pagination_class = 'swiper-pagination--below product-list__pagination product-list__pagination--' | append: product_list_pagination_type
 %}
 
+{% capture product_list_items_content %}
+  {% if product_list_items != blank %}
+    {% for product_list_item in product_list_items limit: product_list_item_limit %}
+      {% liquid
+        assign product_list_card_product = product_list_item
+        assign product_list_card_placeholder = false
+        if product_list_is_placeholder
+          assign product_list_card_product = blank
+          assign product_list_card_placeholder = true
+        endif
+      %}
+      <div class="{% if product_list_layout == 'carousel' %}swiper-slide {% endif %}product-collection-grid__item product-card-layout__item product-list__item">
+        {% content_for 'block', type: 'product-card', id: 'product-card', product: product_list_card_product, closest.product: product_list_card_product, placeholder: product_list_card_placeholder %}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endcapture %}
+
 {% capture product_list_pagination_style %}
   {% if product_list_show_pagination %}
     --swiper-pagination-spacing: {{ product_list_pagination_top_padding_desktop }}px;
@@ -156,10 +186,10 @@
   data-layout="{{ product_list_layout }}"
   {{ block.shopify_attributes }}
 >
-  <div class="product-list__carousel" data-product-list-carousel>
+  <div class="product-list__carousel swiper-carousel__container" data-product-list-carousel>
     {% render 'product-collection-grid',
       collection: product_list_collection,
-      max_products: block.settings.max_products,
+      max_products: product_list_max_products,
       layout_type: product_list_layout,
       columns_desktop: block.settings.columns_desktop,
       columns_mobile: block.settings.columns_mobile,
@@ -185,12 +215,12 @@
       autoplay: product_list_autoplay_enabled,
       autoplay_pause_on_hover: product_list_autoplay_pause_on_hover,
       autoplay_delay: product_list_autoplay_delay,
-      product_card_block: product_list_product_card_block
+      items_content: product_list_items_content
     %}
 
     {% if product_list_layout == 'carousel' and product_list_show_navigation %}
       <div
-        class="swiper-carousel__navigation--centered product-list__navigation product-list__navigation--{{ product_list_navigation_position }} product-list__navigation--{{ product_list_navigation_behavior }}"
+        class="swiper-carousel__navigation--centered swiper-carousel__navigation--{{ product_list_navigation_behavior }} product-list__navigation product-list__navigation--{{ product_list_navigation_position }} product-list__navigation--{{ product_list_navigation_behavior }}"
         data-product-list-navigation
         {% if product_list_navigation_center_style != blank %}style="{{ product_list_navigation_center_style }}"{% endif %}
       >
@@ -214,15 +244,6 @@
     {% endif %}
   </div>
 </div>
-
-{% comment %}
-  Keep the static Product Card target discoverable to Theme Check and the
-  Theme Editor. The shared renderer uses the direct child settings for every
-  item because content_for is not available inside snippets.
-{% endcomment %}
-{% if false %}
-  {% content_for 'block', type: 'product-card', id: 'product-card' %}
-{% endif %}
 
 {% stylesheet %}
   .product-list {
@@ -261,16 +282,6 @@
     margin-inline-end: calc(-1 * var(--swiper-nav-size) / 2);
   }
 
-  .product-list__navigation--show_on_hover {
-    opacity: 0;
-    transition: opacity var(--motion-duration-standard) var(--motion-ease-standard);
-  }
-
-  .product-list__carousel:hover .product-list__navigation--show_on_hover,
-  .product-list__carousel:focus-within .product-list__navigation--show_on_hover {
-    opacity: 1;
-  }
-
   .product-list__carousel-button {
     pointer-events: auto;
   }
@@ -281,11 +292,6 @@
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .product-list__navigation--show_on_hover {
-      transition: none;
-    }
-  }
 {% endstylesheet %}
 
 {% schema %}
