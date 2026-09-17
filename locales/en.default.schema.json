@@ -67,6 +67,9 @@
     "image_cards": "Image cards",
     "icon": "Icon",
     "video": "Video",
+    "countdown": "Countdown",
+    "countdown_timer": "Countdown timer",
+    "timer": "Timer",
     "footer": "Footer",
     "faq": "FAQ",
     "faq_item": "FAQ item",
@@ -128,6 +131,7 @@
     "motion_and_reduced_motion": "Motion & Reduced Motion",
     "content_colors": "Content colors",
     "padding": "Padding",
+    "boxed_padding": "Boxed padding",
     "product_composition": "Product composition",
     "gallery_controls": "Gallery controls",
     "gallery_spacing": "Gallery spacing",
@@ -252,6 +256,11 @@
     "corner_radius": "Corner radius",
     "radius": "Radius",
     "custom_radius": "Custom radius",
+    "end_time": "End time",
+    "hide_when_timer_ends": "Hide block when the timer ends",
+    "number_size": "Number size",
+    "label_size": "Label size",
+    "number_color": "Number color",
     "desktop_height": "Desktop height",
     "mobile_height": "Mobile height",
     "desktop_tablet_horizontal_padding": "Desktop and tablet horizontal padding",
@@ -526,6 +535,12 @@
     "tablet_page_margin": "Tablet page margin",
     "mobile_page_margin": "Mobile page margin",
     "padding": "Padding",
+    "enable_boxed_layout": "Enable boxed layout",
+    "boxed_color_scheme": "Boxed color scheme",
+    "boxed_padding_block": "Top and bottom",
+    "boxed_padding_inline": "Left and right",
+    "boxed_padding_block_mobile": "Top and bottom (mobile)",
+    "boxed_padding_inline_mobile": "Left and right (mobile)",
     "page_margin": "Page margin",
     "page_width": "Page width",
     "section_width": "Section width",
@@ -831,6 +846,19 @@
       "pill": "Pill",
       "custom": "Custom",
       "extra_rounded": "Extra rounded"
+    },
+    "countdown_style": {
+      "with_labels": "With labels",
+      "inline": "Inline",
+      "inline_superscript": "Inline (superscript)"
+    },
+    "countdown_type": {
+      "fixed_time": "Fixed time",
+      "recurring": "Recurring"
+    },
+    "countdown_color_type": {
+      "inherit": "Inherit",
+      "custom": "Custom"
     },
     "button_font_size": {
       "10": "10px",
@@ -1142,6 +1170,8 @@
     "email_signup_subscription_preferences": "Customer selections will be saved in the \"Notes\" section of the customer profile.",
     "heading_html_tag": "Choose the HTML tag that matches this content's role. Reserve H1–H6 for the document outline and use Paragraph for supporting copy.",
     "heading_text_color": "Clear the color to inherit the heading color from the active scheme.",
+    "countdown_timezone": "The expiration date is calculated based on your store's primary timezone.",
+    "countdown_end_time_format": "Use the format YYYY-MM-DD HH:MM (24-hour format). Example: 2025-12-25 18:00",
     "product_badges_theme_settings": "Configure badge appearance and rules in [theme settings](/editor?context=theme&category=badges).",
     "product_badges_manual_rules": "Configured badges use collection matches and product tags beginning with badge: (for example, badge:Limited edition).",
     "variant_picker_theme_settings": "Edit variant picker styles in [theme settings](/editor?context=theme&category=variant%20pickers).",

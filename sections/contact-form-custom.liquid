@@ -182,10 +182,7 @@
   }
   .contact-form-custom__grid > .group {
     grid-column: 2;
-    width: 100%;
-    max-width: none;
-    --group-align: var(--contact-form-custom-align, start);
-    --group-align-mobile: var(--contact-form-custom-align-mobile, var(--contact-form-custom-align, start));
+    justify-self: var(--contact-form-custom-align, start);
   }
   .contact-form-custom .contact-form-block input.form__control--input,
   .contact-form-custom .contact-form-block textarea.form__control--textarea {
@@ -231,6 +228,7 @@
     .contact-form-custom__grid > .image-block,
     .contact-form-custom__grid > .group {
       grid-column: 1;
+      justify-self: var(--contact-form-custom-align-mobile, var(--contact-form-custom-align, start));
     }
     .contact-form-custom__grid > .image-block {
       grid-row: auto;

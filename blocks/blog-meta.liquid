@@ -3,7 +3,24 @@
 {% enddoc %}
 
 {% assign article_title_tag = block.settings.html_title_tag | default: 'h1' %}
-<div class="article-blog-meta article-blog-meta--{{ block.settings.alignment | default: 'center' }}" style="--article-meta-gap: {{ block.settings.gap_desktop }}px; --article-meta-gap-mobile: {{ block.settings.gap_mobile }}px; --article-meta-padding-top: {{ block.settings.padding_top }}px; --article-meta-padding-bottom: {{ block.settings.padding_bottom }}px; --article-meta-padding-top-mobile: {{ block.settings.padding_top_mobile }}px; --article-meta-padding-bottom-mobile: {{ block.settings.padding_bottom_mobile }}px;" {{ block.shopify_attributes }}>
+{% assign article_meta_gap_desktop = block.settings.gap_desktop | default: 10 | plus: 0 %}
+{% assign article_meta_gap_mobile = block.settings.gap_mobile | default: 10 | plus: 0 %}
+{% capture article_meta_style %}
+  {% render 'layout-flow-style',
+    direction: 'column',
+    wrap: 'nowrap',
+    align_items: 'var(--article-meta-align, center)',
+    gap: article_meta_gap_desktop,
+    gap_mobile: article_meta_gap_mobile
+  %}
+  --article-meta-padding-top: {{ block.settings.padding_top | default: 0 }}px;
+  --article-meta-padding-bottom: {{ block.settings.padding_bottom | default: 0 }}px;
+  --article-meta-padding-top-mobile: {{ block.settings.padding_top_mobile | default: 0 }}px;
+  --article-meta-padding-bottom-mobile: {{ block.settings.padding_bottom_mobile | default: 0 }}px;
+{% endcapture %}
+{% assign article_meta_style = article_meta_style | strip %}
+
+<div class="article-blog-meta layout-flow layout-flow--responsive article-blog-meta--{{ block.settings.alignment | default: 'center' }}" style="{{ article_meta_style }}" {{ block.shopify_attributes }}>
   {% if block.settings.show_tags and article.tags != blank %}
     <ul class="article-blog-meta__tags" role="list">
       {% for tag in article.tags %}<li><a href="{{ blog.url }}/tagged/{{ tag | handleize }}">{{ tag | escape }}</a></li>{% endfor %}
@@ -20,7 +37,7 @@
 </div>
 
 {% stylesheet %}
-  .article-blog-meta { display: flex; flex-direction: column; align-items: var(--article-meta-align, center); width: 100%; max-width: 768px; min-height: 126px; margin-inline: auto; gap: var(--article-meta-gap, 12px); padding-top: var(--article-meta-padding-top, 0px); padding-bottom: var(--article-meta-padding-bottom, 0px); text-align: var(--article-meta-text-align, center); box-sizing: border-box; }
+  .article-blog-meta { width: 100%; max-width: 768px; min-height: 126px; margin-inline: auto; padding-top: var(--article-meta-padding-top, 0px); padding-bottom: var(--article-meta-padding-bottom, 0px); text-align: var(--article-meta-text-align, center); box-sizing: border-box; }
   .article-blog-meta--left { --article-meta-align: flex-start; --article-meta-text-align: left; --article-meta-content-align: flex-start; }
   .article-blog-meta--center { --article-meta-align: center; --article-meta-text-align: center; }
   .article-blog-meta--right { --article-meta-align: flex-end; --article-meta-text-align: right; --article-meta-content-align: flex-end; }
@@ -30,7 +47,7 @@
   .article-blog-meta__tags { display: flex; flex-wrap: wrap; justify-content: var(--article-meta-content-align, center); gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 9px; line-height: 9px; }
   .article-blog-meta__tags a { display: inline-flex; align-items: center; justify-content: center; min-width: 34px; min-height: 21px; padding: 6px 12px; color: inherit; background: #f2f2f2; border-radius: 9999px; box-sizing: border-box; text-decoration: none; }
   @media (max-width: 767.98px) {
-    .article-blog-meta { width: 100%; margin-inline: auto; gap: var(--article-meta-gap-mobile, var(--article-meta-gap, 12px)); min-height: 0; padding-top: var(--article-meta-padding-top-mobile, var(--article-meta-padding-top, 0px)); padding-bottom: var(--article-meta-padding-bottom-mobile, var(--article-meta-padding-bottom, 0px)); }
+    .article-blog-meta { width: 100%; margin-inline: auto; min-height: 0; padding-top: var(--article-meta-padding-top-mobile, var(--article-meta-padding-top, 0px)); padding-bottom: var(--article-meta-padding-bottom-mobile, var(--article-meta-padding-bottom, 0px)); }
     .article-blog-meta__details { flex-wrap: wrap; max-width: 100%; }
   }
 {% endstylesheet %}

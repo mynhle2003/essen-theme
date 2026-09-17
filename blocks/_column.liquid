@@ -84,13 +84,19 @@
     assign padding_right_mobile = 0
   endif
 
-  assign column_class = 'block-column block-column--width-' | append: column_width_mode
+  assign column_class = 'block-column layout-flow layout-flow--responsive block-column--width-' | append: column_width_mode
 %}
 
 {% capture column_style %}
+  {% render 'layout-flow-style',
+    direction: 'column',
+    wrap: 'nowrap',
+    align_items: column_alignment,
+    align_items_mobile: column_alignment_mobile,
+    gap: column_gap_desktop,
+    gap_mobile: column_gap_mobile
+  %}
   {% if column_width_mode == 'custom' %}--column-width: {{ column_custom_width }}%;{% endif %}
-  {% if column_gap_desktop != 12 %}--column-gap-desktop: {{ column_gap_desktop }}px;{% endif %}
-  {% if column_gap_mobile != 8 %}--column-gap-mobile: {{ column_gap_mobile }}px;{% endif %}
   {% if column_alignment != 'start' %}--column-align: {{ column_alignment }};{% endif %}
   {% if block.settings.customize_mobile_alignment and column_alignment_mobile != column_alignment %}--column-align-mobile: {{ column_alignment_mobile }};{% endif %}
   {% if padding_top != 0 %}--column-padding-top: {{ padding_top }}px;{% endif %}
@@ -120,13 +126,9 @@
     --column-align-mobile: var(--column-align);
     --flex-align: var(--column-align);
     --flex-align-mobile: var(--column-align-mobile);
-    display: flex;
     flex-basis: auto;
     flex-grow: 0;
     flex-shrink: 1;
-    flex-direction: column;
-    align-items: var(--column-align);
-    gap: var(--column-gap-desktop, 12px);
     width: auto;
     max-width: 100%;
     min-width: 0;
@@ -157,8 +159,6 @@
   @media (max-width: 767.98px) {
     .block-column {
       --flex-align: var(--column-align-mobile, var(--column-align));
-      align-items: var(--column-align-mobile, var(--column-align));
-      gap: var(--column-gap-mobile, var(--column-gap-desktop, 12px));
       padding-top: var(--column-padding-top-mobile, var(--column-padding-top, 0px));
       padding-right: var(--column-padding-right-mobile, var(--column-padding-right, 0px));
       padding-bottom: var(--column-padding-bottom-mobile, var(--column-padding-bottom, 0px));

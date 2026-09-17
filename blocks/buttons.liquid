@@ -63,6 +63,16 @@
     assign buttons_gap_mobile = buttons_gap
   endif
 
+  assign buttons_flow_direction = 'row'
+  if buttons_direction == 'stack'
+    assign buttons_flow_direction = 'column'
+  endif
+
+  assign buttons_flow_direction_mobile = 'row'
+  if buttons_mobile_stacking == 'stack'
+    assign buttons_flow_direction_mobile = 'column'
+  endif
+
   assign padding_top = block.settings.padding_top | default: 0 | plus: 0
   assign padding_bottom = block.settings.padding_bottom | default: 0 | plus: 0
   assign padding_left = block.settings.padding_left | default: 0 | plus: 0
@@ -72,7 +82,7 @@
   assign padding_left_mobile = block.settings.padding_left_mobile | default: 0 | plus: 0
   assign padding_right_mobile = block.settings.padding_right_mobile | default: 0 | plus: 0
 
-  assign buttons_class = 'buttons-block buttons-block--direction-' | append: buttons_direction
+  assign buttons_class = 'buttons-block layout-flow layout-flow--responsive buttons-block--direction-' | append: buttons_direction
   assign buttons_class = buttons_class | append: ' buttons-block--mobile-stacking-' | append: buttons_mobile_stacking
   assign buttons_class = buttons_class | append: ' buttons-block--width-' | append: buttons_width
   if button_1_valid == false and button_2_valid == false
@@ -149,11 +159,18 @@
 %}
 
 {% capture buttons_style %}
-  --buttons-gap: {{ buttons_gap }}px;
-  --buttons-gap-mobile: {{ buttons_gap_mobile }}px;
-  --buttons-justify: {{ buttons_justify }};
-  --buttons-align: {{ buttons_align }};
-  --buttons-justify-mobile: {{ buttons_justify_mobile }};
+  {% render 'layout-flow-style',
+    direction: buttons_flow_direction,
+    wrap: 'wrap',
+    align_items: buttons_align,
+    justify_content: buttons_justify,
+    gap: buttons_gap,
+    direction_mobile: buttons_flow_direction_mobile,
+    wrap_mobile: 'nowrap',
+    align_items_mobile: buttons_align_mobile,
+    justify_content_mobile: buttons_justify_mobile,
+    gap_mobile: buttons_gap_mobile
+  %}
   --buttons-align-mobile: {{ buttons_align_mobile }};
   --buttons-padding-top: {{ padding_top }}px;
   --buttons-padding-bottom: {{ padding_bottom }}px;
@@ -207,11 +224,6 @@
 
 {% stylesheet %}
   .buttons-block {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: var(--buttons-align, flex-start);
-    justify-content: var(--buttons-justify, flex-start);
-    gap: var(--buttons-gap, 12px);
     width: fit-content;
     max-width: 100%;
     min-width: 0;
@@ -219,11 +231,6 @@
     padding-right: var(--buttons-padding-right, 0px);
     padding-bottom: var(--buttons-padding-bottom, 0px);
     padding-left: var(--buttons-padding-left, 0px);
-  }
-
-  .buttons-block--direction-stack {
-    flex-direction: column;
-    align-items: var(--buttons-align, flex-start);
   }
 
   .buttons-block--width-fill {
@@ -245,21 +252,10 @@
 
   @media (max-width: 767.98px) {
     .buttons-block {
-      align-items: var(--buttons-align-mobile, var(--buttons-align, flex-start));
-      justify-content: var(--buttons-justify-mobile, var(--buttons-justify, flex-start));
-      gap: var(--buttons-gap-mobile, var(--buttons-gap, 12px));
       padding-top: var(--buttons-padding-top-mobile, var(--buttons-padding-top, 0px));
       padding-right: var(--buttons-padding-right-mobile, var(--buttons-padding-right, 0px));
       padding-bottom: var(--buttons-padding-bottom-mobile, var(--buttons-padding-bottom, 0px));
       padding-left: var(--buttons-padding-left-mobile, var(--buttons-padding-left, 0px));
-    }
-
-    .buttons-block--mobile-stacking-row {
-      flex-direction: row;
-    }
-
-    .buttons-block--mobile-stacking-stack {
-      flex-direction: column;
     }
 
     .buttons-block--mobile-stacking-stack .buttons-block__item {

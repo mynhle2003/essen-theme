@@ -98,6 +98,14 @@
 %}
 
 {% capture header_style %}
+  {% render 'layout-flow-style',
+    direction: 'column',
+    wrap: 'nowrap',
+    align_items: 'var(--flex-align, flex-start)',
+    align_items_mobile: 'var(--flex-align-mobile, var(--flex-align, flex-start))',
+    gap: header_gap_desktop,
+    gap_mobile: header_gap_mobile
+  %}
   {% if header_width_mode != 'fit' %}--header-width: {{ header_width }};{% endif %}
   {% if header_width_mode == 'custom' %}--header-max-width: {{ header_max_width }}px;{% endif %}
   {% if block.settings.customize_mobile_size %}
@@ -108,8 +116,6 @@
       --header-max-width-mobile: 100%;
     {% endif %}
   {% endif %}
-  {% if header_gap_desktop != 12 %}--header-gap-desktop: {{ header_gap_desktop }}px;{% endif %}
-  {% if header_gap_mobile != 8 %}--header-gap-mobile: {{ header_gap_mobile }}px;{% endif %}
   {% if padding_top != 0 %}--header-padding-top: {{ padding_top }}px;{% endif %}
   {% if padding_bottom != 0 %}--header-padding-bottom: {{ padding_bottom }}px;{% endif %}
   {% if padding_left != 0 %}--header-padding-left: {{ padding_left }}px;{% endif %}
@@ -124,7 +130,7 @@
 {% assign header_style = header_style | strip %}
 
 <div
-  class="block-header motion-block"
+  class="block-header layout-flow layout-flow--responsive motion-block"
   {% if header_style != blank %}style="{{ header_style }}"{% endif %}
   {{ block.shopify_attributes }}
 >
@@ -133,10 +139,6 @@
 
 {% stylesheet %}
   .block-header {
-    display: flex;
-    flex-direction: column;
-    align-items: var(--flex-align, start);
-    gap: var(--header-gap-desktop, 12px);
     width: var(--header-width, fit-content);
     max-width: var(--header-max-width, 100%);
     min-width: 0;
@@ -152,10 +154,8 @@
 
   @media (max-width: 767.98px) {
     .block-header {
-      align-items: var(--flex-align-mobile, var(--flex-align, start));
       width: var(--header-width-mobile, var(--header-width, fit-content));
       max-width: var(--header-max-width-mobile, var(--header-max-width, 100%));
-      gap: var(--header-gap-mobile, 8px);
       padding-top: var(--header-padding-top-mobile, var(--header-padding-top, 0px));
       padding-right: var(--header-padding-right-mobile, var(--header-padding-right, 0px));
       padding-bottom: var(--header-padding-bottom-mobile, var(--header-padding-bottom, 0px));

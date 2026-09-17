@@ -2,12 +2,15 @@
   Article page composition. The article object is supplied by the article template.
 {% endcomment %}
 
+{% liquid
+  assign article_posts_gap_desktop = section.settings.gap_desktop | default: 50 | plus: 0
+  assign article_posts_gap_mobile = section.settings.gap_mobile | default: 30 | plus: 0
+%}
+
 <div
   class="section-spacing article-posts color-scheme {{ section.settings.color_scheme | default: 'scheme-1' }}"
   style="
     --article-posts-max-width: {{ section.settings.max_width }}px;
-    --article-posts-gap: {{ section.settings.gap_desktop }}px;
-    --article-posts-gap-mobile: {{ section.settings.gap_mobile }}px;
     --article-posts-padding-top: {{ section.settings.padding_top }}px;
     --article-posts-padding-bottom: {{ section.settings.padding_bottom }}px;
     --article-posts-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
@@ -15,7 +18,17 @@
   "
 >
   <div class="container page-width article-posts__container">
-    <div class="article-posts__blocks">
+    {% capture article_posts_blocks_style %}
+      {% render 'layout-flow-style',
+        direction: 'column',
+        wrap: 'nowrap',
+        align_items: 'stretch',
+        gap: article_posts_gap_desktop,
+        gap_mobile: article_posts_gap_mobile
+      %}
+    {% endcapture %}
+    {% assign article_posts_blocks_style = article_posts_blocks_style | strip %}
+    <div class="article-posts__blocks layout-flow layout-flow--responsive" style="{{ article_posts_blocks_style }}">
       {% content_for 'block', type: 'blog-meta', id: 'blog-meta' %}
       {% content_for 'block', type: 'featured-image', id: 'featured-image' %}
       {% content_for 'block', type: 'content', id: 'content' %}
@@ -33,11 +46,10 @@
     padding-bottom: var(--article-posts-padding-bottom, 120px);
   }
   .article-posts__container { max-width: var(--article-posts-max-width, 1280px); margin-inline: auto; }
-  .article-posts__blocks { display: flex; flex-direction: column; gap: var(--article-posts-gap, 50px); }
+  .article-posts__blocks { min-width: 0; }
   @media (max-width: 767.98px) {
     .article-posts { padding-top: var(--article-posts-padding-top-mobile, var(--article-posts-padding-top, 100px)); padding-bottom: var(--article-posts-padding-bottom-mobile, var(--article-posts-padding-bottom, 120px)); }
     .article-posts__container { max-width: 100%; }
-    .article-posts__blocks { gap: var(--article-posts-gap-mobile, var(--article-posts-gap, 50px)); }
   }
 {% endstylesheet %}
 

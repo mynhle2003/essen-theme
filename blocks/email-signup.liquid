@@ -105,6 +105,17 @@
     assign button_style = 'tertiary'
   endif
 
+  assign email_signup_mobile_row = false
+  assign email_signup_mobile_row_align_items = 'center'
+  if form_layout == 'underlined_input'
+    assign email_signup_mobile_row_align_items = 'flex-end'
+  endif
+  unless block.settings.vertical_on_mobile
+    if form_layout == 'horizontal' or form_layout == 'underlined_input'
+      assign email_signup_mobile_row = true
+    endif
+  endunless
+
   assign button_icon = blank
   assign button_icon_position = 'after'
   assign button_icon_size = 'inherit'
@@ -181,6 +192,11 @@
   if block.settings.vertical_on_mobile
     assign email_signup_class = email_signup_class | append: ' email-signup-block--vertical-mobile'
   endif
+
+  assign email_signup_fields_class = 'form__fields email-signup-block__fields'
+  if email_signup_mobile_row
+    assign email_signup_fields_class = email_signup_fields_class | append: ' layout-flow--mobile'
+  endif
 %}
 
 {% capture email_signup_style %}
@@ -204,6 +220,18 @@
   {% endif %}
 {% endcapture %}
 {% assign email_signup_style = email_signup_style | strip %}
+
+{% capture email_signup_fields_style %}
+  {% if email_signup_mobile_row %}
+    {% render 'layout-flow-style',
+      direction_mobile: 'row',
+      wrap_mobile: 'nowrap',
+      align_items_mobile: email_signup_mobile_row_align_items,
+      justify_content_mobile: 'flex-start'
+    %}
+  {% endif %}
+{% endcapture %}
+{% assign email_signup_fields_style = email_signup_fields_style | strip %}
 
 {% capture email_signup_button %}
   {% render 'theme-button',
@@ -282,7 +310,10 @@
     {% endif %}
 
     <div class="form__wrapper">
-      <div class="form__fields email-signup-block__fields">
+      <div
+        class="{{ email_signup_fields_class }}"
+        {% if email_signup_fields_style != blank %}style="{{ email_signup_fields_style }}"{% endif %}
+      >
         <div class="form__field email-signup-block__field">
           <label class="form__label visually-hidden" for="{{ email_signup_email_id }}">
             {{ 'email_signup.email_label' | t }}
@@ -556,6 +587,22 @@
 
     .email-signup-block .form__fields {
       gap: var(--email-signup-gap-mobile, var(--email-signup-gap-desktop, 0px));
+    }
+
+    .email-signup-block .form__fields.layout-flow--mobile {
+      display: flex;
+      flex-flow: var(--layout-flow-direction-mobile, row) var(--layout-flow-wrap-mobile, nowrap);
+      align-items: var(--layout-flow-align-items-mobile, stretch);
+      justify-content: var(--layout-flow-justify-content-mobile, flex-start);
+      gap: var(--layout-flow-gap-mobile, var(--email-signup-gap-mobile, var(--email-signup-gap-desktop, 0px)));
+    }
+
+    .email-signup-block .form__fields.layout-flow--mobile .email-signup-block__field {
+      flex: 1 1 auto;
+    }
+
+    .email-signup-block .form__fields.layout-flow--mobile .email-signup-block__button {
+      flex: 0 0 auto;
     }
 
     .email-signup-block--layout-vertical .form__fields,

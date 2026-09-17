@@ -68,8 +68,6 @@
 
 {% capture payment_icons_style %}
   --payment-icons-icon-width: {{ payment_icons_icon_width }}px;
-  --payment-icons-gap-desktop: {{ payment_icons_gap_desktop }}px;
-  --payment-icons-gap-mobile: {{ payment_icons_gap_mobile }}px;
   --payment-icons-padding-top: {{ payment_icons_padding_top }}px;
   --payment-icons-padding-bottom: {{ payment_icons_padding_bottom }}px;
   --payment-icons-padding-left: {{ payment_icons_padding_left }}px;
@@ -83,6 +81,17 @@
 {% endcapture %}
 {% assign payment_icons_style = payment_icons_style | strip %}
 
+{% capture payment_icons_list_style %}
+  {% render 'layout-flow-style',
+    direction: 'row',
+    wrap: 'wrap',
+    align_items: 'center',
+    gap: payment_icons_gap_desktop,
+    gap_mobile: payment_icons_gap_mobile
+  %}
+{% endcapture %}
+{% assign payment_icons_list_style = payment_icons_list_style | strip %}
+
 {% if has_payment_types or request.design_mode %}
   <div
     class="payment-icons-block{% unless has_payment_types %} payment-icons-block--empty{% endunless %}"
@@ -91,7 +100,8 @@
   >
     {% if has_payment_types %}
       <ul
-        class="payment-icons-block__list"
+        class="payment-icons-block__list layout-flow layout-flow--responsive"
+        style="{{ payment_icons_list_style }}"
         aria-label="{{ 'accessibility.payment_methods' | t | escape }}"
       >
         {% for payment_type in payment_types %}
@@ -117,10 +127,6 @@
   }
 
   .payment-icons-block__list {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--payment-icons-gap-desktop, var(--layout-grid-gap, 24px));
     max-width: 100%;
     margin: 0;
     padding: 0;
@@ -152,9 +158,6 @@
       padding-left: var(--payment-icons-padding-left-mobile, var(--payment-icons-padding-left, 0px));
     }
 
-    .payment-icons-block__list {
-      gap: var(--payment-icons-gap-mobile, var(--payment-icons-gap-desktop, var(--layout-grid-gap, 16px)));
-    }
   }
 {% endstylesheet %}
 

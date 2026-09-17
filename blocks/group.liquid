@@ -1,7 +1,8 @@
 {% doc %}
   Renders a layout group that composes theme blocks in a horizontal or
   vertical flow. The group owns its local layout, surface, border, overlay,
-  and spacing without changing the typography contract of its children.
+  and spacing without changing the typography contract of its children. Parent
+  layouts should position this block without overriding its local alignment.
 
   @example
   {% content_for 'block', type: 'group', id: 'group' %}
@@ -55,23 +56,21 @@
 
   assign group_alignment_mobile = group_alignment
   assign group_justify_mobile = group_justify
+  assign group_alignment_mobile_source = block.settings.alignment_mobile | default: 'left'
+  unless group_alignment_mobile_source == 'left' or group_alignment_mobile_source == 'center' or group_alignment_mobile_source == 'right'
+    assign group_alignment_mobile_source = 'left'
+  endunless
   if group_vertical_on_mobile
-    case block.settings.alignment_mobile
+    case group_alignment_mobile_source
       when 'center'
         assign group_alignment_mobile = 'center'
         assign group_justify_mobile = 'center'
-      when 'right', 'end', 'flex-end'
+      when 'right'
         assign group_alignment_mobile = 'end'
         assign group_justify_mobile = 'flex-end'
-      when 'left', 'start'
+      else
         assign group_alignment_mobile = 'start'
         assign group_justify_mobile = 'flex-start'
-      when 'space-between'
-        assign group_alignment_mobile = 'start'
-        assign group_justify_mobile = 'space-between'
-      else
-        assign group_alignment_mobile = group_alignment
-        assign group_justify_mobile = group_justify
     endcase
   endif
 
@@ -192,9 +191,8 @@
     assign group_scheme = group_scheme | default: 'scheme-1' | handleize
   endif
 
-  assign group_class = 'group motion-block group--' | append: group_direction
+  assign group_class = 'group layout-flow layout-flow--responsive motion-block group--' | append: group_direction
   assign group_class = group_class | append: ' group--align-' | append: group_alignment
-  assign group_class = group_class | append: ' group--position-' | append: group_position_name
   assign group_class = group_class | append: ' group--width-' | append: group_width_mode
   assign group_class = group_class | append: ' group--height-' | append: group_height_mode
   assign group_class = group_class | append: ' group--radius-' | append: group_radius
@@ -213,6 +211,17 @@
 %}
 
 {% capture group_style %}
+  {% render 'layout-flow-group-style',
+    direction: group_direction,
+    position: group_position_name,
+    alignment: group_alignment,
+    horizontal_alignment: group_justify,
+    mobile_vertical: group_vertical_on_mobile,
+    mobile_alignment: group_alignment_mobile,
+    mobile_justify: group_justify_mobile,
+    gap: group_gap_desktop,
+    gap_mobile: group_gap_mobile
+  %}
   {% if group_width_mode != 'fit' %}--group-width: {{ group_width }};{% endif %}
   {% if group_width_mode == 'custom' %}--group-max-width: {{ group_max_width }}px;{% endif %}
   {% if block.settings.customize_mobile_size %}
@@ -223,11 +232,7 @@
       --group-max-width-mobile: 100%;
     {% endif %}
   {% endif %}
-  {% if group_justify == 'space-between' %}--group-justify: {{ group_justify }};{% endif %}
   {% if group_vertical_on_mobile and group_alignment_mobile != group_alignment %}--group-align-mobile: {{ group_alignment_mobile }};{% endif %}
-  {% if group_vertical_on_mobile and group_justify_mobile != group_justify %}--group-justify-mobile: {{ group_justify_mobile }};{% endif %}
-  {% if group_gap_desktop != 16 %}--group-gap-desktop: {{ group_gap_desktop }}px;{% endif %}
-  {% if group_gap_mobile != 12 %}--group-gap-mobile: {{ group_gap_mobile }}px;{% endif %}
   {% if block.settings.border_color != blank %}--group-border-color: {{ block.settings.border_color | escape }};{% endif %}
   {% if padding_top != 0 %}--group-padding-top: {{ padding_top }}px;{% endif %}
   {% if padding_bottom != 0 %}--group-padding-bottom: {{ padding_bottom }}px;{% endif %}
@@ -265,8 +270,6 @@
     --group-width-mobile: initial;
     --group-max-width-mobile: initial;
     --group-height: initial;
-    --group-gap-desktop: initial;
-    --group-gap-mobile: initial;
     --group-padding-top: initial;
     --group-padding-right: initial;
     --group-padding-bottom: initial;
@@ -283,17 +286,8 @@
     --group-backdrop-blur: initial;
     --group-align: start;
     --group-align-mobile: var(--group-align);
-    --group-justify: flex-start;
-    --group-justify-mobile: var(--group-justify);
-    --group-position: flex-start;
     --flex-align: var(--group-align);
     --flex-align-mobile: var(--group-align-mobile);
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    align-items: var(--group-align);
-    justify-content: var(--group-position);
-    gap: var(--group-gap-desktop, 16px);
     width: var(--group-width, fit-content);
     max-width: var(--group-max-width, 100%);
     height: var(--group-height, fit-content);
@@ -316,41 +310,20 @@
     isolation: isolate;
   }
 
-  .group--horizontal {
-    flex-direction: row;
-    align-items: var(--group-position);
-    justify-content: var(--group-justify);
-  }
-
   .group--horizontal > .group--width-fill {
     flex: 1 1 0%;
   }
 
   .group--align-start {
     --group-align: start;
-    --group-justify: flex-start;
   }
 
   .group--align-center {
     --group-align: center;
-    --group-justify: center;
   }
 
   .group--align-end {
     --group-align: end;
-    --group-justify: flex-end;
-  }
-
-  .group--position-top {
-    --group-position: flex-start;
-  }
-
-  .group--position-center {
-    --group-position: center;
-  }
-
-  .group--position-bottom {
-    --group-position: flex-end;
   }
 
   .group--height-fill {
@@ -433,7 +406,6 @@
       --flex-align: var(--group-align-mobile, var(--group-align));
       width: var(--group-width-mobile, var(--group-width, fit-content));
       max-width: var(--group-max-width-mobile, var(--group-max-width, 100%));
-      gap: var(--group-gap-mobile, 12px);
       padding-top: var(--group-padding-top-mobile, var(--group-padding-top, 0px));
       padding-right: var(--group-padding-right-mobile, var(--group-padding-right, 0px));
       padding-bottom: var(--group-padding-bottom-mobile, var(--group-padding-bottom, 0px));
@@ -441,21 +413,14 @@
     }
 
     .group--vertical {
-      align-items: var(--group-align-mobile, var(--group-align));
-      justify-content: var(--group-position, flex-start);
       text-align: var(--group-align-mobile, var(--group-align));
     }
 
     .group--horizontal {
-      align-items: var(--group-position, flex-start);
-      justify-content: var(--group-justify-mobile, var(--group-justify));
       text-align: var(--group-align-mobile, var(--group-align));
     }
 
     .group--horizontal.group--mobile-vertical {
-      flex-direction: column;
-      align-items: var(--group-align-mobile, var(--group-align));
-      justify-content: var(--group-justify-mobile, flex-start);
       text-align: var(--group-align-mobile, var(--group-align));
     }
   }
@@ -543,8 +508,7 @@
       "options": [
         { "value": "left", "label": "t:options.alignment.left" },
         { "value": "center", "label": "t:options.alignment.center" },
-        { "value": "right", "label": "t:options.alignment.right" },
-        { "value": "space-between", "label": "t:options.alignment.space_between" }
+        { "value": "right", "label": "t:options.alignment.right" }
       ],
       "default": "left",
       "visible_if": "{{ block.settings.direction == 'horizontal' and block.settings.customize_mobile_alignment }}"

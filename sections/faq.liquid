@@ -29,8 +29,6 @@
 {% capture faq_style %}
   --faq-header-align: {{ faq_alignment }};
   --faq-header-text-align: {{ section.settings.alignment | default: 'left' }};
-  --faq-category-gap: {{ faq_category_gap_desktop }}px;
-  --faq-category-gap-mobile: {{ faq_category_gap_mobile }}px;
   --faq-padding-top: {{ faq_padding_top }}px;
   --faq-padding-bottom: {{ faq_padding_bottom }}px;
   {% if section.settings.customize_mobile_padding %}
@@ -38,6 +36,17 @@
     --faq-padding-bottom-mobile: {{ faq_padding_bottom_mobile }}px;
   {% endif %}
 {% endcapture %}
+
+{% capture faq_categories_style %}
+  {% render 'layout-flow-style',
+    direction: 'column',
+    wrap: 'nowrap',
+    align_items: 'stretch',
+    gap: faq_category_gap_desktop,
+    gap_mobile: faq_category_gap_mobile
+  %}
+{% endcapture %}
+{% assign faq_categories_style = faq_categories_style | strip %}
 
 <div class="section-spacing faq-section color-scheme section-color-scope {{ faq_scheme }}" style="{{ faq_style | strip }}">
   <div class="container {{ faq_width }} faq-section__container">
@@ -53,7 +62,7 @@
     {% endif %}
 
     {% if section.blocks.size > 0 %}
-      <div class="faq-section__categories">
+      <div class="faq-section__categories layout-flow layout-flow--responsive" style="{{ faq_categories_style }}">
         {% content_for 'blocks' %}
       </div>
     {% elsif request.design_mode %}
@@ -99,9 +108,7 @@
   }
 
   .faq-section__categories {
-    display: flex;
-    flex-direction: column;
-    gap: var(--faq-category-gap, 8px);
+    min-width: 0;
   }
 
   .faq-section__empty {
@@ -118,10 +125,6 @@
 
     .faq-section__header {
       gap: 12px;
-    }
-
-    .faq-section__categories {
-      gap: var(--faq-category-gap-mobile, var(--faq-category-gap, 8px));
     }
   }
 {% endstylesheet %}

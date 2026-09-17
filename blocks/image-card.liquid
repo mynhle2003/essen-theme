@@ -154,14 +154,12 @@
 {% capture image_card_style %}
   {% if image_card_width_desktop != '100%' %}--image-card-width: {{ image_card_width_desktop }};{% endif %}
   {% if image_card_max_width_desktop != '100%' %}--image-card-max-width: {{ image_card_max_width_desktop }};{% endif %}
-  {% if image_card_gap_desktop != 20 %}--image-card-content-gap: {{ image_card_gap_desktop }}px;{% endif %}
   {% if image_card_padding_top != 0 %}--image-card-padding-top: {{ image_card_padding_top }}px;{% endif %}
   {% if image_card_padding_bottom != 0 %}--image-card-padding-bottom: {{ image_card_padding_bottom }}px;{% endif %}
   {% if image_card_padding_left != 0 %}--image-card-padding-left: {{ image_card_padding_left }}px;{% endif %}
   {% if image_card_padding_right != 0 %}--image-card-padding-right: {{ image_card_padding_right }}px;{% endif %}
   {% if image_card_width_mobile != image_card_width_desktop %}--image-card-width-mobile: {{ image_card_width_mobile }};{% endif %}
   {% if image_card_max_width_mobile != image_card_max_width_desktop %}--image-card-max-width-mobile: {{ image_card_max_width_mobile }};{% endif %}
-  {% if image_card_gap_mobile != image_card_gap_desktop %}--image-card-content-gap-mobile: {{ image_card_gap_mobile }}px;{% endif %}
   {% if block.settings.customize_mobile_padding %}
     {% if image_card_padding_top_mobile != image_card_padding_top %}--image-card-padding-top-mobile: {{ image_card_padding_top_mobile }}px;{% endif %}
     {% if image_card_padding_bottom_mobile != image_card_padding_bottom %}--image-card-padding-bottom-mobile: {{ image_card_padding_bottom_mobile }}px;{% endif %}
@@ -170,6 +168,19 @@
   {% endif %}
 {% endcapture %}
 {% assign image_card_style = image_card_style | strip %}
+
+{% capture image_card_content_style %}
+  {% render 'layout-flow-style',
+    direction: 'column',
+    wrap: 'nowrap',
+    align_items: 'var(--flex-align, flex-start)',
+    justify_content: 'var(--image-card-content-justify, flex-start)',
+    align_items_mobile: 'var(--flex-align-mobile, var(--flex-align, flex-start))',
+    gap: image_card_gap_desktop,
+    gap_mobile: image_card_gap_mobile
+  %}
+{% endcapture %}
+{% assign image_card_content_style = image_card_content_style | strip %}
 
 {% capture image_card_sizes %}(min-width: 768px) {{ image_card_size_desktop }}, {{ image_card_size_mobile }}{% endcapture %}
 
@@ -207,7 +218,7 @@
     ></a>
   {% endif %}
 
-  <div class="image-card__content align-content">
+  <div class="image-card__content layout-flow layout-flow--responsive align-content" style="{{ image_card_content_style }}">
     {% content_for 'blocks' %}
   </div>
 </article>
@@ -291,13 +302,13 @@
   .image-card--position-desktop-center_left .image-card__content,
   .image-card--position-desktop-center_center .image-card__content,
   .image-card--position-desktop-center_right .image-card__content {
-    justify-content: center;
+    --image-card-content-justify: center;
   }
 
   .image-card--position-desktop-bottom_left .image-card__content,
   .image-card--position-desktop-bottom_center .image-card__content,
   .image-card--position-desktop-bottom_right .image-card__content {
-    justify-content: flex-end;
+    --image-card-content-justify: flex-end;
   }
 
   .image-card__media,
@@ -334,8 +345,6 @@
     --flex-align: center;
     --flex-align-mobile: center;
     z-index: 3;
-    justify-content: var(--image-card-content-justify, flex-start);
-    gap: var(--image-card-content-gap, 20px);
     min-height: 0;
     padding-top: var(--image-card-padding-top, 0px);
     padding-right: var(--image-card-padding-right, 0px);
@@ -419,12 +428,11 @@
 
     .image-card__content {
       --flex-align-mobile: center;
-      gap: var(--image-card-content-gap-mobile, var(--image-card-content-gap, 20px));
       padding-top: var(--image-card-padding-top-mobile, var(--image-card-padding-top, 0px));
       padding-right: var(--image-card-padding-right-mobile, var(--image-card-padding-right, 0px));
       padding-bottom: var(--image-card-padding-bottom-mobile, var(--image-card-padding-bottom, 0px));
       padding-left: var(--image-card-padding-left-mobile, var(--image-card-padding-left, 0px));
-      justify-content: flex-start;
+      --image-card-content-justify: flex-start;
     }
 
     .image-card--position-mobile-top_left .image-card__content,
@@ -442,13 +450,13 @@
     .image-card--position-mobile-center_left .image-card__content,
     .image-card--position-mobile-center_center .image-card__content,
     .image-card--position-mobile-center_right .image-card__content {
-      justify-content: center;
+      --image-card-content-justify: center;
     }
 
     .image-card--position-mobile-bottom_left .image-card__content,
     .image-card--position-mobile-bottom_center .image-card__content,
     .image-card--position-mobile-bottom_right .image-card__content {
-      justify-content: flex-end;
+      --image-card-content-justify: flex-end;
     }
 
     .image-card--sticky {

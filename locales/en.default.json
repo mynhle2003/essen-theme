@@ -145,6 +145,13 @@
     "play": "Play video",
     "pause": "Pause video"
   },
+  "countdown": {
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Min",
+    "seconds": "Sec",
+    "expired": "The countdown has ended."
+  },
   "products": {
     "product_title": "Product title",
     "product_description": "Product description",

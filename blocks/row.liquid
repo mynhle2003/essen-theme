@@ -1,63 +1,14 @@
 {% doc %}
   Renders a responsive row that manages nested column blocks.
 
-  The row owns column count, horizontal distribution, gap, and
-  padding. Column blocks own their width mode and the content inside them.
+  The row owns horizontal flow, gap, alignment, and padding. Column blocks
+  own their width mode and the content inside them.
 
   @example
   {% content_for 'block', type: 'row', id: 'row' %}
 {% enddoc %}
 
 {% liquid
-  assign row_columns_desktop = block.settings.columns_desktop | default: '3'
-  case row_columns_desktop
-    when '1'
-      assign row_columns_desktop = 1
-    when '2'
-      assign row_columns_desktop = 2
-    when '3'
-      assign row_columns_desktop = 3
-    when '4'
-      assign row_columns_desktop = 4
-    else
-      assign row_columns_desktop = 3
-  endcase
-  if row_columns_desktop < 1 or row_columns_desktop > 6
-    assign row_columns_desktop = 3
-  endif
-
-  assign row_columns_tablet = block.settings.columns_tablet | default: '2'
-  case row_columns_tablet
-    when '1'
-      assign row_columns_tablet = 1
-    when '2'
-      assign row_columns_tablet = 2
-    when '3'
-      assign row_columns_tablet = 3
-    when '4'
-      assign row_columns_tablet = 4
-    else
-      assign row_columns_tablet = 2
-  endcase
-  if row_columns_tablet < 1 or row_columns_tablet > 6
-    assign row_columns_tablet = 2
-  endif
-
-  assign row_columns_mobile = block.settings.columns_mobile | default: '1'
-  case row_columns_mobile
-    when '1'
-      assign row_columns_mobile = 1
-    when '2'
-      assign row_columns_mobile = 2
-    when '3'
-      assign row_columns_mobile = 3
-    else
-      assign row_columns_mobile = 1
-  endcase
-  if row_columns_mobile < 1 or row_columns_mobile > 6
-    assign row_columns_mobile = 1
-  endif
-
   assign row_gap_desktop = block.settings.gap_desktop | default: 24 | plus: 0
   if row_gap_desktop < 0 or row_gap_desktop > 100
     assign row_gap_desktop = 24
@@ -121,15 +72,10 @@
     assign padding_right_mobile = 0
   endif
 
-  assign row_class = 'block-row block-row--desktop-columns-' | append: row_columns_desktop
-  assign row_class = row_class | append: ' block-row--tablet-columns-' | append: row_columns_tablet
-  assign row_class = row_class | append: ' block-row--mobile-columns-' | append: row_columns_mobile
+  assign row_class = 'block-row'
 %}
 
 {% capture row_style %}
-  {% if row_columns_desktop != 3 %}--row-columns-desktop: {{ row_columns_desktop }};{% endif %}
-  {% if row_columns_tablet != 2 %}--row-columns-tablet: {{ row_columns_tablet }};{% endif %}
-  {% if row_columns_mobile != 1 %}--row-columns-mobile: {{ row_columns_mobile }};{% endif %}
   {% if row_gap_desktop != 24 %}--row-gap-desktop: {{ row_gap_desktop }}px;{% endif %}
   {% if row_gap_mobile != 16 %}--row-gap-mobile: {{ row_gap_mobile }}px;{% endif %}
   {% if row_alignment != 'flex-start' %}--row-align-items: {{ row_alignment }};{% endif %}
@@ -157,7 +103,6 @@
 
 {% stylesheet %}
   .block-row {
-    --row-columns: var(--row-columns-desktop, 3);
     --row-gap: var(--row-gap-desktop, 24px);
     display: flex;
     flex-direction: row;
@@ -182,15 +127,8 @@
     min-width: 0;
   }
 
-  @media (min-width: 768px) and (max-width: 1149.98px) {
-    .block-row {
-      --row-columns: var(--row-columns-tablet, 2);
-    }
-  }
-
   @media (max-width: 767.98px) {
     .block-row {
-      --row-columns: var(--row-columns-mobile, 1);
       --row-gap: var(--row-gap-mobile, 16px);
       align-items: var(--row-align-items-mobile, var(--row-align-items, flex-start));
       padding-top: var(--row-padding-top-mobile, var(--row-padding-top, 0px));
@@ -210,41 +148,6 @@
     {
       "type": "header",
       "content": "t:general.layout"
-    },
-    {
-      "type": "select",
-      "id": "columns_desktop",
-      "label": "t:labels.desktop_columns",
-      "options": [
-        { "value": "1", "label": "t:options.row_columns.one" },
-        { "value": "2", "label": "t:options.row_columns.two" },
-        { "value": "3", "label": "t:options.row_columns.three" },
-        { "value": "4", "label": "t:options.row_columns.four" }
-      ],
-      "default": "3"
-    },
-    {
-      "type": "select",
-      "id": "columns_tablet",
-      "label": "t:labels.tablet_columns",
-      "options": [
-        { "value": "1", "label": "t:options.row_columns.one" },
-        { "value": "2", "label": "t:options.row_columns.two" },
-        { "value": "3", "label": "t:options.row_columns.three" },
-        { "value": "4", "label": "t:options.row_columns.four" }
-      ],
-      "default": "2"
-    },
-    {
-      "type": "select",
-      "id": "columns_mobile",
-      "label": "t:labels.mobile_columns",
-      "options": [
-        { "value": "1", "label": "t:options.row_columns.one" },
-        { "value": "2", "label": "t:options.row_columns.two" },
-        { "value": "3", "label": "t:options.row_columns.three" }
-      ],
-      "default": "1"
     },
     {
       "type": "range",
@@ -395,9 +298,6 @@
       "name": "t:general.row",
       "category": "t:general.layout",
       "settings": {
-        "columns_desktop": "3",
-        "columns_tablet": "2",
-        "columns_mobile": "1",
         "gap_desktop": 24,
         "gap_mobile": 16,
         "alignment": "top",

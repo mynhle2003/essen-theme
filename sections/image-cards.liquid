@@ -105,7 +105,7 @@
     {% endif %}
 
     <div class="container {{ image_cards_container_width }} image-cards-section__container{% if image_cards_container_no_padding %} image-cards-section__container--no-padding{% endif %}">
-      <div class="image-cards-section__grid">
+      <div class="image-cards-section__grid layout-flow layout-flow--responsive">
         {% content_for 'blocks' %}
       </div>
     </div>
@@ -159,18 +159,17 @@
   }
 
   .image-cards-section__grid {
-    --flex-direction: row;
-    --flex-wrap: nowrap;
-    display: flex;
+    --layout-flow-direction: row;
+    --layout-flow-wrap: nowrap;
+    --layout-flow-align-items: stretch;
+    --layout-flow-gap: var(--image-cards-gap-desktop, 32px);
+    --layout-flow-gap-mobile: var(--image-cards-gap-mobile, 8px);
     height: 100%;
-    flex-flow: var(--flex-direction) var(--flex-wrap);
-    align-items: stretch;
-    gap: var(--image-cards-gap-desktop, 32px);
     width: 100%;
   }
 
   .image-cards-section--direction-vertical .image-cards-section__grid {
-    --flex-direction: column;
+    --layout-flow-direction: column;
   }
 
   .image-cards-section--height-auto .image-card--height-desktop-fill {
@@ -200,13 +199,12 @@
     }
 
     .image-cards-section__grid {
-      --flex-direction: column;
-      --flex-wrap: nowrap;
-      gap: var(--image-cards-gap-mobile, 8px);
+      --layout-flow-direction-mobile: column;
+      --layout-flow-wrap-mobile: nowrap;
     }
 
     .image-cards-section--mobile-direction-horizontal .image-cards-section__grid {
-      --flex-direction: row;
+      --layout-flow-direction-mobile: row;
     }
 
     .image-cards-section--height-auto .image-card--height-mobile-fill {

@@ -35,11 +35,20 @@
 %}
 
 {% capture policy_links_style %}
-  --policy-links-gap-desktop: {{ policy_links_gap_desktop }}px;
-  --policy-links-gap-mobile: {{ policy_links_gap_mobile }}px;
   {% if block.settings.text_color != blank %}--policy-links-text-color: {{ block.settings.text_color | escape }};{% endif %}
 {% endcapture %}
 {% assign policy_links_style = policy_links_style | strip %}
+
+{% capture policy_links_list_style %}
+  {% render 'layout-flow-style',
+    direction: 'row',
+    wrap: 'wrap',
+    align_items: 'center',
+    gap: policy_links_gap_desktop,
+    gap_mobile: policy_links_gap_mobile
+  %}
+{% endcapture %}
+{% assign policy_links_list_style = policy_links_list_style | strip %}
 
 {% if policy_links_count > 0 or request.design_mode %}
   <nav
@@ -49,7 +58,11 @@
     {{ block.shopify_attributes }}
   >
     {% if policy_links_count > 0 %}
-      <ul class="policy-links-block__list" role="list">
+      <ul
+        class="policy-links-block__list layout-flow layout-flow--responsive"
+        style="{{ policy_links_list_style }}"
+        role="list"
+      >
         {% for policy in shop.policies %}
           {% if policy != blank and policy.url != blank and policy.title != blank %}
             <li class="policy-links-block__item">
@@ -74,10 +87,6 @@
   }
 
   .policy-links-block__list {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--policy-links-gap-desktop, 25px);
     max-width: 100%;
     margin: 0;
     padding: 0;
@@ -100,11 +109,6 @@
     color: inherit;
   }
 
-  @media (max-width: 767.98px) {
-    .policy-links-block__list {
-      gap: var(--policy-links-gap-mobile, var(--policy-links-gap-desktop, 25px));
-    }
-  }
 {% endstylesheet %}
 
 {% schema %}
