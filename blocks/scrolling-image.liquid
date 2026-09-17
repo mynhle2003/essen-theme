@@ -1,0 +1,502 @@
+{% doc %}
+  Renders the foreground image for a scroll-reveal composition.
+
+  The section owns the scroll progress and positioning. This block follows the
+  responsive image block's content, ratio, appearance, and padding options.
+  Its desktop and mobile width controls remain percentage ranges for the
+  scroll-reveal layout.
+
+  @example
+  {% content_for 'block', type: 'scrolling-image', id: 'scrolling-image' %}
+{% enddoc %}
+
+{% liquid
+  assign scrolling_image_source = block.settings.image
+  assign scrolling_image_mobile_source = block.settings.mobile_image
+
+  assign scrolling_image_ratio_desktop_setting = block.settings.image_ratio_desktop | default: 'auto'
+  assign scrolling_image_ratio_desktop = 'auto'
+  assign scrolling_image_height_desktop = 'auto'
+  case scrolling_image_ratio_desktop_setting
+    when 'square'
+      assign scrolling_image_ratio_desktop = '1'
+      assign scrolling_image_height_desktop = '100%'
+    when 'portrait'
+      assign scrolling_image_ratio_desktop = '0.8'
+      assign scrolling_image_height_desktop = '100%'
+    when 'landscape'
+      assign scrolling_image_ratio_desktop = '1.3333'
+      assign scrolling_image_height_desktop = '100%'
+    when 'wide'
+      assign scrolling_image_ratio_desktop = '1.7778'
+      assign scrolling_image_height_desktop = '100%'
+    when 'custom'
+      assign scrolling_image_ratio_desktop = block.settings.image_ratio_custom_desktop | default: 1 | plus: 0
+      if scrolling_image_ratio_desktop < 0.25 or scrolling_image_ratio_desktop > 3
+        assign scrolling_image_ratio_desktop = 1
+      endif
+      assign scrolling_image_height_desktop = '100%'
+    when 'auto'
+    else
+      assign scrolling_image_ratio_desktop = 'auto'
+  endcase
+
+  assign scrolling_image_ratio_mobile_setting = block.settings.image_ratio_mobile | default: 'auto'
+  assign scrolling_image_ratio_mobile = 'auto'
+  assign scrolling_image_height_mobile = 'auto'
+  case scrolling_image_ratio_mobile_setting
+    when 'square'
+      assign scrolling_image_ratio_mobile = '1'
+      assign scrolling_image_height_mobile = '100%'
+    when 'portrait'
+      assign scrolling_image_ratio_mobile = '0.8'
+      assign scrolling_image_height_mobile = '100%'
+    when 'landscape'
+      assign scrolling_image_ratio_mobile = '1.3333'
+      assign scrolling_image_height_mobile = '100%'
+    when 'wide'
+      assign scrolling_image_ratio_mobile = '1.7778'
+      assign scrolling_image_height_mobile = '100%'
+    when 'custom'
+      assign scrolling_image_ratio_mobile = block.settings.image_ratio_custom_mobile | default: 1 | plus: 0
+      if scrolling_image_ratio_mobile < 0.25 or scrolling_image_ratio_mobile > 3
+        assign scrolling_image_ratio_mobile = 1
+      endif
+      assign scrolling_image_height_mobile = '100%'
+    when 'auto'
+    else
+      assign scrolling_image_ratio_mobile = 'auto'
+  endcase
+
+  assign scrolling_image_customize_mobile = block.settings.customize_mobile_size
+
+  assign scrolling_image_width_desktop = block.settings.width_desktop | default: 30 | plus: 0
+  if scrolling_image_width_desktop < 10 or scrolling_image_width_desktop > 80
+    assign scrolling_image_width_desktop = 30
+  endif
+
+  assign scrolling_image_width_mobile = block.settings.width_mobile | default: 92 | plus: 0
+  if scrolling_image_width_mobile < 60 or scrolling_image_width_mobile > 100
+    assign scrolling_image_width_mobile = 92
+  endif
+
+  unless scrolling_image_customize_mobile
+    assign scrolling_image_ratio_mobile = scrolling_image_ratio_desktop
+    assign scrolling_image_height_mobile = scrolling_image_height_desktop
+    assign scrolling_image_width_mobile = scrolling_image_width_desktop
+  endunless
+
+  assign scrolling_image_corner_radius = block.settings.corner_radius | default: 0 | plus: 0
+  if scrolling_image_corner_radius < 0 or scrolling_image_corner_radius > 100
+    assign scrolling_image_corner_radius = 0
+  endif
+
+  assign padding_top = block.settings.padding_top | default: 0 | plus: 0
+  assign padding_bottom = block.settings.padding_bottom | default: 0 | plus: 0
+  assign padding_left = block.settings.padding_left | default: 0 | plus: 0
+  assign padding_right = block.settings.padding_right | default: 0 | plus: 0
+  assign padding_top_mobile = block.settings.padding_top_mobile | default: 0 | plus: 0
+  assign padding_bottom_mobile = block.settings.padding_bottom_mobile | default: 0 | plus: 0
+  assign padding_left_mobile = block.settings.padding_left_mobile | default: 0 | plus: 0
+  assign padding_right_mobile = block.settings.padding_right_mobile | default: 0 | plus: 0
+
+  if padding_top < 0 or padding_top > 100
+    assign padding_top = 0
+  endif
+  if padding_bottom < 0 or padding_bottom > 100
+    assign padding_bottom = 0
+  endif
+  if padding_left < 0 or padding_left > 100
+    assign padding_left = 0
+  endif
+  if padding_right < 0 or padding_right > 100
+    assign padding_right = 0
+  endif
+  if padding_top_mobile < 0 or padding_top_mobile > 100
+    assign padding_top_mobile = 0
+  endif
+  if padding_bottom_mobile < 0 or padding_bottom_mobile > 100
+    assign padding_bottom_mobile = 0
+  endif
+  if padding_left_mobile < 0 or padding_left_mobile > 100
+    assign padding_left_mobile = 0
+  endif
+  if padding_right_mobile < 0 or padding_right_mobile > 100
+    assign padding_right_mobile = 0
+  endif
+
+  assign scrolling_image_class = 'scrolling-image-block'
+  if block.settings.show_image_first_mobile
+    assign scrolling_image_class = scrolling_image_class | append: ' scrolling-image-block--first-mobile'
+  endif
+
+  assign scrolling_image_sizes = '(min-width: 768px) ' | append: scrolling_image_width_desktop | append: 'vw, ' | append: scrolling_image_width_mobile | append: 'vw'
+%}
+
+{% capture scrolling_image_style %}
+  --scrolling-image-width: {{ scrolling_image_width_desktop }}%;
+  --scrolling-image-width-mobile: {{ scrolling_image_width_mobile }}%;
+  --scrolling-image-ratio: {{ scrolling_image_ratio_desktop }};
+  --scrolling-image-image-height: {{ scrolling_image_height_desktop }};
+  --scrolling-image-ratio-mobile: {{ scrolling_image_ratio_mobile }};
+  --scrolling-image-image-height-mobile: {{ scrolling_image_height_mobile }};
+  --scrolling-image-padding-top: {{ padding_top }}px;
+  --scrolling-image-padding-bottom: {{ padding_bottom }}px;
+  --scrolling-image-padding-left: {{ padding_left }}px;
+  --scrolling-image-padding-right: {{ padding_right }}px;
+  --scrolling-image-padding-top-mobile: {{ padding_top_mobile }}px;
+  --scrolling-image-padding-bottom-mobile: {{ padding_bottom_mobile }}px;
+  --scrolling-image-padding-left-mobile: {{ padding_left_mobile }}px;
+  --scrolling-image-padding-right-mobile: {{ padding_right_mobile }}px;
+  --scrolling-image-radius: {{ scrolling_image_corner_radius }}px;
+{% endcapture %}
+{% assign scrolling_image_style = scrolling_image_style | strip | replace: '\n', ' ' %}
+
+<div
+  class="{{ scrolling_image_class }}"
+  data-zoom-image
+  style="{{ scrolling_image_style }}"
+  {{ block.shopify_attributes }}
+>
+  {% render 'image',
+    image: scrolling_image_source,
+    mobile_image: scrolling_image_mobile_source,
+    url: block.settings.image_link,
+    open_in_new_tab: block.settings.open_in_new_tab,
+    alt: block.settings.alt_text,
+    class: 'scrolling-image-block__media',
+    width: 2400,
+    widths: '400, 600, 800, 1200, 1600, 2400',
+    sizes: scrolling_image_sizes
+  %}
+</div>
+
+{% stylesheet %}
+  .scrolling-image-block {
+    display: block;
+    width: var(--scrolling-image-width, 30%);
+    max-width: min(var(--scrolling-image-max-width, 100%), 100%);
+    min-width: 0;
+    padding-top: var(--scrolling-image-padding-top, 0px);
+    padding-right: var(--scrolling-image-padding-right, 0px);
+    padding-bottom: var(--scrolling-image-padding-bottom, 0px);
+    padding-left: var(--scrolling-image-padding-left, 0px);
+    opacity: 1;
+    clip-path: inset(var(--scrolling-image-clip-inset, 0%) round var(--scrolling-image-radius, 0px));
+    transform: scale(var(--scrolling-image-scale, 1));
+    transform-origin: center;
+    will-change: clip-path, opacity, transform;
+  }
+
+  .scrolling-image-block.is-scroll-ready {
+    transition:
+      clip-path 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 180ms linear,
+      transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .scrolling-image-block__media {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: var(--scrolling-image-ratio, auto);
+    border-radius: var(--scrolling-image-radius, 0px);
+  }
+
+  .scrolling-image-block .scrolling-image-block__media > picture,
+  .scrolling-image-block .scrolling-image-block__media > img,
+  .scrolling-image-block .scrolling-image-block__media .image__placeholder {
+    display: block;
+    width: 100%;
+    height: var(--scrolling-image-image-height, auto);
+  }
+
+  .scrolling-image-block .scrolling-image-block__media > img,
+  .scrolling-image-block .scrolling-image-block__media > picture > img {
+    object-fit: cover;
+  }
+
+  .scrolling-image-block--first-mobile {
+    order: -1;
+  }
+
+  @media (max-width: 767.98px) {
+    .scrolling-image-block {
+      width: var(--scrolling-image-width-mobile, var(--scrolling-image-width, 92%));
+      padding-top: var(--scrolling-image-padding-top-mobile, var(--scrolling-image-padding-top, 0px));
+      padding-right: var(--scrolling-image-padding-right-mobile, var(--scrolling-image-padding-right, 0px));
+      padding-bottom: var(--scrolling-image-padding-bottom-mobile, var(--scrolling-image-padding-bottom, 0px));
+      padding-left: var(--scrolling-image-padding-left-mobile, var(--scrolling-image-padding-left, 0px));
+    }
+
+    .scrolling-image-block__media {
+      aspect-ratio: var(--scrolling-image-ratio-mobile, var(--scrolling-image-ratio, auto));
+    }
+
+    .scrolling-image-block .scrolling-image-block__media > picture,
+    .scrolling-image-block .scrolling-image-block__media > img,
+    .scrolling-image-block .scrolling-image-block__media .image__placeholder {
+      height: var(--scrolling-image-image-height-mobile, var(--scrolling-image-image-height, auto));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scrolling-image-block,
+    .scrolling-image-block.is-scroll-ready {
+      opacity: 1 !important;
+      clip-path: inset(0 round var(--scrolling-image-radius, 0px)) !important;
+      transform: none !important;
+      transition: none;
+      will-change: auto;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Scrolling image",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:general.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:labels.image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "t:labels.mobile_image"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_image_first_mobile",
+      "label": "t:labels.show_image_first_mobile",
+      "default": false
+    },
+    {
+      "type": "url",
+      "id": "image_link",
+      "label": "t:labels.link"
+    },
+    {
+      "type": "checkbox",
+      "id": "open_in_new_tab",
+      "label": "t:labels.open_in_new_tab",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "alt_text",
+      "label": "t:labels.alt_text"
+    },
+    {
+      "type": "header",
+      "content": "t:general.size"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio_desktop",
+      "label": "t:labels.desktop_image_ratio",
+      "options": [
+        { "value": "auto", "label": "t:options.image_ratio.auto" },
+        { "value": "square", "label": "t:options.image_ratio.square" },
+        { "value": "portrait", "label": "t:options.image_ratio.portrait" },
+        { "value": "landscape", "label": "t:options.image_ratio.landscape" },
+        { "value": "wide", "label": "t:options.image_ratio.wide" },
+        { "value": "custom", "label": "t:options.image_ratio.custom" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "range",
+      "id": "image_ratio_custom_desktop",
+      "label": "t:labels.desktop_custom_image_ratio",
+      "min": 0.3,
+      "max": 3,
+      "step": 0.1,
+      "default": 1,
+      "visible_if": "{{ block.settings.image_ratio_desktop == 'custom' }}"
+    },
+    {
+      "type": "range",
+      "id": "width_desktop",
+      "label": "t:labels.desktop_width",
+      "min": 10,
+      "max": 80,
+      "step": 1,
+      "unit": "%",
+      "default": 30
+    },
+    {
+      "type": "checkbox",
+      "id": "customize_mobile_size",
+      "label": "t:labels.customize_mobile_size",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "image_ratio_mobile",
+      "label": "t:labels.mobile_image_ratio",
+      "options": [
+        { "value": "auto", "label": "t:options.image_ratio.auto" },
+        { "value": "square", "label": "t:options.image_ratio.square" },
+        { "value": "portrait", "label": "t:options.image_ratio.portrait" },
+        { "value": "landscape", "label": "t:options.image_ratio.landscape" },
+        { "value": "wide", "label": "t:options.image_ratio.wide" },
+        { "value": "custom", "label": "t:options.image_ratio.custom" }
+      ],
+      "default": "auto",
+      "visible_if": "{{ block.settings.customize_mobile_size }}"
+    },
+    {
+      "type": "range",
+      "id": "image_ratio_custom_mobile",
+      "label": "t:labels.mobile_custom_image_ratio",
+      "min": 0.3,
+      "max": 3,
+      "step": 0.1,
+      "default": 1,
+      "visible_if": "{{ block.settings.customize_mobile_size and block.settings.image_ratio_mobile == 'custom' }}"
+    },
+    {
+      "type": "range",
+      "id": "width_mobile",
+      "label": "t:labels.mobile_width",
+      "min": 60,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 92,
+      "visible_if": "{{ block.settings.customize_mobile_size }}"
+    },
+    {
+      "type": "header",
+      "content": "t:general.appearance"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "t:labels.corner_radius",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:general.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:labels.top_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:labels.bottom_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "label": "t:labels.left_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "label": "t:labels.right_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "customize_mobile_padding",
+      "label": "t:labels.customize_mobile_padding",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "t:labels.mobile_top_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ block.settings.customize_mobile_padding }}"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "t:labels.mobile_bottom_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ block.settings.customize_mobile_padding }}"
+    },
+    {
+      "type": "range",
+      "id": "padding_left_mobile",
+      "label": "t:labels.mobile_left_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ block.settings.customize_mobile_padding }}"
+    },
+    {
+      "type": "range",
+      "id": "padding_right_mobile",
+      "label": "t:labels.mobile_right_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ block.settings.customize_mobile_padding }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Scrolling image",
+      "category": "t:general.basic",
+      "settings": {
+        "image_ratio_desktop": "portrait",
+        "image_ratio_mobile": "portrait",
+        "customize_mobile_size": false,
+        "width_desktop": 30,
+        "width_mobile": 92,
+        "corner_radius": 0,
+        "customize_mobile_padding": false,
+        "open_in_new_tab": false
+      }
+    }
+  ]
+}
+{% endschema %}

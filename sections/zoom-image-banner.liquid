@@ -1,0 +1,515 @@
+{% liquid
+  assign zoom_image_banner_container_width = 'page-width'
+  assign zoom_image_banner_container_no_padding = false
+  case section.settings.section_width
+    when 'full_width'
+      assign zoom_image_banner_container_width = 'full-width'
+    when 'full_width_no_padding'
+      assign zoom_image_banner_container_width = 'full-width'
+      assign zoom_image_banner_container_no_padding = true
+  endcase
+
+  assign zoom_image_banner_height_mode = section.settings.height | default: 'auto'
+  unless zoom_image_banner_height_mode == 'auto' or zoom_image_banner_height_mode == 'full_screen' or zoom_image_banner_height_mode == 'custom'
+    assign zoom_image_banner_height_mode = 'auto'
+  endunless
+
+  assign zoom_image_banner_scheme = section.settings.color_scheme | default: 'scheme-3'
+  if section.settings.color_scheme.id != blank
+    assign zoom_image_banner_scheme = section.settings.color_scheme.id
+  endif
+  assign zoom_image_banner_scheme = zoom_image_banner_scheme | default: 'scheme-3' | handleize
+
+  assign zoom_image_banner_height = 'auto'
+  if zoom_image_banner_height_mode == 'full_screen'
+    assign zoom_image_banner_height = '100svh'
+  elsif zoom_image_banner_height_mode == 'custom'
+    assign zoom_image_banner_height_value = section.settings.custom_height | default: 100 | plus: 0
+    if zoom_image_banner_height_value < 1 or zoom_image_banner_height_value > 100
+      assign zoom_image_banner_height_value = 100
+    endif
+    assign zoom_image_banner_height = zoom_image_banner_height_value | append: '%'
+  endif
+
+  assign zoom_image_banner_overlay_opacity = section.settings.overlay_opacity | default: 18 | plus: 0
+  if zoom_image_banner_overlay_opacity < 0 or zoom_image_banner_overlay_opacity > 60
+    assign zoom_image_banner_overlay_opacity = 18
+  endif
+
+  assign zoom_image_banner_padding_top = section.settings.padding_top | default: 0 | plus: 0
+  assign zoom_image_banner_padding_bottom = section.settings.padding_bottom | default: 0 | plus: 0
+  assign zoom_image_banner_padding_top_mobile = section.settings.padding_top_mobile | default: 0 | plus: 0
+  assign zoom_image_banner_padding_bottom_mobile = section.settings.padding_bottom_mobile | default: 0 | plus: 0
+%}
+
+{% capture zoom_image_banner_style %}
+  --zoom-image-banner-height: {{ zoom_image_banner_height }};
+  --zoom-image-banner-overlay-opacity: {{ zoom_image_banner_overlay_opacity | divided_by: 100.0 }};
+  {% if zoom_image_banner_padding_top != 0 %}--zoom-image-banner-padding-top: {{ zoom_image_banner_padding_top }}px;{% endif %}
+  {% if zoom_image_banner_padding_bottom != 0 %}--zoom-image-banner-padding-bottom: {{ zoom_image_banner_padding_bottom }}px;{% endif %}
+  {% if section.settings.customize_mobile_padding %}
+    {% if zoom_image_banner_padding_top_mobile != zoom_image_banner_padding_top %}--zoom-image-banner-padding-top-mobile: {{ zoom_image_banner_padding_top_mobile }}px;{% endif %}
+    {% if zoom_image_banner_padding_bottom_mobile != zoom_image_banner_padding_bottom %}--zoom-image-banner-padding-bottom-mobile: {{ zoom_image_banner_padding_bottom_mobile }}px;{% endif %}
+  {% endif %}
+{% endcapture %}
+{% assign zoom_image_banner_style = zoom_image_banner_style | strip | replace: '\n', ' ' %}
+
+<div
+  class="zoom-image-banner"
+  data-zoom-image-banner
+  style="{{ zoom_image_banner_style }}"
+>
+  <div class="zoom-image-banner__surface section-spacing color-scheme section-color-scope {{ zoom_image_banner_scheme }}">
+    <div class="zoom-image-banner__background" aria-hidden="true">
+      {% render 'media-background',
+        media_type: 'image',
+        image: section.settings.background_image,
+        mobile_image: section.settings.mobile_background_image,
+        sizes: '100vw',
+        aria_hidden: true
+      %}
+      {% if zoom_image_banner_overlay_opacity > 0 %}
+        <span class="zoom-image-banner__overlay"></span>
+      {% endif %}
+    </div>
+
+    <div class="zoom-image-banner__content container {{ zoom_image_banner_container_width }}{% if zoom_image_banner_container_no_padding %} zoom-image-banner__content--no-padding{% endif %}">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .zoom-image-banner {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .zoom-image-banner__surface {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: var(--zoom-image-banner-height, auto);
+    overflow: hidden;
+    isolation: isolate;
+    background-color: var(--background-color);
+    padding-top: var(--zoom-image-banner-padding-top, 0px);
+    padding-bottom: var(--zoom-image-banner-padding-bottom, 0px);
+  }
+
+  .zoom-image-banner__background,
+  .zoom-image-banner__overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .zoom-image-banner__background {
+    z-index: 0;
+  }
+
+  .zoom-image-banner__overlay {
+    z-index: 1;
+    background: var(--shadow-color);
+    opacity: var(--zoom-image-banner-overlay-opacity, 0.18);
+  }
+
+  .zoom-image-banner__content {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    text-align: center;
+    --flex-align: center;
+    --flex-align-mobile: center;
+  }
+
+  .zoom-image-banner__content--no-padding {
+    padding-inline: 0;
+  }
+
+  .zoom-image-banner__content > .group,
+  .zoom-image-banner__content > .scrolling-image-block {
+    grid-area: 1 / 1;
+  }
+
+  .zoom-image-banner__content > .group {
+    z-index: 3;
+    width: min(100%, 420px);
+    max-width: calc(100% - 32px);
+    text-align: center;
+  }
+
+  .zoom-image-banner__content > .scrolling-image-block {
+    z-index: 2;
+  }
+
+  @media (max-width: 767.98px) {
+    .zoom-image-banner__surface {
+      padding-top: var(--zoom-image-banner-padding-top-mobile, var(--zoom-image-banner-padding-top, 0px));
+      padding-bottom: var(--zoom-image-banner-padding-bottom-mobile, var(--zoom-image-banner-padding-bottom, 0px));
+    }
+
+    .zoom-image-banner__content > .group {
+      max-width: calc(100% - 16px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .zoom-image-banner__content > .scrolling-image-block {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (() => {
+    const selector = '[data-zoom-image-banner]';
+    const imageSelector = '[data-zoom-image]';
+    const states = new WeakMap();
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+
+    const applyProgress = (state, progress) => {
+      const easedProgress = progress * progress * (3 - (2 * progress));
+      const scale = (1.08 - (0.08 * easedProgress)).toFixed(4);
+      const clipInset = (50 * (1 - easedProgress)).toFixed(4);
+      const opacity = easedProgress.toFixed(4);
+
+      state.images.forEach((image) => {
+        image.style.setProperty('--scrolling-image-scale', scale);
+        image.style.setProperty('--scrolling-image-clip-inset', clipInset + '%');
+        image.style.opacity = opacity;
+      });
+    };
+
+    const update = (state) => {
+      if (reducedMotionQuery.matches) {
+        applyProgress(state, 1);
+        return;
+      }
+
+      const bounds = state.section.getBoundingClientRect();
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1;
+      const start = viewportHeight * 0.92;
+      const end = viewportHeight * 0.32;
+      const progress = clamp((start - bounds.top) / Math.max(start - end, 1));
+      applyProgress(state, progress);
+    };
+
+    const initialize = (section) => {
+      if (!(section instanceof HTMLElement) || states.has(section)) return;
+
+      const images = [...section.querySelectorAll(imageSelector)];
+      const state = {
+        section,
+        images,
+        frame: 0,
+        visible: true,
+        observer: null,
+        schedule: null,
+      };
+
+      const refresh = () => update(state);
+      const schedule = () => {
+        if (!state.visible || state.frame) return;
+        state.frame = window.requestAnimationFrame(() => {
+          state.frame = 0;
+          update(state);
+        });
+      };
+      state.schedule = schedule;
+
+      if (!reducedMotionQuery.matches && images.length) {
+        if ('IntersectionObserver' in window) {
+          state.observer = new IntersectionObserver(([entry]) => {
+            state.visible = entry.isIntersecting;
+            if (state.visible) schedule();
+          }, { rootMargin: '20% 0px' });
+          state.observer.observe(section);
+        }
+
+        window.addEventListener('scroll', schedule, { passive: true });
+        window.addEventListener('resize', schedule, { passive: true });
+      }
+
+      states.set(section, state);
+      refresh();
+      window.requestAnimationFrame(() => {
+        if (states.get(section) !== state) return;
+        state.images.forEach((image) => image.classList.add('is-scroll-ready'));
+      });
+    };
+
+    const destroy = (section) => {
+      const state = states.get(section);
+      if (!state) return;
+
+      state.observer?.disconnect();
+      window.removeEventListener('scroll', state.schedule);
+      window.removeEventListener('resize', state.schedule);
+      if (state.frame) window.cancelAnimationFrame(state.frame);
+      state.images.forEach((image) => {
+        image.style.removeProperty('--scrolling-image-scale');
+        image.style.removeProperty('--scrolling-image-clip-inset');
+        image.style.removeProperty('opacity');
+        image.classList.remove('is-scroll-ready');
+      });
+      states.delete(section);
+    };
+
+    const initializeRoot = (root = document) => {
+      if (root.matches?.(selector)) initialize(root);
+      root.querySelectorAll?.(selector).forEach(initialize);
+    };
+
+    const destroyRoot = (root) => {
+      if (root.matches?.(selector)) destroy(root);
+      root.querySelectorAll?.(selector).forEach(destroy);
+    };
+
+    const refreshRoot = (root) => {
+      const sections = [];
+      if (root.matches?.(selector)) sections.push(root);
+      root.querySelectorAll?.(selector).forEach((section) => sections.push(section));
+      sections.forEach((section) => states.get(section) && update(states.get(section)));
+    };
+
+    const refreshEventTarget = (target) => {
+      const section = target?.closest?.(selector);
+      if (section) {
+        if (!states.has(section)) initialize(section);
+        update(states.get(section));
+        return;
+      }
+
+      refreshRoot(target);
+    };
+
+    document.addEventListener('shopify:section:load', (event) => initializeRoot(event.target));
+    document.addEventListener('shopify:section:unload', (event) => destroyRoot(event.target));
+    document.addEventListener('shopify:section:select', (event) => refreshEventTarget(event.target));
+    document.addEventListener('shopify:section:deselect', (event) => refreshEventTarget(event.target));
+    document.addEventListener('shopify:block:select', (event) => refreshEventTarget(event.target));
+    document.addEventListener('shopify:block:deselect', (event) => refreshEventTarget(event.target));
+
+    const boot = () => initializeRoot();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot, { once: true });
+    } else {
+      boot();
+    }
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Zoom image banner",
+  "class": "section-zoom-image-banner",
+  "enabled_on": { "templates": ["*"] },
+  "max_blocks": 2,
+  "blocks": [
+    { "type": "group" },
+    { "type": "scrolling-image" }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:general.layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:labels.section_width",
+      "options": [
+        { "value": "page_width", "label": "t:options.section_width.page_width" },
+        { "value": "full_width", "label": "t:options.section_width.full_width" },
+        { "value": "full_width_no_padding", "label": "t:options.section_width.full_width_no_padding" }
+      ],
+      "default": "full_width_no_padding"
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "t:labels.height",
+      "options": [
+        { "value": "auto", "label": "t:options.section_height.auto" },
+        { "value": "full_screen", "label": "t:options.section_height.full_screen" },
+        { "value": "custom", "label": "t:options.section_height.custom" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "range",
+      "id": "custom_height",
+      "label": "t:labels.custom_height",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 100,
+      "visible_if": "{{ section.settings.height == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:general.media"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "t:labels.background_image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_background_image",
+      "label": "t:labels.mobile_image_optional"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "t:labels.overlay_opacity",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "%",
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "t:general.appearance"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:labels.color_scheme",
+      "default": "scheme-3"
+    },
+    {
+      "type": "header",
+      "content": "t:general.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:options.position.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:options.position.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "customize_mobile_padding",
+      "label": "t:labels.customize_mobile_padding",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "t:labels.mobile_top_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ section.settings.customize_mobile_padding }}"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "t:labels.mobile_bottom_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ section.settings.customize_mobile_padding }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Zoom image banner",
+      "category": "t:general.banners",
+      "settings": {
+        "section_width": "full_width_no_padding",
+        "height": "auto",
+        "custom_height": 100,
+        "overlay_opacity": 18,
+        "color_scheme": "scheme-3",
+        "customize_mobile_padding": false
+      },
+      "blocks": [
+        {
+          "type": "group",
+          "settings": {
+            "direction": "vertical",
+            "alignment": "center",
+            "alignment_mobile": "center",
+            "width": "custom",
+            "max_width": 420,
+            "customize_mobile_size": true,
+            "width_mobile": "custom",
+            "max_width_mobile": 320,
+            "gap_desktop": 10,
+            "gap_mobile": 6,
+            "height": "fit",
+            "appearance_type": "inherit",
+            "customize_mobile_padding": false
+          },
+          "blocks": [
+            {
+              "type": "eyebrow",
+              "settings": {
+                "text": "<p>New collection</p>"
+              }
+            },
+            {
+              "type": "heading",
+              "settings": {
+                "text": "<p>Discover timeless essentials and styles for your wardrobe</p>",
+                "heading_size": "sm",
+                "html_tag": "h2",
+                "width": "custom",
+                "max_width": 400
+              }
+            },
+            {
+              "type": "button",
+              "settings": {
+                "button_label": "Explore now",
+                "button_link": "/collections/all",
+                "button_style": "primary"
+              }
+            }
+          ]
+        },
+        {
+          "type": "scrolling-image",
+          "settings": {
+            "image_ratio_desktop": "portrait",
+            "image_ratio_mobile": "portrait",
+            "customize_mobile_size": true,
+            "width_desktop": 30,
+            "width_mobile": 92
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
