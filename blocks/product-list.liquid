@@ -49,7 +49,7 @@
   endif
 
   assign product_list_navigation_position = block.settings.navigation_position | default: 'inside'
-  unless product_list_navigation_position == 'inside' or product_list_navigation_position == 'outside'
+  unless product_list_navigation_position == 'inside' or product_list_navigation_position == 'outside' or product_list_navigation_position == 'top'
     assign product_list_navigation_position = 'inside'
   endunless
 
@@ -76,14 +76,19 @@
     assign product_list_navigation_icon = 'chevron'
   endunless
 
-  assign product_list_navigation_behavior = block.settings.navigation_behavior | default: 'show_on_hover'
-  unless product_list_navigation_behavior == 'show_on_hover' or product_list_navigation_behavior == 'always'
-    assign product_list_navigation_behavior = 'show_on_hover'
-  endunless
+  assign product_list_navigation_behavior = 'always'
+  if product_list_navigation_position != 'top'
+    assign product_list_navigation_behavior = block.settings.navigation_behavior | default: 'show_on_hover'
+    unless product_list_navigation_behavior == 'show_on_hover' or product_list_navigation_behavior == 'always'
+      assign product_list_navigation_behavior = 'show_on_hover'
+    endunless
+  endif
 
   assign product_list_show_navigation = true
-  if block.settings.show_navigation_on_desktop == false or block.settings.show_navigation_on_desktop == 'false'
-    assign product_list_show_navigation = false
+  if product_list_navigation_position != 'top'
+    if block.settings.show_navigation_on_desktop == false or block.settings.show_navigation_on_desktop == 'false'
+      assign product_list_show_navigation = false
+    endif
   endif
 
   assign product_list_pagination_type = block.settings.pagination_type | default: 'progress_bar'
@@ -171,9 +176,37 @@
 {% assign product_list_pagination_style = product_list_pagination_style | strip %}
 
 {% capture product_list_navigation_center_style %}
-  {% if product_list_layout == 'carousel' and product_list_show_pagination %}--swiper-navigation-center-offset: calc(({{ product_list_pagination_top_padding_desktop }}px + {{ product_list_pagination_size }}) / 2);{% endif %}
+  {% if product_list_layout == 'carousel' and product_list_show_pagination and product_list_navigation_position != 'top' %}--swiper-navigation-center-offset: calc(({{ product_list_pagination_top_padding_desktop }}px + {{ product_list_pagination_size }}) / 2);{% endif %}
 {% endcapture %}
 {% assign product_list_navigation_center_style = product_list_navigation_center_style | strip %}
+
+{% capture product_list_navigation_markup %}
+  {% if product_list_layout == 'carousel' and product_list_show_navigation %}
+    <div
+      class="swiper-carousel__navigation--centered swiper-carousel__navigation--{{ product_list_navigation_behavior }} product-list__navigation product-list__navigation--{{ product_list_navigation_position }} product-list__navigation--{{ product_list_navigation_behavior }}"
+      data-product-list-navigation
+      {% if product_list_navigation_center_style != blank %}style="{{ product_list_navigation_center_style }}"{% endif %}
+    >
+      <button
+        class="btn btn-{{ product_list_navigation_button_variant }} btn--{{ product_list_navigation_button_variant }} btn--icon{% if product_list_navigation_button_modifier != blank %} {{ product_list_navigation_button_modifier }}{% endif %} swiper-nav-button swiper-nav-button--prev product-list__carousel-button"
+        type="button"
+        data-product-list-previous
+        aria-label="{{ 'collection_tabs.previous' | t | escape }}"
+      >
+        {% render 'carousel-navigation-icon', icon: product_list_navigation_icon, direction: 'previous' %}
+      </button>
+      <button
+        class="btn btn-{{ product_list_navigation_button_variant }} btn--{{ product_list_navigation_button_variant }} btn--icon{% if product_list_navigation_button_modifier != blank %} {{ product_list_navigation_button_modifier }}{% endif %} swiper-nav-button swiper-nav-button--next product-list__carousel-button"
+        type="button"
+        data-product-list-next
+        aria-label="{{ 'collection_tabs.next' | t | escape }}"
+      >
+        {% render 'carousel-navigation-icon', icon: product_list_navigation_icon, direction: 'next' %}
+      </button>
+    </div>
+  {% endif %}
+{% endcapture %}
+{% assign product_list_navigation_markup = product_list_navigation_markup | strip %}
 
 {% if product_list_layout == 'carousel' %}
   {% render 'swiper-stylesheet' %}
@@ -184,8 +217,10 @@
   class="product-list"
   data-product-list
   data-layout="{{ product_list_layout }}"
+  data-collection-url="{{ product_list_collection.url | escape }}"
   {{ block.shopify_attributes }}
 >
+  {% if product_list_navigation_position == 'top' %}{{ product_list_navigation_markup }}{% endif %}
   <div class="product-list__carousel swiper-carousel__container" data-product-list-carousel>
     {% render 'product-collection-grid',
       collection: product_list_collection,
@@ -218,30 +253,7 @@
       items_content: product_list_items_content
     %}
 
-    {% if product_list_layout == 'carousel' and product_list_show_navigation %}
-      <div
-        class="swiper-carousel__navigation--centered swiper-carousel__navigation--{{ product_list_navigation_behavior }} product-list__navigation product-list__navigation--{{ product_list_navigation_position }} product-list__navigation--{{ product_list_navigation_behavior }}"
-        data-product-list-navigation
-        {% if product_list_navigation_center_style != blank %}style="{{ product_list_navigation_center_style }}"{% endif %}
-      >
-        <button
-          class="btn btn-{{ product_list_navigation_button_variant }} btn--{{ product_list_navigation_button_variant }} btn--icon{% if product_list_navigation_button_modifier != blank %} {{ product_list_navigation_button_modifier }}{% endif %} swiper-nav-button swiper-nav-button--prev product-list__carousel-button"
-          type="button"
-          data-product-list-previous
-          aria-label="{{ 'collection_tabs.previous' | t | escape }}"
-        >
-          {% render 'carousel-navigation-icon', icon: product_list_navigation_icon, direction: 'previous' %}
-        </button>
-        <button
-          class="btn btn-{{ product_list_navigation_button_variant }} btn--{{ product_list_navigation_button_variant }} btn--icon{% if product_list_navigation_button_modifier != blank %} {{ product_list_navigation_button_modifier }}{% endif %} swiper-nav-button swiper-nav-button--next product-list__carousel-button"
-          type="button"
-          data-product-list-next
-          aria-label="{{ 'collection_tabs.next' | t | escape }}"
-        >
-          {% render 'carousel-navigation-icon', icon: product_list_navigation_icon, direction: 'next' %}
-        </button>
-      </div>
-    {% endif %}
+    {% if product_list_navigation_position != 'top' %}{{ product_list_navigation_markup }}{% endif %}
   </div>
 </div>
 
@@ -274,6 +286,16 @@
     padding-inline: 0;
   }
 
+  .product-list__navigation.product-list__navigation--top {
+    position: relative;
+    inset: auto;
+    width: max-content;
+    max-width: 100%;
+    gap: 0.5rem;
+    padding-inline: 0;
+    transform: none;
+  }
+
   .product-list__navigation--outside .swiper-nav-button--prev {
     margin-inline-start: calc(-1 * var(--swiper-nav-size) / 2);
   }
@@ -289,6 +311,10 @@
   @media (max-width: 767.98px) {
     .product-list__navigation {
       display: none;
+    }
+
+    .product-list__navigation.product-list__navigation--top {
+      display: flex;
     }
   }
 
@@ -341,7 +367,7 @@
         { "value": "5", "label": "5" },
         { "value": "6", "label": "6" }
       ],
-      "default": "3"
+      "default": "4"
     },
     {
       "type": "select",
@@ -402,7 +428,8 @@
       "label": "t:labels.position",
       "options": [
         { "value": "outside", "label": "t:options.collection_navigation_position.outside" },
-        { "value": "inside", "label": "t:options.collection_navigation_position.inside" }
+        { "value": "inside", "label": "t:options.collection_navigation_position.inside" },
+        { "value": "top", "label": "t:options.position.top" }
       ],
       "default": "inside",
       "visible_if": "{{ block.settings.layout_type == 'carousel' and block.settings.show_navigation_on_desktop }}"
@@ -441,7 +468,7 @@
         { "value": "always", "label": "t:options.collection_navigation_behavior.always" }
       ],
       "default": "show_on_hover",
-      "visible_if": "{{ block.settings.layout_type == 'carousel' and block.settings.show_navigation_on_desktop }}"
+      "visible_if": "{{ block.settings.layout_type == 'carousel' and block.settings.show_navigation_on_desktop and block.settings.navigation_position != 'top' }}"
     },
     {
       "type": "header",
@@ -545,7 +572,7 @@
         "collection": "",
         "max_products": 6,
         "layout_type": "carousel",
-        "columns_desktop": "3",
+        "columns_desktop": "4",
         "columns_mobile": "1",
         "show_next_slide_preview_on_desktop": false,
         "product_gap_desktop": 4,

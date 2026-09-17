@@ -1,7 +1,8 @@
 {% doc %}
-  Renders the fixed View all action for the Collection tabs section.
-  The destination is assigned by the Tab layout runtime from the active
-  collection, so this block intentionally has no link settings.
+  Renders the fixed View all action for the Collection tabs and Featured
+  collection sections. Collection tabs assigns the destination from the
+  active tab at runtime; Featured collection passes its collection as the
+  closest resource, so this block intentionally has no link settings.
 
   @example
   {% content_for 'block', type: 'collection-tabs-view-all', id: 'collection-tabs-view-all' %}
@@ -50,6 +51,16 @@
     assign collection_tabs_view_all_icon_width = 20
   endif
 
+  assign collection_tabs_view_all_url = blank
+  if closest.collection != blank
+    assign collection_tabs_view_all_url = closest.collection.url
+  endif
+
+  assign collection_tabs_view_all_attributes = 'data-collection-tabs-view-all aria-disabled="true" tabindex="-1"'
+  if collection_tabs_view_all_url != blank
+    assign collection_tabs_view_all_attributes = 'data-collection-tabs-view-all'
+  endif
+
   assign collection_tabs_view_all_padding_top = block.settings.padding_top | default: 0 | plus: 0
   assign collection_tabs_view_all_padding_bottom = block.settings.padding_bottom | default: 0 | plus: 0
   assign collection_tabs_view_all_padding_left = block.settings.padding_left | default: 0 | plus: 0
@@ -85,6 +96,7 @@
   >
     {% render 'theme-button',
       label: collection_tabs_view_all_label,
+      url: collection_tabs_view_all_url,
       force_link: true,
       variant: collection_tabs_view_all_style,
       icon: collection_tabs_view_all_icon,
@@ -92,7 +104,7 @@
       icon_size: collection_tabs_view_all_icon_size,
       icon_width: collection_tabs_view_all_icon_width,
       class: 'collection-tabs-view-all__button',
-      attributes: 'data-collection-tabs-view-all aria-disabled="true" tabindex="-1"'
+      attributes: collection_tabs_view_all_attributes
     %}
   </div>
 {% endif %}
