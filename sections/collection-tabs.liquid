@@ -543,7 +543,7 @@
     {
       "type": "checkbox",
       "id": "show_pagination_on_desktop",
-      "label": "t:labels.show_pagination_on_desktop",
+      "label": "t:labels.show_pagination",
       "default": true,
       "visible_if": "{{ section.settings.layout_type == 'carousel' }}"
     },
@@ -560,13 +560,24 @@
     },
     {
       "type": "range",
-      "id": "pagination_top_padding",
-      "label": "t:labels.pagination_top_padding",
+      "id": "pagination_top_padding_desktop",
+      "label": "t:labels.pagination_desktop_top_padding",
       "min": 0,
       "max": 100,
       "step": 1,
       "unit": "px",
       "default": 50,
+      "visible_if": "{{ section.settings.layout_type == 'carousel' and section.settings.show_pagination_on_desktop }}"
+    },
+    {
+      "type": "range",
+      "id": "pagination_top_padding_mobile",
+      "label": "t:labels.pagination_mobile_top_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24,
       "visible_if": "{{ section.settings.layout_type == 'carousel' and section.settings.show_pagination_on_desktop }}"
     },
     {
@@ -705,7 +716,8 @@
         "navigation_behavior": "show_on_hover",
         "show_pagination_on_desktop": true,
         "pagination_type": "progress_bar",
-        "pagination_top_padding": 50,
+        "pagination_top_padding_desktop": 50,
+        "pagination_top_padding_mobile": 24,
         "pagination_limit_width": true,
         "pagination_max_width": 260,
         "autoplay": false,

@@ -131,10 +131,6 @@
   inset-block-end: 1rem !important;
 }
 
-.product-media-gallery__pagination .swiper-pagination-bullet {
-  background: var(--body-color);
-}
-
 @media (min-width: 768px) {
   .product-media-gallery--desktop-left_thumbnails .product-media-gallery__layout {
     grid-template-columns: 7.2rem minmax(0, 1fr);

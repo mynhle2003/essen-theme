@@ -99,9 +99,14 @@
     assign collection_tab_pagination_limit_width = true
   endif
 
-  assign collection_tab_pagination_top_padding = section.settings.pagination_top_padding | default: 50 | plus: 0
-  if collection_tab_pagination_top_padding < 0 or collection_tab_pagination_top_padding > 100
-    assign collection_tab_pagination_top_padding = 50
+  assign collection_tab_pagination_top_padding_desktop = section.settings.pagination_top_padding_desktop | default: section.settings.pagination_top_padding | default: 50 | plus: 0
+  if collection_tab_pagination_top_padding_desktop < 0 or collection_tab_pagination_top_padding_desktop > 100
+    assign collection_tab_pagination_top_padding_desktop = 50
+  endif
+
+  assign collection_tab_pagination_top_padding_mobile = section.settings.pagination_top_padding_mobile | default: 24 | plus: 0
+  if collection_tab_pagination_top_padding_mobile < 0 or collection_tab_pagination_top_padding_mobile > 100
+    assign collection_tab_pagination_top_padding_mobile = 24
   endif
 
   assign collection_tab_pagination_max_width = section.settings.pagination_max_width | default: 260 | plus: 0
@@ -143,14 +148,15 @@
 
 {% capture collection_tab_pagination_style %}
   {% if collection_tab_show_pagination %}
-    --swiper-pagination-spacing: {{ collection_tab_pagination_top_padding }}px;
+    --swiper-pagination-spacing: {{ collection_tab_pagination_top_padding_desktop }}px;
+    --swiper-pagination-spacing-mobile: {{ collection_tab_pagination_top_padding_mobile }}px;
     {% if collection_tab_pagination_limit_width %}--swiper-pagination-width: min(100%, {{ collection_tab_pagination_max_width }}px);{% endif %}
   {% endif %}
 {% endcapture %}
 {% assign collection_tab_pagination_style = collection_tab_pagination_style | strip %}
 
 {% capture collection_tab_navigation_center_style %}
-  {% if collection_tab_show_pagination %}--swiper-navigation-center-offset: calc(({{ collection_tab_pagination_top_padding }}px + {{ collection_tab_pagination_size }}) / 2);{% endif %}
+  {% if collection_tab_show_pagination %}--swiper-navigation-center-offset: calc(({{ collection_tab_pagination_top_padding_desktop }}px + {{ collection_tab_pagination_size }}) / 2);{% endif %}
 {% endcapture %}
 {% assign collection_tab_navigation_center_style = collection_tab_navigation_center_style | strip %}
 
@@ -316,31 +322,13 @@
     pointer-events: auto;
   }
 
-  .collection-tab__pagination--progress_bar {
-    --swiper-pagination-progressbar-bg-color: color-mix(in srgb, var(--body-color) 20%, transparent);
-    --swiper-pagination-color: var(--body-color);
-  }
-
-  .collection-tab__pagination--bullets {
-    --swiper-pagination-bullet-size: 0.5rem;
-    --swiper-pagination-bullet-horizontal-gap: 0;
-    --swiper-pagination-bullet-inactive-color: color-mix(in srgb, var(--body-color) 30%, transparent);
-    --swiper-pagination-bullet-inactive-opacity: 1;
-    --swiper-pagination-color: var(--body-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-
   .collection-tab__empty {
     margin-block-start: 1rem;
     color: color-mix(in srgb, var(--body-color) 72%, transparent);
   }
 
   @media (max-width: 767.98px) {
-    .collection-tab__carousel-navigation,
-    .collection-tab__pagination {
+    .collection-tab__carousel-navigation {
       display: none;
     }
   }

@@ -89,14 +89,22 @@
     assign shop_the_look_products_pagination_size = 'var(--swiper-pagination-bullet-size, 0.5rem)'
   endif
 
-  assign shop_the_look_products_show_pagination = true
-  if block.settings.show_pagination_on_desktop == false or block.settings.show_pagination_on_desktop == 'false'
-    assign shop_the_look_products_show_pagination = false
+  assign shop_the_look_products_show_pagination = false
+  if shop_the_look_products_layout == 'carousel'
+    assign shop_the_look_products_show_pagination = true
+    if block.settings.show_pagination_on_desktop == false or block.settings.show_pagination_on_desktop == 'false'
+      assign shop_the_look_products_show_pagination = false
+    endif
   endif
 
-  assign shop_the_look_products_pagination_top_padding = block.settings.pagination_top_padding | default: 50 | plus: 0
-  if shop_the_look_products_pagination_top_padding < 0 or shop_the_look_products_pagination_top_padding > 100
-    assign shop_the_look_products_pagination_top_padding = 50
+  assign shop_the_look_products_pagination_top_padding_desktop = block.settings.pagination_top_padding_desktop | default: block.settings.pagination_top_padding | default: 50 | plus: 0
+  if shop_the_look_products_pagination_top_padding_desktop < 0 or shop_the_look_products_pagination_top_padding_desktop > 100
+    assign shop_the_look_products_pagination_top_padding_desktop = 50
+  endif
+
+  assign shop_the_look_products_pagination_top_padding_mobile = block.settings.pagination_top_padding_mobile | default: 24 | plus: 0
+  if shop_the_look_products_pagination_top_padding_mobile < 0 or shop_the_look_products_pagination_top_padding_mobile > 100
+    assign shop_the_look_products_pagination_top_padding_mobile = 24
   endif
 
   assign shop_the_look_products_pagination_limit_width = false
@@ -136,14 +144,16 @@
 
 {% capture shop_the_look_products_pagination_style %}
   {% if shop_the_look_products_show_pagination %}
-    --swiper-pagination-spacing: {{ shop_the_look_products_pagination_top_padding }}px;
+    --swiper-pagination-spacing: {{ shop_the_look_products_pagination_top_padding_desktop }}px;
+    --swiper-pagination-spacing-mobile: {{ shop_the_look_products_pagination_top_padding_mobile }}px;
+    {% if shop_the_look_products_autoplay_enabled %}--swiper-pagination-bullet-progress-duration: {{ shop_the_look_products_autoplay_delay }}ms;{% endif %}
     {% if shop_the_look_products_pagination_limit_width %}--swiper-pagination-width: min(100%, {{ shop_the_look_products_pagination_max_width }}px);{% endif %}
   {% endif %}
 {% endcapture %}
 {% assign shop_the_look_products_pagination_style = shop_the_look_products_pagination_style | strip %}
 
 {% capture shop_the_look_products_navigation_center_style %}
-  {% if shop_the_look_products_layout == 'carousel' and shop_the_look_products_show_pagination %}--swiper-navigation-center-offset: calc(({{ shop_the_look_products_pagination_top_padding }}px + {{ shop_the_look_products_pagination_size }}) / 2);{% endif %}
+  {% if shop_the_look_products_layout == 'carousel' and shop_the_look_products_show_pagination %}--swiper-navigation-center-offset: calc(({{ shop_the_look_products_pagination_top_padding_desktop }}px + {{ shop_the_look_products_pagination_size }}) / 2);{% endif %}
 {% endcapture %}
 {% assign shop_the_look_products_navigation_center_style = shop_the_look_products_navigation_center_style | strip %}
 
@@ -311,30 +321,6 @@
     pointer-events: auto;
   }
 
-  .shop-the-look-products__pagination {
-    position: relative !important;
-    inset: auto !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--swiper-pagination-width, 100%);
-    transform: none !important;
-  }
-
-  .shop-the-look-products__pagination--progress_bar {
-    --swiper-pagination-progressbar-bg-color: color-mix(in srgb, var(--body-color) 20%, transparent);
-    --swiper-pagination-color: var(--body-color);
-  }
-
-  .shop-the-look-products__pagination--bullets {
-    --swiper-pagination-bullet-size: 0.5rem;
-    --swiper-pagination-bullet-horizontal-gap: 0;
-    --swiper-pagination-bullet-inactive-color: color-mix(in srgb, var(--body-color) 30%, transparent);
-    --swiper-pagination-bullet-inactive-opacity: 1;
-    --swiper-pagination-color: var(--body-color);
-    gap: 0.5rem;
-  }
-
   @media (min-width: 768px) {
     .shop-the-look-products--single-column .shop-the-look-products__items {
       max-width: 38.4rem;
@@ -347,8 +333,7 @@
       gap: var(--shop-the-look-gap-mobile, 4px);
     }
 
-    .shop-the-look-products__navigation,
-    .shop-the-look-products__pagination {
+    .shop-the-look-products__navigation {
       display: none;
     }
   }
@@ -747,7 +732,7 @@
     {
       "type": "checkbox",
       "id": "show_pagination_on_desktop",
-      "label": "t:labels.show_pagination_on_desktop",
+      "label": "t:labels.show_pagination",
       "default": true,
       "visible_if": "{{ block.settings.layout_type == 'carousel' }}"
     },
@@ -764,13 +749,24 @@
     },
     {
       "type": "range",
-      "id": "pagination_top_padding",
-      "label": "t:labels.pagination_top_padding",
+      "id": "pagination_top_padding_desktop",
+      "label": "t:labels.pagination_desktop_top_padding",
       "min": 0,
       "max": 100,
       "step": 1,
       "unit": "px",
       "default": 50,
+      "visible_if": "{{ block.settings.layout_type == 'carousel' and block.settings.show_pagination_on_desktop }}"
+    },
+    {
+      "type": "range",
+      "id": "pagination_top_padding_mobile",
+      "label": "t:labels.pagination_mobile_top_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24,
       "visible_if": "{{ block.settings.layout_type == 'carousel' and block.settings.show_pagination_on_desktop }}"
     },
     {
@@ -839,7 +835,8 @@
         "navigation_behavior": "always",
         "show_pagination_on_desktop": true,
         "pagination_type": "progress_bar",
-        "pagination_top_padding": 50,
+        "pagination_top_padding_desktop": 50,
+        "pagination_top_padding_mobile": 24,
         "pagination_limit_width": true,
         "pagination_max_width": 260,
         "autoplay": false,

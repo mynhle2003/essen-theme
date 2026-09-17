@@ -65,6 +65,16 @@
     endif
   endif
 
+  assign product_collection_grid_autoplay_enabled = false
+  if autoplay == true or autoplay == 'true'
+    assign product_collection_grid_autoplay_enabled = true
+  endif
+
+  assign product_collection_grid_autoplay_delay = autoplay_delay | default: 4000 | plus: 0
+  if product_collection_grid_autoplay_delay < 1000 or product_collection_grid_autoplay_delay > 60000
+    assign product_collection_grid_autoplay_delay = 4000
+  endif
+
   assign product_collection_grid_aria_label = aria_label | default: 'search.products' | t
 
   assign product_collection_grid_columns_desktop = columns_desktop | default: 3 | plus: 0
@@ -221,11 +231,16 @@
 
     {% capture product_collection_grid_pagination %}
       {% if product_collection_grid_show_pagination %}
+        {% capture product_collection_grid_pagination_style %}
+          {{ pagination_style }}
+          {% if product_collection_grid_autoplay_enabled %}--swiper-pagination-bullet-progress-duration: {{ product_collection_grid_autoplay_delay }}ms;{% endif %}
+        {% endcapture %}
+        {% assign product_collection_grid_pagination_style = product_collection_grid_pagination_style | strip %}
         <div
           class="swiper-pagination{% if pagination_class != blank %} {{ pagination_class }}{% endif %}"
           data-product-collection-pagination
           data-pagination-type="{{ product_collection_grid_pagination_type }}"
-          {% if pagination_style != blank %}style="{{ pagination_style }}"{% endif %}
+          {% if product_collection_grid_pagination_style != blank %}style="{{ product_collection_grid_pagination_style }}"{% endif %}
         ></div>
       {% endif %}
     {% endcapture %}
