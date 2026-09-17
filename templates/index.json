@@ -97,7 +97,7 @@
             "heading_A73hg4": {
               "type": "heading",
               "settings": {
-                "text": "<p>Collection cards</p>",
+                "text": "<p>Collection tabs</p>",
                 "heading_size": "lg",
                 "html_tag": "h2",
                 "text_color": "",
@@ -168,7 +168,7 @@
         "collection_tab_FMtRnq",
         "collection_tab_yWDHxB"
       ],
-      "name": "t:general.collection_cards",
+      "name": "t:general.collection_tabs",
       "settings": {
         "section_width": "full_width",
         "layout_direction": "vertical",

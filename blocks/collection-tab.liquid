@@ -1,5 +1,5 @@
 {% doc %}
-  Renders one collection tab in a Collection Cards section. The block owns
+  Renders one collection tab in a Collection Tabs section. The block owns
   the collection resource and tab label. Product Card is the only fixed static
   child, rendered once per product in the selected collection; section settings
   own the shared product-list presentation.
@@ -349,7 +349,7 @@
 
 {% schema %}
 {
-  "name": "t:general.collection_card",
+  "name": "t:general.collection_tab",
   "tag": null,
   "blocks": [
     { "type": "product-card" }
@@ -368,7 +368,7 @@
   ],
   "presets": [
     {
-      "name": "t:general.collection_card",
+      "name": "t:general.collection_tab",
       "category": "t:general.collection",
       "settings": {
         "label": "",
