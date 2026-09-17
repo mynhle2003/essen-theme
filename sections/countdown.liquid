@@ -87,6 +87,15 @@
     assign countdown_section_mobile_vertical = true
   endif
 
+  assign countdown_section_gap_desktop = section.settings.gap_desktop | default: 36 | plus: 0
+  if countdown_section_gap_desktop < 0 or countdown_section_gap_desktop > 100
+    assign countdown_section_gap_desktop = 36
+  endif
+  assign countdown_section_gap_mobile = section.settings.gap_mobile | default: 36 | plus: 0
+  if countdown_section_gap_mobile < 0 or countdown_section_gap_mobile > 100
+    assign countdown_section_gap_mobile = 36
+  endif
+
   assign countdown_section_content_class = 'countdown-section__content layout-flow layout-flow--responsive countdown-section__content--direction-' | append: countdown_section_direction
   if countdown_section_direction == 'horizontal'
     assign countdown_section_content_class = countdown_section_content_class | append: ' countdown-section__content--position-' | append: countdown_section_position
@@ -154,8 +163,8 @@
     mobile_vertical: countdown_section_mobile_vertical,
     mobile_alignment: countdown_section_flow_mobile_alignment,
     mobile_justify: countdown_section_flow_mobile_justify,
-    gap_value: 'var(--layout-grid-gap, 1rem)',
-    gap_mobile_value: 'var(--layout-grid-gap, 1rem)'
+    gap: countdown_section_gap_desktop,
+    gap_mobile: countdown_section_gap_mobile
   %}
 {% endcapture %}
 {% assign countdown_section_content_style = countdown_section_content_style | strip %}
@@ -220,6 +229,11 @@
   .countdown-section__content > countdown-timer,
   .countdown-section__content > .button-block {
     min-width: 0;
+  }
+
+  .countdown-section__content--direction-horizontal > .group {
+    width: fit-content;
+    max-width: 100%;
   }
 
   @media (max-width: 767.98px) {
@@ -319,7 +333,7 @@
         { "value": "right", "label": "t:options.alignment.right" }
       ],
       "default": "left",
-      "visible_if": "{{ section.settings.direction == 'horizontal' and section.settings.customize_mobile_alignment }}"
+      "visible_if": "{{ section.settings.direction == 'vertical' or section.settings.customize_mobile_alignment }}"
     },
     {
       "type": "select",
@@ -332,6 +346,30 @@
       ],
       "default": "left",
       "visible_if": "{{ section.settings.direction == 'vertical' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:general.gap"
+    },
+    {
+      "type": "range",
+      "id": "gap_desktop",
+      "label": "t:labels.desktop_gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "label": "t:labels.mobile_gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 36
     },
     {
       "type": "header",
@@ -463,16 +501,18 @@
         "position": "center",
         "horizontal_alignment": "space-between",
         "customize_mobile_alignment": true,
-        "alignment_mobile": "left",
+        "alignment_mobile": "center",
         "alignment": "left",
+        "gap_desktop": 36,
+        "gap_mobile": 36,
         "color_scheme": "scheme-3",
         "boxed_color_scheme": "scheme-1",
         "boxed_padding_block": 70,
         "boxed_padding_inline": 50,
         "boxed_padding_block_mobile": 40,
         "boxed_padding_inline_mobile": 30,
-        "padding_top": 16,
-        "padding_bottom": 16,
+        "padding_top": 48,
+        "padding_bottom": 48,
         "customize_mobile_padding": false
       },
       "blocks": [
@@ -483,7 +523,8 @@
           "settings": {
             "direction": "vertical",
             "alignment": "left",
-            "width": "fill",
+            "alignment_mobile": "center",
+            "width": "fit",
             "height": "fit",
             "gap_desktop": 8,
             "gap_mobile": 6,

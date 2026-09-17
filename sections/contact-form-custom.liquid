@@ -21,7 +21,7 @@
   endcase
 
   assign contact_form_custom_alignment_mobile = contact_form_custom_alignment
-  if section.settings.customize_mobile_alignment
+  if contact_form_custom_direction == 'vertical' or section.settings.customize_mobile_alignment
     assign contact_form_custom_alignment_mobile = 'start'
     case section.settings.alignment_mobile
       when 'center'
@@ -312,14 +312,15 @@
       "type": "checkbox",
       "id": "customize_mobile_alignment",
       "label": "t:labels.customize_mobile_alignment",
-      "default": false
+      "default": false,
+      "visible_if": "{{ section.settings.direction == 'horizontal' }}"
     },
     {
       "type": "text_alignment",
       "id": "alignment_mobile",
       "label": "t:labels.mobile_alignment",
       "default": "left",
-      "visible_if": "{{ section.settings.customize_mobile_alignment }}"
+      "visible_if": "{{ section.settings.direction == 'vertical' or section.settings.customize_mobile_alignment }}"
     },
     {
       "type": "header",

@@ -56,11 +56,15 @@
 
   assign group_alignment_mobile = group_alignment
   assign group_justify_mobile = group_justify
+  assign group_mobile_alignment_enabled = false
+  if group_direction == 'vertical' or group_vertical_on_mobile
+    assign group_mobile_alignment_enabled = true
+  endif
   assign group_alignment_mobile_source = block.settings.alignment_mobile | default: 'left'
   unless group_alignment_mobile_source == 'left' or group_alignment_mobile_source == 'center' or group_alignment_mobile_source == 'right'
     assign group_alignment_mobile_source = 'left'
   endunless
-  if group_vertical_on_mobile
+  if group_mobile_alignment_enabled
     case group_alignment_mobile_source
       when 'center'
         assign group_alignment_mobile = 'center'
@@ -72,6 +76,11 @@
         assign group_alignment_mobile = 'start'
         assign group_justify_mobile = 'flex-start'
     endcase
+  endif
+
+  assign group_flow_mobile_alignment = blank
+  if group_mobile_alignment_enabled
+    assign group_flow_mobile_alignment = group_alignment_mobile
   endif
 
   assign group_width_mode = block.settings.width | default: 'fit'
@@ -217,7 +226,7 @@
     alignment: group_alignment,
     horizontal_alignment: group_justify,
     mobile_vertical: group_vertical_on_mobile,
-    mobile_alignment: group_alignment_mobile,
+    mobile_alignment: group_flow_mobile_alignment,
     mobile_justify: group_justify_mobile,
     gap: group_gap_desktop,
     gap_mobile: group_gap_mobile
@@ -232,7 +241,7 @@
       --group-max-width-mobile: 100%;
     {% endif %}
   {% endif %}
-  {% if group_vertical_on_mobile and group_alignment_mobile != group_alignment %}--group-align-mobile: {{ group_alignment_mobile }};{% endif %}
+  {% if group_mobile_alignment_enabled and group_alignment_mobile != group_alignment %}--group-align-mobile: {{ group_alignment_mobile }};{% endif %}
   {% if block.settings.border_color != blank %}--group-border-color: {{ block.settings.border_color | escape }};{% endif %}
   {% if padding_top != 0 %}--group-padding-top: {{ padding_top }}px;{% endif %}
   {% if padding_bottom != 0 %}--group-padding-bottom: {{ padding_bottom }}px;{% endif %}
@@ -503,18 +512,6 @@
     },
     {
       "type": "select",
-      "id": "alignment_mobile",
-      "label": "t:labels.alignment_mobile",
-      "options": [
-        { "value": "left", "label": "t:options.alignment.left" },
-        { "value": "center", "label": "t:options.alignment.center" },
-        { "value": "right", "label": "t:options.alignment.right" }
-      ],
-      "default": "left",
-      "visible_if": "{{ block.settings.direction == 'horizontal' and block.settings.customize_mobile_alignment }}"
-    },
-    {
-      "type": "select",
       "id": "alignment",
       "label": "t:labels.alignment",
       "options": [
@@ -524,6 +521,18 @@
       ],
       "default": "left",
       "visible_if": "{{ block.settings.direction == 'vertical' }}"
+    },
+    {
+      "type": "select",
+      "id": "alignment_mobile",
+      "label": "t:labels.alignment_mobile",
+      "options": [
+        { "value": "left", "label": "t:options.alignment.left" },
+        { "value": "center", "label": "t:options.alignment.center" },
+        { "value": "right", "label": "t:options.alignment.right" }
+      ],
+      "default": "left",
+      "visible_if": "{{ block.settings.direction == 'vertical' or block.settings.customize_mobile_alignment }}"
     },
     {
       "type": "header",

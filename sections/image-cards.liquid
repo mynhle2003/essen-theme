@@ -19,6 +19,11 @@
     assign image_cards_direction = 'horizontal'
   endunless
 
+  assign image_cards_flow_direction = 'row'
+  if image_cards_direction == 'vertical'
+    assign image_cards_flow_direction = 'column'
+  endif
+
   assign image_cards_vertical_on_mobile = false
   if section.settings.vertical_on_mobile or section.settings.vertical_on_mobile == nil
     assign image_cards_vertical_on_mobile = true
@@ -27,6 +32,11 @@
   assign image_cards_mobile_direction = image_cards_direction
   if image_cards_vertical_on_mobile
     assign image_cards_mobile_direction = 'vertical'
+  endif
+
+  assign image_cards_flow_direction_mobile = 'row'
+  if image_cards_mobile_direction == 'vertical'
+    assign image_cards_flow_direction_mobile = 'column'
   endif
 
   assign image_cards_height = 'auto'
@@ -84,14 +94,26 @@
   {% if section.settings.background_color != blank %}--image-cards-background-color: {{ section.settings.background_color | escape }};{% endif %}
   {% if image_cards_padding_top != 0 %}--image-cards-padding-top: {{ image_cards_padding_top }}px;{% endif %}
   {% if image_cards_padding_bottom != 0 %}--image-cards-padding-bottom: {{ image_cards_padding_bottom }}px;{% endif %}
-  {% if image_cards_gap_desktop != 32 %}--image-cards-gap-desktop: {{ image_cards_gap_desktop }}px;{% endif %}
-  {% if image_cards_gap_mobile != 8 %}--image-cards-gap-mobile: {{ image_cards_gap_mobile }}px;{% endif %}
   {% if section.settings.customize_mobile_padding %}
     {% if image_cards_padding_top_mobile != image_cards_padding_top %}--image-cards-padding-top-mobile: {{ image_cards_padding_top_mobile }}px;{% endif %}
     {% if image_cards_padding_bottom_mobile != image_cards_padding_bottom %}--image-cards-padding-bottom-mobile: {{ image_cards_padding_bottom_mobile }}px;{% endif %}
   {% endif %}
 {% endcapture %}
 {% assign image_cards_style = image_cards_style | strip %}
+
+{% capture image_cards_grid_style %}
+  {% render 'layout-flow-style',
+    direction: image_cards_flow_direction,
+    wrap: 'nowrap',
+    align_items: 'stretch',
+    gap: image_cards_gap_desktop,
+    direction_mobile: image_cards_flow_direction_mobile,
+    wrap_mobile: 'nowrap',
+    align_items_mobile: 'stretch',
+    gap_mobile: image_cards_gap_mobile
+  %}
+{% endcapture %}
+{% assign image_cards_grid_style = image_cards_grid_style | strip %}
 
 {% if section.blocks.size > 0 or request.design_mode %}
   <div
@@ -105,7 +127,10 @@
     {% endif %}
 
     <div class="container {{ image_cards_container_width }} image-cards-section__container{% if image_cards_container_no_padding %} image-cards-section__container--no-padding{% endif %}">
-      <div class="image-cards-section__grid layout-flow layout-flow--responsive">
+      <div
+        class="image-cards-section__grid layout-flow layout-flow--responsive"
+        {% if image_cards_grid_style != blank %}style="{{ image_cards_grid_style }}"{% endif %}
+      >
         {% content_for 'blocks' %}
       </div>
     </div>
@@ -159,17 +184,8 @@
   }
 
   .image-cards-section__grid {
-    --layout-flow-direction: row;
-    --layout-flow-wrap: nowrap;
-    --layout-flow-align-items: stretch;
-    --layout-flow-gap: var(--image-cards-gap-desktop, 32px);
-    --layout-flow-gap-mobile: var(--image-cards-gap-mobile, 8px);
     height: 100%;
     width: 100%;
-  }
-
-  .image-cards-section--direction-vertical .image-cards-section__grid {
-    --layout-flow-direction: column;
   }
 
   .image-cards-section--height-auto .image-card--height-desktop-fill {
@@ -196,15 +212,6 @@
     .image-cards-section {
       padding-top: var(--image-cards-padding-top-mobile, var(--image-cards-padding-top, 0px));
       padding-bottom: var(--image-cards-padding-bottom-mobile, var(--image-cards-padding-bottom, 0px));
-    }
-
-    .image-cards-section__grid {
-      --layout-flow-direction-mobile: column;
-      --layout-flow-wrap-mobile: nowrap;
-    }
-
-    .image-cards-section--mobile-direction-horizontal .image-cards-section__grid {
-      --layout-flow-direction-mobile: row;
     }
 
     .image-cards-section--height-auto .image-card--height-mobile-fill {

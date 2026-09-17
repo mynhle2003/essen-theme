@@ -17,12 +17,12 @@
 {% enddoc %}
 
 {% if direction != blank %}--layout-flow-direction: {{ direction }};{% endif %}
-{% if wrap != blank %}--layout-flow-wrap: {{ wrap }};{% endif %}
+{% if wrap == 'wrap' or wrap == 'nowrap' %}--layout-flow-wrap: {{ wrap }};{% endif %}
 {% if align_items != blank %}--layout-flow-align-items: {{ align_items }};{% endif %}
 {% if justify_content != blank %}--layout-flow-justify-content: {{ justify_content }};{% endif %}
 {% if gap_value != blank %}--layout-flow-gap: {{ gap_value }};{% elsif gap != blank %}--layout-flow-gap: {{ gap }}px;{% endif %}
 {% if direction_mobile != blank %}--layout-flow-direction-mobile: {{ direction_mobile }};{% endif %}
-{% if wrap_mobile != blank %}--layout-flow-wrap-mobile: {{ wrap_mobile }};{% endif %}
+{% if wrap_mobile == 'wrap' or wrap_mobile == 'nowrap' %}--layout-flow-wrap-mobile: {{ wrap_mobile }};{% endif %}
 {% if align_items_mobile != blank %}--layout-flow-align-items-mobile: {{ align_items_mobile }};{% endif %}
 {% if justify_content_mobile != blank %}--layout-flow-justify-content-mobile: {{ justify_content_mobile }};{% endif %}
 {% if gap_mobile_value != blank %}--layout-flow-gap-mobile: {{ gap_mobile_value }};{% elsif gap_mobile != blank %}--layout-flow-gap-mobile: {{ gap_mobile }}px;{% endif %}

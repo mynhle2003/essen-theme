@@ -72,14 +72,20 @@
     assign padding_right_mobile = 0
   endif
 
-  assign row_class = 'block-row'
+  assign row_class = 'block-row layout-flow layout-flow--responsive'
 %}
 
 {% capture row_style %}
-  {% if row_gap_desktop != 24 %}--row-gap-desktop: {{ row_gap_desktop }}px;{% endif %}
-  {% if row_gap_mobile != 16 %}--row-gap-mobile: {{ row_gap_mobile }}px;{% endif %}
-  {% if row_alignment != 'flex-start' %}--row-align-items: {{ row_alignment }};{% endif %}
-  {% if block.settings.customize_mobile_alignment and row_alignment_mobile != row_alignment %}--row-align-items-mobile: {{ row_alignment_mobile }};{% endif %}
+  {% render 'layout-flow-style',
+    direction: 'row',
+    wrap: 'nowrap',
+    align_items: row_alignment,
+    align_items_mobile: row_alignment_mobile,
+    gap: row_gap_desktop,
+    direction_mobile: 'column',
+    wrap_mobile: 'nowrap',
+    gap_mobile: row_gap_mobile
+  %}
   {% if padding_top != 0 %}--row-padding-top: {{ padding_top }}px;{% endif %}
   {% if padding_bottom != 0 %}--row-padding-bottom: {{ padding_bottom }}px;{% endif %}
   {% if padding_left != 0 %}--row-padding-left: {{ padding_left }}px;{% endif %}
@@ -103,13 +109,6 @@
 
 {% stylesheet %}
   .block-row {
-    --row-gap: var(--row-gap-desktop, 24px);
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: var(--row-align-items, flex-start);
-    justify-content: flex-start;
-    gap: var(--row-gap);
     width: 100%;
     min-width: 0;
     padding-top: var(--row-padding-top, 0px);
@@ -129,12 +128,16 @@
 
   @media (max-width: 767.98px) {
     .block-row {
-      --row-gap: var(--row-gap-mobile, 16px);
-      align-items: var(--row-align-items-mobile, var(--row-align-items, flex-start));
       padding-top: var(--row-padding-top-mobile, var(--row-padding-top, 0px));
       padding-right: var(--row-padding-right-mobile, var(--row-padding-right, 0px));
       padding-bottom: var(--row-padding-bottom-mobile, var(--row-padding-bottom, 0px));
       padding-left: var(--row-padding-left-mobile, var(--row-padding-left, 0px));
+    }
+
+    .block-row > .block-column {
+      width: 100%;
+      min-width: 0;
+      flex: 0 1 auto;
     }
   }
 {% endstylesheet %}

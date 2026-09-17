@@ -25,7 +25,7 @@
   assign layout_flow_position = position | default: 'top'
   assign layout_flow_alignment = alignment | default: 'start'
   assign layout_flow_horizontal_alignment = horizontal_alignment | default: 'flex-start'
-  assign layout_flow_mobile_alignment = mobile_alignment | default: 'start'
+  assign layout_flow_mobile_alignment = mobile_alignment
   assign layout_flow_mobile_justify = mobile_justify | default: 'flex-start'
 %}
 
@@ -60,4 +60,11 @@
     {% when 'center' %}--layout-flow-justify-content: center;
     {% when 'bottom' %}--layout-flow-justify-content: flex-end;
   {% endcase %}
+  {% if layout_flow_mobile_alignment != blank %}
+    {% case layout_flow_mobile_alignment %}
+      {% when 'center' %}--layout-flow-align-items-mobile: center;
+      {% when 'end' %}--layout-flow-align-items-mobile: flex-end;
+      {% else %}--layout-flow-align-items-mobile: flex-start;
+    {% endcase %}
+  {% endif %}
 {% endif %}
