@@ -115,8 +115,11 @@
   endif
 
   assign collection_tab_show_pagination = false
-  if collection_tab_layout == 'carousel' and section.settings.show_pagination_on_desktop
+  if collection_tab_layout == 'carousel'
     assign collection_tab_show_pagination = true
+    if section.settings.show_pagination_on_desktop == false or section.settings.show_pagination_on_desktop == 'false'
+      assign collection_tab_show_pagination = false
+    endif
   endif
 
   assign collection_tab_id = block.id | default: 'collection-tab'
@@ -139,8 +142,10 @@
 %}
 
 {% capture collection_tab_pagination_style %}
-  --swiper-pagination-spacing: {{ collection_tab_pagination_top_padding }}px;
-  {% if collection_tab_pagination_limit_width %}--swiper-pagination-width: min(100%, {{ collection_tab_pagination_max_width }}px);{% endif %}
+  {% if collection_tab_show_pagination %}
+    --swiper-pagination-spacing: {{ collection_tab_pagination_top_padding }}px;
+    {% if collection_tab_pagination_limit_width %}--swiper-pagination-width: min(100%, {{ collection_tab_pagination_max_width }}px);{% endif %}
+  {% endif %}
 {% endcapture %}
 {% assign collection_tab_pagination_style = collection_tab_pagination_style | strip %}
 

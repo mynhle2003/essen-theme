@@ -59,8 +59,10 @@
   endunless
 
   assign product_collection_grid_show_pagination = false
-  if show_pagination and product_collection_grid_layout == 'carousel'
-    assign product_collection_grid_show_pagination = true
+  if product_collection_grid_layout == 'carousel'
+    if show_pagination == true or show_pagination == 'true'
+      assign product_collection_grid_show_pagination = true
+    endif
   endif
 
   assign product_collection_grid_aria_label = aria_label | default: 'search.products' | t

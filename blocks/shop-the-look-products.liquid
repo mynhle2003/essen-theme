@@ -135,8 +135,10 @@
 {% assign shop_the_look_products_style = shop_the_look_products_style | strip %}
 
 {% capture shop_the_look_products_pagination_style %}
-  --swiper-pagination-spacing: {{ shop_the_look_products_pagination_top_padding }}px;
-  {% if shop_the_look_products_pagination_limit_width %}--swiper-pagination-width: min(100%, {{ shop_the_look_products_pagination_max_width }}px);{% endif %}
+  {% if shop_the_look_products_show_pagination %}
+    --swiper-pagination-spacing: {{ shop_the_look_products_pagination_top_padding }}px;
+    {% if shop_the_look_products_pagination_limit_width %}--swiper-pagination-width: min(100%, {{ shop_the_look_products_pagination_max_width }}px);{% endif %}
+  {% endif %}
 {% endcapture %}
 {% assign shop_the_look_products_pagination_style = shop_the_look_products_pagination_style | strip %}
 

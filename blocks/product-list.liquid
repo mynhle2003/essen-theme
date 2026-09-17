@@ -124,8 +124,10 @@
 %}
 
 {% capture product_list_pagination_style %}
-  --swiper-pagination-spacing: {{ product_list_pagination_top_padding }}px;
-  {% if product_list_pagination_limit_width %}--swiper-pagination-width: min(100%, {{ product_list_pagination_max_width }}px);{% endif %}
+  {% if product_list_show_pagination %}
+    --swiper-pagination-spacing: {{ product_list_pagination_top_padding }}px;
+    {% if product_list_pagination_limit_width %}--swiper-pagination-width: min(100%, {{ product_list_pagination_max_width }}px);{% endif %}
+  {% endif %}
 {% endcapture %}
 {% assign product_list_pagination_style = product_list_pagination_style | strip %}
 
