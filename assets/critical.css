@@ -47,6 +47,56 @@ svg {
   height: auto;
 }
 
+.media {
+  position: relative;
+  overflow: clip;
+}
+
+.media__inner,
+.media__inner > picture,
+.media__inner > img,
+.media__inner > video,
+.media__inner > svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.placeholder-image {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: rgb(var(--color-foreground-rgb) / 8%);
+}
+
+.placeholder-image::before,
+.placeholder-image::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  pointer-events: none;
+}
+
+.placeholder-image::before {
+  background-color: #fff6;
+}
+
+.placeholder-image::after {
+  z-index: 1;
+  background-color: rgb(var(--color-foreground-rgb) / 8%);
+}
+
+.placeholder-image > svg {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  fill: rgb(var(--color-foreground-rgb) / 30%);
+}
+
 .icon {
   display: inline-flex;
   align-items: center;

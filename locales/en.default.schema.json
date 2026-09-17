@@ -161,6 +161,7 @@
     "row": "Row",
     "rich_text": "Rich text",
     "search": "Search",
+    "scroll_to": "Scroll to",
     "secondary": "Secondary",
     "section": "Section",
     "settings": "Settings",
@@ -238,6 +239,7 @@
     "label": "Label",
     "tab_label": "Tab label",
     "button_label": "Label",
+    "target_section_number": "Target section number",
     "link": "Link",
     "open_in_new_tab": "Open link in new tab",
     "badges_and_subheadings": "Badges and subheadings",
@@ -1158,6 +1160,7 @@
     }
   },
   "info": {
+    "target_section_number": "Enter the one-based position of the destination section in this page's main content.",
     "configure_product_card_swatches": "Configure swatches for product cards in [theme settings](/editor?context=theme&category=product%20cards).",
     "product_card_settings": "Edit card styling in [theme settings](/editor?context=theme&category=product%20cards).",
     "policy_links": "[Manage policies](https://admin.shopify.com/settings/legal)",
