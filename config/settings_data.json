@@ -32,8 +32,8 @@
             "button_secondary_background": "#FFFFFF",
             "button_secondary_text": "#1C1B1A",
             "button_secondary_border": "#1C1B1A",
-            "button_secondary_hover_background": "",
-            "button_secondary_hover_text": "#1C1B1A",
+            "button_secondary_hover_background": "#1C1B1A",
+            "button_secondary_hover_text": "#FFFFFF",
             "button_secondary_hover_border": "#1C1B1A",
             "button_tertiary_text": "#1C1B1A",
             "button_tertiary_hover_text": "#1C1B1A"

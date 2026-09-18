@@ -25,7 +25,7 @@
   if product_list_collection != blank and product_list_collection.products != blank
     assign product_list_items = product_list_collection.products
   else
-    assign product_list_placeholder_count = 8
+    assign product_list_placeholder_count = product_list_max_products
     assign product_list_items = (1..product_list_placeholder_count)
     assign product_list_item_limit = product_list_placeholder_count
     assign product_list_is_placeholder = true
@@ -234,7 +234,7 @@
       gap_vertical_mobile: product_list_gap_mobile,
       show_placeholders: true,
       show_placeholders_for_empty_collection: true,
-      placeholder_count: 8,
+      placeholder_count: product_list_max_products,
       grid_class: 'product-list__items',
       item_class: 'product-list__item',
       items_data_attributes: 'data-product-list-items',

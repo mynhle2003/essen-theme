@@ -70,7 +70,7 @@
 {% endcapture %}
 {% assign inventory_style = inventory_style | strip %}
 
-{% if inventory_product != blank or request.design_mode %}
+{% if inventory_product != blank and inventory_variant != blank %}
   <product-inventory
     class="product-inventory"
     data-product-inventory

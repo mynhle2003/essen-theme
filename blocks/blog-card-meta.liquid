@@ -1,0 +1,194 @@
+{% doc %}
+  Renders the article date and author inside Blog Card.
+
+  The parent Blog Card supplies the current article through `closest.article`.
+{% enddoc %}
+
+{% liquid
+  assign blog_card_meta_article = closest.article | default: article
+  assign blog_card_meta_size = block.settings.size | default: 'sm'
+  unless blog_card_meta_size == 'xs' or blog_card_meta_size == 'sm' or blog_card_meta_size == 'md' or blog_card_meta_size == 'lg' or blog_card_meta_size == 'xl' or blog_card_meta_size == 'xxl'
+    assign blog_card_meta_size = 'sm'
+  endunless
+
+  assign blog_card_meta_color = block.settings.text_color
+  if blog_card_meta_color == blank
+    case block.settings.color
+      when 'heading'
+        assign blog_card_meta_color = 'var(--heading-color)'
+      when 'text'
+        assign blog_card_meta_color = 'var(--text-color)'
+    endcase
+  endif
+
+  assign blog_card_meta_padding_top = block.settings.padding_top | default: 0 | plus: 0
+  assign blog_card_meta_padding_bottom = block.settings.padding_bottom | default: 4 | plus: 0
+  assign blog_card_meta_padding_top_mobile = block.settings.padding_top_mobile | default: blog_card_meta_padding_top | plus: 0
+  assign blog_card_meta_padding_bottom_mobile = block.settings.padding_bottom_mobile | default: blog_card_meta_padding_bottom | plus: 0
+%}
+
+{% capture blog_card_meta_style %}
+  {% if blog_card_meta_padding_top != 0 %}--blog-card-meta-padding-top: {{ blog_card_meta_padding_top }}px;{% endif %}
+  {% if blog_card_meta_padding_bottom != 0 %}--blog-card-meta-padding-bottom: {{ blog_card_meta_padding_bottom }}px;{% endif %}
+  {% if blog_card_meta_color != blank %}--blog-card-meta-color: {{ blog_card_meta_color | escape }};{% endif %}
+  {% if block.settings.customize_mobile_padding %}
+    {% if blog_card_meta_padding_top_mobile != blog_card_meta_padding_top %}--blog-card-meta-padding-top-mobile: {{ blog_card_meta_padding_top_mobile }}px;{% endif %}
+    {% if blog_card_meta_padding_bottom_mobile != blog_card_meta_padding_bottom %}--blog-card-meta-padding-bottom-mobile: {{ blog_card_meta_padding_bottom_mobile }}px;{% endif %}
+  {% endif %}
+{% endcapture %}
+{% assign blog_card_meta_style = blog_card_meta_style | strip %}
+
+{% if block.settings.show_date or block.settings.show_author or request.design_mode %}
+  <div
+    class="blog-card-meta body-{{ blog_card_meta_size }}"
+    {% if blog_card_meta_style != blank %}style="{{ blog_card_meta_style }}"{% endif %}
+    {{ block.shopify_attributes }}
+  >
+    {% if block.settings.show_date %}
+      {% if blog_card_meta_article.published_at != blank %}
+        {{ blog_card_meta_article.published_at | time_tag: format: 'date' }}
+      {% else %}
+        <span>February 03, 2026</span>
+      {% endif %}
+    {% endif %}
+    {% if block.settings.show_date and block.settings.show_author %}<span class="blog-card-meta__separator" aria-hidden="true">•</span>{% endif %}
+    {% if block.settings.show_author %}<span>{{ blog_card_meta_article.author | default: 'Author name' | escape }}</span>{% endif %}
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .blog-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: var(--blog-card-align-flex, flex-start);
+    gap: 0.35rem;
+    width: 100%;
+    padding-top: var(--blog-card-meta-padding-top, 0px);
+    padding-bottom: var(--blog-card-meta-padding-bottom, 4px);
+    color: var(--blog-card-meta-color, var(--text-color));
+    text-align: inherit;
+  }
+
+  .blog-card-meta__separator { opacity: 0.7; }
+
+  @media (max-width: 767.98px) {
+    .blog-card-meta {
+      padding-top: var(--blog-card-meta-padding-top-mobile, var(--blog-card-meta-padding-top, 0px));
+      padding-bottom: var(--blog-card-meta-padding-bottom-mobile, var(--blog-card-meta-padding-bottom, 4px));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Meta",
+  "tag": null,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "Show date",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "Show author",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:general.typography"
+    },
+    {
+      "type": "select",
+      "id": "size",
+      "label": "Size",
+      "options": [
+        { "value": "xs", "label": "Extra small" },
+        { "value": "sm", "label": "Small" },
+        { "value": "md", "label": "Medium" },
+        { "value": "lg", "label": "Large" },
+        { "value": "xl", "label": "Extra large" },
+        { "value": "xxl", "label": "2X large" }
+      ],
+      "default": "sm"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:labels.text_color"
+    },
+    {
+      "type": "header",
+      "content": "t:general.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:labels.top_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:labels.bottom_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "customize_mobile_padding",
+      "label": "t:labels.customize_mobile_padding",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "t:labels.mobile_top_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ block.settings.customize_mobile_padding }}"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "t:labels.mobile_bottom_padding",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 4,
+      "visible_if": "{{ block.settings.customize_mobile_padding }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Meta",
+      "category": "Blog",
+      "settings": {
+        "show_date": true,
+        "show_author": true,
+        "size": "sm",
+        "text_color": "",
+        "padding_top": 0,
+        "padding_bottom": 4,
+        "customize_mobile_padding": false,
+        "padding_top_mobile": 0,
+        "padding_bottom_mobile": 4
+      }
+    }
+  ]
+}
+{% endschema %}

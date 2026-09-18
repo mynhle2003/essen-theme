@@ -203,7 +203,8 @@
         { "value": "chevron", "label": "t:options.menu_icon.chevron" },
         { "value": "plus", "label": "t:options.menu_icon.plus" }
       ],
-      "default": "chevron"
+      "default": "chevron",
+      "visible_if": "{{ block.settings.collapse_menu_on_mobile }}"
     },
     {
       "type": "header",

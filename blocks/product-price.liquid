@@ -84,7 +84,11 @@
   {% if current_variant != blank %}
     {% render 'price', item: current_variant, context: 'product-page', class: 'product-page__price' %}
   {% else %}
-    {% render 'price', item: price_product, context: 'product-page', class: 'product-page__price' %}
+    {% if price_product != blank %}
+      {% render 'price', item: price_product, context: 'product-page', class: 'product-page__price' %}
+    {% elsif request.design_mode %}
+      {% render 'price', amount: 1999, context: 'product-page', class: 'product-page__price' %}
+    {% endif %}
   {% endif %}
 
   {% if block.settings.show_sale_badge %}

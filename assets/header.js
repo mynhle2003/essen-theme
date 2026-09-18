@@ -143,7 +143,9 @@
   };
 
   const updateHeaderHeight = (header) => {
-    header.style.setProperty('--header-height', `${header.offsetHeight}px`);
+    const height = `${header.offsetHeight}px`;
+    header.style.setProperty('--header-height', height);
+    document.documentElement.style.setProperty('--header-height', height);
   };
 
   const getStickyTarget = (header, stickyType) => {
@@ -317,15 +319,14 @@
     header.classList.add('header', 'section-color-scope');
     if (headerScheme) header.classList.add(headerScheme);
     if (headerTop.hasAttribute('data-header-overlay')) header.classList.add('header--overlay');
+    updateHeaderHeight(header);
+    if ('ResizeObserver' in window) {
+      const observer = new ResizeObserver(() => updateHeaderHeight(header));
+      observer.observe(header);
+      headerResizeObservers.set(header, observer);
+    }
     if (headerTop.hasAttribute('data-header-overlap-first-section')) {
       header.classList.add('header--overlap-first-section');
-      updateHeaderHeight(header);
-
-      if ('ResizeObserver' in window) {
-        const observer = new ResizeObserver(() => updateHeaderHeight(header));
-        observer.observe(header);
-        headerResizeObservers.set(header, observer);
-      }
     }
     header.dataset.stickyType = stickyType;
 

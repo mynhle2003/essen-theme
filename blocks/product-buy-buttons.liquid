@@ -510,7 +510,7 @@
       {% endif %}
     {% elsif request.design_mode %}
       <div class="product-buy-buttons__placeholder" aria-hidden="true">
-        <span class="btn btn-primary btn--primary">{{ add_to_cart_label | escape }}</span>
+        {% render 'theme-button', label: sold_out_label, type: 'button', class: 'product-form__submit', disabled: true %}
       </div>
     {% endif %}
   </product-buy-buttons>

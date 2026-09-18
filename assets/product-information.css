@@ -519,6 +519,10 @@
   width: 100%;
 }
 
+.product-buy-buttons__placeholder .product-form__submit {
+  width: 100%;
+}
+
 .product-buy-buttons .product-form__submit {
   min-height: var(--product-buy-button-height, var(--button-height));
 }
@@ -746,6 +750,11 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
+}
+
+.product-badges:not(:has(.product-badge)),
+.product-badges-block[data-badges-empty='true'] {
+  display: none;
 }
 
 @media (max-width: 767.98px) {

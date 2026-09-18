@@ -2,9 +2,8 @@
   Renders a compound header block that stacks optional Eyebrow, Heading, and
   Text child blocks.
 
-  The parent section owns the outer layout and alignment. This block owns the
-  child flow, optional max width, gaps, and padding without overriding child
-  typography.
+  This block owns its child flow, alignment, optional max width, gaps, and
+  padding without overriding child typography.
 
   @example
   {% content_for 'block', type: 'header', id: 'header' %}
@@ -62,6 +61,26 @@
     assign header_gap_mobile = 8
   endif
 
+  assign header_alignment = 'start'
+  case block.settings.alignment
+    when 'center'
+      assign header_alignment = 'center'
+    when 'right'
+      assign header_alignment = 'end'
+  endcase
+
+  assign header_alignment_mobile = header_alignment
+  if block.settings.customize_mobile_alignment
+    case block.settings.alignment_mobile
+      when 'center'
+        assign header_alignment_mobile = 'center'
+      when 'right'
+        assign header_alignment_mobile = 'end'
+      when 'left'
+        assign header_alignment_mobile = 'start'
+    endcase
+  endif
+
   assign padding_top = block.settings.padding_top | default: 0 | plus: 0
   assign padding_bottom = block.settings.padding_bottom | default: 0 | plus: 0
   assign padding_left = block.settings.padding_left | default: 0 | plus: 0
@@ -101,8 +120,8 @@
   {% render 'layout-flow-style',
     direction: 'column',
     wrap: 'nowrap',
-    align_items: 'var(--flex-align, flex-start)',
-    align_items_mobile: 'var(--flex-align-mobile, var(--flex-align, flex-start))',
+    align_items: 'var(--header-align, var(--flex-align, flex-start))',
+    align_items_mobile: 'var(--header-align-mobile, var(--header-align, var(--flex-align-mobile, var(--flex-align, flex-start))))',
     gap: header_gap_desktop,
     gap_mobile: header_gap_mobile
   %}
@@ -116,6 +135,8 @@
       --header-max-width-mobile: 100%;
     {% endif %}
   {% endif %}
+  --header-align: {{ header_alignment }};
+  {% if block.settings.customize_mobile_alignment %}--header-align-mobile: {{ header_alignment_mobile }};{% endif %}
   {% if padding_top != 0 %}--header-padding-top: {{ padding_top }}px;{% endif %}
   {% if padding_bottom != 0 %}--header-padding-bottom: {{ padding_bottom }}px;{% endif %}
   {% if padding_left != 0 %}--header-padding-left: {{ padding_left }}px;{% endif %}
@@ -229,6 +250,29 @@
       "unit": "px",
       "default": 480,
       "visible_if": "{{ block.settings.customize_mobile_size and block.settings.width_mobile == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:labels.alignment"
+    },
+    {
+      "type": "text_alignment",
+      "id": "alignment",
+      "label": "t:labels.alignment",
+      "default": "left"
+    },
+    {
+      "type": "checkbox",
+      "id": "customize_mobile_alignment",
+      "label": "t:labels.customize_mobile_alignment",
+      "default": false
+    },
+    {
+      "type": "text_alignment",
+      "id": "alignment_mobile",
+      "label": "t:labels.mobile_alignment",
+      "default": "left",
+      "visible_if": "{{ block.settings.customize_mobile_alignment }}"
     },
     {
       "type": "header",
@@ -359,6 +403,9 @@
         "customize_mobile_size": false,
         "width_mobile": "fit",
         "max_width_mobile": 480,
+        "alignment": "left",
+        "customize_mobile_alignment": false,
+        "alignment_mobile": "left",
         "gap_desktop": 12,
         "gap_mobile": 8,
         "customize_mobile_padding": false

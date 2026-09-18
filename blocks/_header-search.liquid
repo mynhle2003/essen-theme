@@ -51,6 +51,18 @@
       </span>
     </button>
   </form>
+  <button
+    class="header-search header-search--mobile-icon header-action--type-icon"
+    type="button"
+    aria-label="{{ search_label | escape }}"
+    aria-haspopup="dialog"
+    aria-controls="SearchOverlay"
+    data-search-overlay-open
+  >
+    <span class="icon" aria-hidden="true">
+      {% render 'icon', icon: 'magnifying-glass', bare: true %}
+    </span>
+  </button>
 {% else %}
   <button
     class="{{ search_class }}"
@@ -137,6 +149,22 @@
     min-height: var(--button-height);
   }
 
+  .header-top .header-search--mobile-icon {
+    display: none;
+  }
+
+  /* Keep the centered logo clear of a full search field on compact desktop
+     layouts as well as tablet/mobile. */
+  @media (max-width: 1399.98px) {
+    .header-top .header-search--type-search_bar {
+      display: none;
+    }
+
+    .header-top .header-search--mobile-icon {
+      display: inline-flex;
+    }
+  }
+
   @media (max-width: 767.98px) {
     .header-search,
     .header-search__input,
@@ -147,6 +175,17 @@
     .header-search--type-search_bar,
     .header-search--type-search_bar .header-search__input {
       min-height: var(--input-height-mobile);
+    }
+
+    .header-search--type-text .header-action__label {
+      position: static;
+      width: auto;
+      height: auto;
+      padding: 0;
+      margin: 0;
+      overflow: visible;
+      clip: auto;
+      white-space: nowrap;
     }
 
     .header-search__submit {
@@ -168,14 +207,14 @@
     {
       "type": "select",
       "id": "type",
-      "label": "Type",
+      "label": "Desktop type",
       "options": [
         { "value": "icon", "label": "Icon" },
         { "value": "text", "label": "Text" },
         { "value": "icon_with_text", "label": "Icon with text" },
         { "value": "search_bar", "label": "Search bar" }
       ],
-      "default": "text"
+      "default": "search_bar"
     },
     {
       "type": "text",

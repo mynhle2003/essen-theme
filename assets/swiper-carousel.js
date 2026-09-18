@@ -45,6 +45,36 @@ const getSwiperFromTarget = (target) => {
   return null;
 };
 
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/**
+ * Binds the theme's shared interval-based autoplay contract to any Swiper
+ * instance. The returned cleanup function is safe to call during editor
+ * section unloads and component disconnects.
+ */
+export const bindSwiperAutoplay = (swiper, settings = {}) => {
+  if (!swiper || swiper.destroyed || prefersReducedMotion()) return () => {};
+
+  const delay = Math.min(60000, Math.max(1000, Number(settings.delay) || 4000));
+  const scope = settings.scope || swiper.el;
+  const pauseOnHover = settings.pauseOnHover !== false;
+  const interval = window.setInterval(() => {
+    if (
+      document.hidden ||
+      swiper.destroyed ||
+      swiper.isLocked ||
+      (pauseOnHover && swiper.wrapperEl?.matches(':hover')) ||
+      scope.contains(document.activeElement)
+    ) return;
+
+    swiper.isEnd ? swiper.slideTo(0) : swiper.slideNext();
+  }, delay);
+
+  return () => window.clearInterval(interval);
+};
 export const bindSwiperControls = (swiper, controls = {}) => {
   if (!swiper || swiper.destroyed) return () => {};
 

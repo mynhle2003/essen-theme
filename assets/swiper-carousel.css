@@ -30,6 +30,18 @@
   }
 }
 
+@media (max-width: 767.98px) {
+  .swiper:not(.swiper-carousel--grid)[data-swiper-next-slide-preview-mobile='true'] {
+    --swiper-carousel-preview-size: 15%;
+    overflow: visible;
+    clip-path: inset(
+      0
+      calc(-1 * var(--swiper-carousel-preview-size))
+      0
+      calc(-1 * var(--swiper-carousel-preview-size))
+    );
+  }
+}
 .swiper > .swiper-pagination--below {
   position: relative;
   inset: auto;

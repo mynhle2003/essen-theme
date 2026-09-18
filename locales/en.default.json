@@ -141,6 +141,13 @@
     "next": "Next slide",
     "view_all": "View all"
   },
+  "collection_list": {
+    "default_title": "Collection",
+    "default_description": "Collection description",
+    "products_count": "{{ count }} products",
+    "previous": "Previous collection",
+    "next": "Next collection"
+  },
   "video": {
     "play": "Play video",
     "pause": "Pause video"
@@ -155,6 +162,7 @@
   "products": {
     "product_title": "Product title",
     "product_description": "Product description",
+    "product_description_placeholder": "Tell customers more about your product in detail. Highlight its key features, materials, design, sizing, and anything else that makes it special and worth choosing.",
     "product_accordion": "Product details",
     "variant_picker": "Product options",
     "size_guide": "Size guide",

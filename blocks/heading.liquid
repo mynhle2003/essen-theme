@@ -15,6 +15,11 @@
     assign heading_size = 'lg'
   endunless
 
+  assign heading_custom_size = block.settings.custom_heading_size | default: 24 | plus: 0
+  if heading_custom_size < 10 or heading_custom_size > 100
+    assign heading_custom_size = 24
+  endif
+
   assign heading_tag = block.settings.html_tag | default: 'h2'
   unless heading_tag == 'div' or heading_tag == 'h1' or heading_tag == 'h2' or heading_tag == 'h3' or heading_tag == 'h4' or heading_tag == 'h5' or heading_tag == 'h6'
     assign heading_tag = 'h2'
@@ -67,6 +72,7 @@
 %}
 
 {% capture heading_style %}
+  {% if heading_size == 'custom' %}--heading-block-custom-size: {{ heading_custom_size }}px;{% endif %}
   {% if heading_width_mode != 'fit' %}--heading-width: {{ heading_width }};{% endif %}
   {% if heading_width_mode == 'custom' %}--heading-max-width: {{ heading_max_width }}px;{% endif %}
   {% if block.settings.customize_mobile_size %}
@@ -122,6 +128,10 @@
     color: var(--heading-block-color, var(--heading-color));
   }
 
+  .heading-block.heading-custom {
+    font-size: var(--heading-block-custom-size, var(--font-heading-custom));
+  }
+
   .heading-block--empty {
     min-height: 1px;
   }
@@ -166,6 +176,17 @@
         { "value": "custom", "label": "t:options.heading_size.custom" }
       ],
       "default": "lg"
+    },
+    {
+      "type": "range",
+      "id": "custom_heading_size",
+      "label": "Custom size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24,
+      "visible_if": "{{ block.settings.heading_size == 'custom' }}"
     },
     {
       "type": "select",

@@ -829,6 +829,7 @@
   {% endif %}
 
   :root {
+    --header-height: 0px;
     --font-body-family: {% if body_font != blank %}{{ body_font.family }}, {{ body_font.fallback_families }}{% else %}system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif{% endif %};
     --font-body-style: {% if body_font != blank %}{{ body_font.style }}{% else %}normal{% endif %};
     --font-body-weight: {% if body_font != blank %}{{ body_font.weight }}{% else %}400{% endif %};

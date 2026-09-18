@@ -50,7 +50,7 @@
   endif
 
   assign icon_width = block.settings.icon_width | default: 24 | plus: 0
-  if icon_width < 8 or icon_width > 100
+  if icon_width < 6 or icon_width > 100
     assign icon_width = 24
   endif
   assign icon_padding = block.settings.icon_padding | default: 0 | plus: 0
@@ -231,7 +231,7 @@
       "type": "range",
       "id": "icon_width",
       "label": "t:labels.icon_block_width",
-      "min": 8,
+      "min": 6,
       "max": 100,
       "step": 1,
       "unit": "px",

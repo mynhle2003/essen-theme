@@ -141,9 +141,9 @@
   .slideshow__pagination--progress_bar .slideshow__pagination-segment-fill { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border-radius: inherit; background: currentColor; transform: scaleX(0); transform-origin: left center; }
   .slideshow__pagination--progress_bar .slideshow__pagination-segment--active .slideshow__pagination-segment-fill { transform: scaleX(1); }
   .slideshow[data-autoplay='true'] .slideshow__pagination--progress_bar .slideshow__pagination-segment--active .slideshow__pagination-segment-fill { transform: scaleX(var(--slideshow-autoplay-progress, 0)); }
-  .slideshow__pagination--desktop-left { left: 0; right: auto; justify-content: flex-start; }
-  .slideshow__pagination.slideshow__pagination--desktop-center { left: 50%; right: auto; transform: translate(-50%, 0); justify-content: center; }
-  .slideshow__pagination--desktop-right { right: 0; left: auto; justify-content: flex-end; }
+  .slideshow__pagination.slideshow__pagination--desktop-left, .slideshow__swiper > :is(.swiper-pagination[data-pagination-type='bullets'], .swiper-pagination.swiper-pagination-bullets).slideshow__pagination--desktop-left { left: 0; right: auto; justify-content: flex-start; }
+  .slideshow__pagination.slideshow__pagination--desktop-center, .slideshow__swiper > :is(.swiper-pagination[data-pagination-type='bullets'], .swiper-pagination.swiper-pagination-bullets).slideshow__pagination--desktop-center { left: 0; right: 0; transform: none; justify-content: center; }
+  .slideshow__pagination.slideshow__pagination--desktop-right, .slideshow__swiper > :is(.swiper-pagination[data-pagination-type='bullets'], .swiper-pagination.swiper-pagination-bullets).slideshow__pagination--desktop-right { right: 0; left: auto; justify-content: flex-end; }
   .slideshow__pagination--progress_bar.slideshow__pagination--desktop-left, .slideshow__pagination--progress_bar.slideshow__pagination--desktop-center, .slideshow__pagination--progress_bar.slideshow__pagination--desktop-right { inset-inline: var(--slideshow-content-inline-padding); width: auto; transform: none; }
   .slideshow--single-slide .slideshow__navigation, .slideshow--single-slide .slideshow__pagination { display: none; }
   .slideshow[data-full-width-content='true'] .slideshow-slide__content-inner { width: 100%; max-width: none; }
@@ -165,9 +165,9 @@
     .slideshow:not(.slideshow--mobile-adapt) .slideshow__swiper { height: var(--slideshow-height-mobile, 44rem); }
     .slideshow__navigation { display: none; }
     .slideshow__pagination--progress_bar { inset-block-end: 1.6rem; inset-inline: var(--slideshow-content-inline-padding); }
-    .slideshow__pagination--mobile-left { left: 0; right: auto; transform: none; justify-content: flex-start; }
-    .slideshow__pagination.slideshow__pagination--mobile-center { left: 50%; right: auto; transform: translate(-50%, 0); justify-content: center; }
-    .slideshow__pagination--mobile-right { right: 0; left: auto; transform: none; justify-content: flex-end; }
+    .slideshow__pagination.slideshow__pagination--mobile-left, .slideshow__swiper > :is(.swiper-pagination[data-pagination-type='bullets'], .swiper-pagination.swiper-pagination-bullets).slideshow__pagination--mobile-left { left: 0; right: auto; transform: none; justify-content: flex-start; }
+    .slideshow__pagination.slideshow__pagination--mobile-center, .slideshow__swiper > :is(.swiper-pagination[data-pagination-type='bullets'], .swiper-pagination.swiper-pagination-bullets).slideshow__pagination--mobile-center { left: 0; right: 0; transform: none; justify-content: center; }
+    .slideshow__pagination.slideshow__pagination--mobile-right, .slideshow__swiper > :is(.swiper-pagination[data-pagination-type='bullets'], .swiper-pagination.swiper-pagination-bullets).slideshow__pagination--mobile-right { right: 0; left: auto; transform: none; justify-content: flex-end; }
     .slideshow__pagination--progress_bar.slideshow__pagination--mobile-left, .slideshow__pagination--progress_bar.slideshow__pagination--mobile-center, .slideshow__pagination--progress_bar.slideshow__pagination--mobile-right { inset-inline: var(--slideshow-content-inline-padding); width: auto; transform: none; }
   }
   @media (prefers-reduced-motion: reduce) { .slideshow * { transition-duration: .01ms !important; animation-duration: .01ms !important; } }

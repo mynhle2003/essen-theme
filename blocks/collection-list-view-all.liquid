@@ -1,0 +1,227 @@
+{% doc %}
+  Renders the Collection list View all action.
+
+  This action owns its destination because Collection list has no active-tab
+  runtime to assign one. Desktop and mobile presentation are configured
+  independently while both controls retain the same accessible link target.
+
+  @example
+  {% content_for 'block', type: 'collection-list-view-all', id: 'view-all' %}
+{% enddoc %}
+
+{% liquid
+  assign collection_list_view_all_label = block.settings.button_label | strip
+  if collection_list_view_all_label == blank
+    assign collection_list_view_all_label = 'collection_tabs.view_all' | t
+  endif
+
+  assign collection_list_view_all_desktop_style = block.settings.button_style | default: 'text'
+  unless collection_list_view_all_desktop_style == 'solid' or collection_list_view_all_desktop_style == 'outline' or collection_list_view_all_desktop_style == 'text'
+    assign collection_list_view_all_desktop_style = 'text'
+  endunless
+
+  assign collection_list_view_all_mobile_style = block.settings.button_style_mobile | default: 'outline'
+  unless collection_list_view_all_mobile_style == 'solid' or collection_list_view_all_mobile_style == 'outline' or collection_list_view_all_mobile_style == 'text'
+    assign collection_list_view_all_mobile_style = collection_list_view_all_desktop_style
+  endunless
+
+  assign collection_list_view_all_icon_name = block.settings.icon | default: 'arrow'
+  unless collection_list_view_all_icon_name == 'arrow'
+    assign collection_list_view_all_icon_name = 'arrow'
+  endunless
+
+  assign collection_list_view_all_icon = blank
+  if block.settings.show_icon
+    assign collection_list_view_all_icon = collection_list_view_all_icon_name
+  endif
+
+  assign collection_list_view_all_mobile_icon = blank
+  if block.settings.show_icon_mobile
+    assign collection_list_view_all_mobile_icon = collection_list_view_all_icon_name
+  endif
+
+  assign collection_list_view_all_can_render = false
+  if block.settings.button_link != blank or request.design_mode
+    assign collection_list_view_all_can_render = true
+  endif
+
+  assign collection_list_view_all_icon_position = block.settings.icon_position | default: 'after'
+  unless collection_list_view_all_icon_position == 'before' or collection_list_view_all_icon_position == 'after'
+    assign collection_list_view_all_icon_position = 'after'
+  endunless
+
+  assign collection_list_view_all_icon_size = block.settings.icon_size | default: 'inherit'
+  unless collection_list_view_all_icon_size == 'inherit' or collection_list_view_all_icon_size == 'custom'
+    assign collection_list_view_all_icon_size = 'inherit'
+  endunless
+
+  assign collection_list_view_all_icon_width = block.settings.icon_width | default: 20 | plus: 0
+  if collection_list_view_all_icon_width < 12 or collection_list_view_all_icon_width > 32
+    assign collection_list_view_all_icon_width = 20
+  endif
+
+  assign collection_list_view_all_mobile_height = block.settings.button_height_mobile | default: 'inherit'
+  assign collection_list_view_all_mobile_height_value = blank
+  case collection_list_view_all_mobile_height
+    when 'small'
+      assign collection_list_view_all_mobile_height_value = '44px'
+    when 'medium'
+      assign collection_list_view_all_mobile_height_value = '48px'
+    when 'large'
+      assign collection_list_view_all_mobile_height_value = '56px'
+    when 'inherit'
+    else
+      assign collection_list_view_all_mobile_height = 'inherit'
+  endcase
+%}
+
+{% capture collection_list_view_all_style_attribute %}
+  {% if collection_list_view_all_mobile_height_value != blank %}--collection-list-view-all-height-mobile: {{ collection_list_view_all_mobile_height_value }};{% endif %}
+{% endcapture %}
+{% assign collection_list_view_all_style_attribute = collection_list_view_all_style_attribute | strip %}
+
+{% if collection_list_view_all_label != blank and collection_list_view_all_can_render %}
+  <div
+    class="collection-list-view-all{% if block.settings.full_width_mobile %} collection-list-view-all--full-width-mobile{% endif %}"
+    {% if collection_list_view_all_style_attribute != blank %}style="{{ collection_list_view_all_style_attribute }}"{% endif %}
+    {{ block.shopify_attributes }}
+  >
+    {% render 'theme-button',
+      label: collection_list_view_all_label,
+      url: block.settings.button_link,
+      open_in_new_tab: block.settings.button_open_in_new_tab,
+      variant: collection_list_view_all_desktop_style,
+      icon: collection_list_view_all_icon,
+      icon_position: collection_list_view_all_icon_position,
+      icon_size: collection_list_view_all_icon_size,
+      icon_width: collection_list_view_all_icon_width,
+      class: 'collection-list-view-all__button collection-list-view-all__button--desktop'
+    %}
+    {% render 'theme-button',
+      label: collection_list_view_all_label,
+      url: block.settings.button_link,
+      open_in_new_tab: block.settings.button_open_in_new_tab,
+      variant: collection_list_view_all_mobile_style,
+      icon: collection_list_view_all_mobile_icon,
+      icon_position: collection_list_view_all_icon_position,
+      icon_size: collection_list_view_all_icon_size,
+      icon_width: collection_list_view_all_icon_width,
+      class: 'collection-list-view-all__button collection-list-view-all__button--mobile'
+    %}
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .collection-list-view-all .collection-list-view-all__button--mobile {
+    display: none;
+  }
+
+  @media (max-width: 767.98px) {
+    .collection-list-view-all .collection-list-view-all__button--desktop {
+      display: none;
+    }
+
+    .collection-list-view-all .collection-list-view-all__button--mobile {
+      display: inline-flex;
+      min-height: var(--collection-list-view-all-height-mobile, var(--button-height-mobile));
+    }
+
+    .collection-list-view-all--full-width-mobile,
+    .collection-list-view-all--full-width-mobile .collection-list-view-all__button--mobile {
+      width: 100%;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.view_all_button",
+  "tag": null,
+  "settings": [
+    { "type": "header", "content": "t:general.content" },
+    { "type": "text", "id": "button_label", "label": "t:labels.button_label", "default": "View all" },
+    { "type": "url", "id": "button_link", "label": "t:labels.link" },
+    { "type": "checkbox", "id": "button_open_in_new_tab", "label": "t:labels.open_in_new_tab", "default": false },
+    { "type": "header", "content": "t:labels.desktop" },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "t:labels.style",
+      "options": [
+        { "value": "solid", "label": "Solid" },
+        { "value": "outline", "label": "t:options.button_variant.outline" },
+        { "value": "text", "label": "t:options.button_style.text" }
+      ],
+      "default": "text"
+    },
+    { "type": "checkbox", "id": "show_icon", "label": "t:labels.show_icon", "default": false },
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "t:labels.icon",
+      "options": [{ "value": "arrow", "label": "t:options.button_icon.arrow" }],
+      "default": "arrow",
+      "visible_if": "{{ block.settings.show_icon }}"
+    },
+    {
+      "type": "select",
+      "id": "icon_position",
+      "label": "t:labels.icon_position",
+      "options": [
+        { "value": "before", "label": "Left" },
+        { "value": "after", "label": "Right" }
+      ],
+      "default": "after",
+      "visible_if": "{{ block.settings.show_icon }}"
+    },
+    {
+      "type": "select",
+      "id": "icon_size",
+      "label": "t:labels.icon_size",
+      "options": [
+        { "value": "inherit", "label": "t:options.icon_size.inherit" },
+        { "value": "custom", "label": "t:options.icon_size.custom" }
+      ],
+      "default": "inherit",
+      "visible_if": "{{ block.settings.show_icon }}"
+    },
+    {
+      "type": "range",
+      "id": "icon_width",
+      "label": "t:labels.icon_width",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 20,
+      "visible_if": "{{ block.settings.show_icon and block.settings.icon_size == 'custom' }}"
+    },
+    { "type": "header", "content": "t:labels.mobile" },
+    {
+      "type": "select",
+      "id": "button_style_mobile",
+      "label": "t:labels.style",
+      "options": [
+        { "value": "solid", "label": "Solid" },
+        { "value": "outline", "label": "t:options.button_variant.outline" },
+        { "value": "text", "label": "t:options.button_style.text" }
+      ],
+      "default": "outline"
+    },
+    {
+      "type": "select",
+      "id": "button_height_mobile",
+      "label": "Height",
+      "options": [
+        { "value": "inherit", "label": "t:options.icon_size.inherit" },
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" }
+      ],
+      "default": "inherit"
+    },
+    { "type": "checkbox", "id": "full_width_mobile", "label": "t:labels.full_width", "default": true },
+    { "type": "checkbox", "id": "show_icon_mobile", "label": "t:labels.show_icon", "default": false }
+  ]
+}
+{% endschema %}

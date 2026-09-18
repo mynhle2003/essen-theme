@@ -234,6 +234,17 @@
     flex: 0 0 auto;
   }
 
+  @media (min-width: 768px) and (max-width: 1149.98px) {
+    .header__row,
+    .header__column {
+      gap: 10px;
+    }
+
+    .header__column :is(.header-localization, .header-divider) {
+      display: none;
+    }
+  }
+
   @media (max-width: 767.98px) {
     .header-top {
       padding-top: var(--header-top-padding-top-mobile, var(--header-top-padding-top, 12px));

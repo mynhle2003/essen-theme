@@ -76,26 +76,22 @@
 {% endcapture %}
 {% assign picker_style = picker_style | strip %}
 
-{% if picker_product.has_only_default_variant == false or request.design_mode %}
+{% if picker_product != blank and picker_product.has_only_default_variant == false %}
   <div class="product-variant-picker" data-product-variant-picker-block{% if picker_style != blank %} style="{{ picker_style }}"{% endif %} {{ block.shopify_attributes }}>
-    {% if picker_product.has_only_default_variant == false %}
-      {% render 'variant-picker',
-        product: picker_product,
-        current_variant: current_variant,
-        section_id: section.id,
-        media_gallery_id: media_gallery_id,
-        form_id: form_id,
-        block_id: block.id,
-        show_option_names: show_option_names,
-        size_chart_option_name: size_chart_option_name,
-        size_chart_page: block.settings.size_chart_page,
-        size_chart_desktop_layout: size_chart_desktop_layout,
-        size_chart_mobile_layout: size_chart_mobile_layout,
-        size_chart_width: size_chart_width
-      %}
-    {% elsif request.design_mode %}
-      <span class="visually-hidden">{{ 'products.variant_picker' | t }}</span>
-    {% endif %}
+    {% render 'variant-picker',
+      product: picker_product,
+      current_variant: current_variant,
+      section_id: section.id,
+      media_gallery_id: media_gallery_id,
+      form_id: form_id,
+      block_id: block.id,
+      show_option_names: show_option_names,
+      size_chart_option_name: size_chart_option_name,
+      size_chart_page: block.settings.size_chart_page,
+      size_chart_desktop_layout: size_chart_desktop_layout,
+      size_chart_mobile_layout: size_chart_mobile_layout,
+      size_chart_width: size_chart_width
+    %}
   </div>
 {% endif %}
 

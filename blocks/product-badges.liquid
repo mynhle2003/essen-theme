@@ -80,7 +80,7 @@
 {% endcapture %}
 {% assign badges_markup = badges_markup | strip %}
 
-{% if badges_markup != blank or request.design_mode %}
+{% if badges_markup != blank %}
   <div
     class="product-badges-block"
     data-product-badges-block

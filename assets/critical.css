@@ -47,6 +47,8 @@ svg {
   height: auto;
 }
 
+/* Reusable media surface: a section supplies placement and dimensions, while
+ * this primitive keeps media, placeholders, and overlay in one clipped box. */
 .media {
   position: relative;
   overflow: clip;
@@ -64,6 +66,20 @@ svg {
   height: 100%;
 }
 
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: var(--overlay-color);
+}
+
+.backdrop-blur {
+  -webkit-backdrop-filter: blur(var(--backdrop-blur, 0px));
+  backdrop-filter: blur(var(--backdrop-blur, 0px));
+}
+
+/* Shared treatment for every Shopify SVG media fallback. */
 .placeholder-image {
   position: relative;
   isolation: isolate;
@@ -1968,6 +1984,10 @@ legend {
   margin-inline: auto;
 }
 
+.section-spacing {
+  padding-block: var(--section-padding-top, 0px) var(--section-padding-bottom, 0px);
+}
+
 .page-width {
   width: 100%;
   max-width: var(--page-width);
@@ -2000,6 +2020,10 @@ legend {
 @media (max-width: 767.98px) {
   .container {
     --page-margin-current: var(--page-margin-mobile);
+  }
+
+  .section-spacing {
+    padding-block: var(--section-padding-top-mobile, var(--section-padding-top, 0px)) var(--section-padding-bottom-mobile, var(--section-padding-bottom, 0px));
   }
 
   .btn,

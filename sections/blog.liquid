@@ -1,13 +1,15 @@
 {% comment %}
-  Blog posts section for blog and homepage templates. The selected blog is used
-  on the homepage; the current blog is used as a fallback on blog templates.
+  Blog posts section for the Blogs template only. The current blog resource
+  supplies the article source; this section is not a merchant-selected blog
+  list for other templates.
 {% endcomment %}
 
-{% assign blog = section.settings.blog | default: blog %}
+{% assign blog_source = blog %}
 
 <div
-  class="blog-posts section-color-scope {{ section.settings.color_scheme | default: 'scheme-1' }}"
+  class="blog-posts blog-posts--blog-template section-color-scope {{ section.settings.color_scheme | default: 'scheme-1' }}"
   data-section-id="{{ section.id }}"
+  data-template="blog"
   data-posts-per-page="{{ section.settings.posts_per_page }}"
   style="
     --blog-posts-padding-top: {{ section.settings.padding_top }}px;
@@ -18,10 +20,10 @@
   "
 >
   <div class="blog-posts__container{% if section.settings.width == 'full' %} blog-posts__container--full{% endif %}">
-    {% if blog != blank %}
-      {% paginate blog.articles by section.settings.posts_per_page %}
+    {% if blog_source != blank %}
+      {% paginate blog_source.articles by section.settings.posts_per_page %}
         {% content_for 'block', type: 'heading', id: 'heading' %}
-        {% content_for 'block', type: 'blog-list', id: 'blog-list' %}
+        {% content_for 'block', type: 'blog-archive-list', id: 'blog-archive-list' %}
       {% endpaginate %}
     {% elsif request.design_mode %}
       <div class="blog-posts__empty" {{ section.shopify_attributes }}>
@@ -66,20 +68,16 @@
 {% schema %}
 {
   "name": "Blog posts",
+  "class": "section-blog-posts-blog",
   "enabled_on": {
-    "templates": ["blog", "index"]
+    "templates": ["blog"]
   },
   "blocks": [
     { "type": "heading" },
-    { "type": "blog-list" }
+    { "type": "blog-archive-list" }
   ],
   "max_blocks": 2,
   "settings": [
-    {
-      "type": "blog",
-      "id": "blog",
-      "label": "Blog"
-    },
     {
       "type": "range",
       "id": "posts_per_page",
@@ -176,15 +174,62 @@
           }
         },
         {
-          "type": "blog-list",
-          "id": "blog-list",
+          "type": "blog-archive-list",
+          "id": "blog-archive-list",
           "static": true,
           "blocks": [
             {
               "type": "featured-post"
             },
             {
-              "type": "blog-card"
+              "type": "blog-card",
+              "id": "blog-card",
+              "static": true,
+              "blocks": [
+                {
+                  "type": "blog-card-title",
+                  "settings": {
+                    "line_limit": "no_limit",
+                    "heading_size": "sm",
+                    "html_tag": "h3",
+                    "padding_top": 8,
+                    "padding_bottom": 0,
+                    "customize_mobile_padding": false
+                  }
+                },
+                {
+                  "type": "blog-card-meta",
+                  "settings": {
+                    "show_date": true,
+                    "show_author": true,
+                    "size": "sm",
+                    "text_color": "",
+                    "padding_top": 0,
+                    "padding_bottom": 4,
+                    "customize_mobile_padding": false
+                  }
+                },
+                {
+                  "type": "blog-card-description",
+                  "settings": {
+                    "text_limit": "two",
+                    "size": "md",
+                    "padding_top": 0,
+                    "padding_bottom": 6,
+                    "customize_mobile_padding": false
+                  }
+                },
+                {
+                  "type": "blog-card-button",
+                  "settings": {
+                    "style": "tertiary",
+                    "show_icon": false,
+                    "padding_top": 0,
+                    "padding_bottom": 0,
+                    "customize_mobile_padding": false
+                  }
+                }
+              ]
             },
             {
               "type": "pagination"

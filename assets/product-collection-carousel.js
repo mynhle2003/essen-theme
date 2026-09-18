@@ -16,7 +16,7 @@ const prefersReducedMotion = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const getCarouselScope = (carousel) =>
-  carousel.closest('[data-product-list], [data-collection-tab-carousel], [data-collection-card-list]') ||
+  carousel.closest('[data-product-list], [data-blog-list], [data-collection-tab-carousel], [data-collection-card-list]') ||
   carousel.parentElement ||
   carousel;
 
