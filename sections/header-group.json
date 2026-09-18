@@ -3,7 +3,8 @@
  * IMPORTANT: The contents of this file are auto-generated.
  *
  * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution when making changes.
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
  * ------------------------------------------------------------
  */
 {
@@ -12,14 +13,6 @@
   "sections": {
     "header": {
       "type": "header",
-      "settings": {
-        "section_width": "page_width",
-        "icon_size": 20,
-        "sticky_type": "none",
-        "color_scheme": "scheme-1",
-        "header_overlay": false,
-        "transparent_color_scheme": "scheme-1"
-      },
       "blocks": {
         "header-top": {
           "type": "_header-top",
@@ -123,7 +116,14 @@
           ]
         }
       },
-      "block_order": []
+      "settings": {
+        "section_width": "page_width",
+        "icon_size": 20,
+        "sticky_type": "none",
+        "color_scheme": "scheme-1",
+        "header_overlay": false,
+        "transparent_color_scheme": "scheme-1"
+      }
     }
   },
   "order": [

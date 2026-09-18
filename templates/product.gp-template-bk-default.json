@@ -1,0 +1,142 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "order": [
+    "main"
+  ],
+  "sections": {
+    "main": {
+      "blocks": {
+        "product-details": {
+          "block_order": [
+            "badges",
+            "title",
+            "price",
+            "description",
+            "variant-picker",
+            "inventory",
+            "buy-buttons",
+            "group",
+            "accordion"
+          ],
+          "blocks": {
+            "accordion": {
+              "settings": {
+                "heading": "More about this product"
+              },
+              "type": "product-accordion"
+            },
+            "badges": {
+              "settings": {},
+              "type": "product-badges"
+            },
+            "buy-buttons": {
+              "settings": {},
+              "type": "product-buy-buttons"
+            },
+            "description": {
+              "settings": {},
+              "type": "product-description"
+            },
+            "group": {
+              "block_order": [
+                "text-1",
+                "text-2"
+              ],
+              "blocks": {
+                "text-1": {
+                  "settings": {},
+                  "type": "text"
+                },
+                "text-2": {
+                  "settings": {},
+                  "type": "text"
+                }
+              },
+              "settings": {},
+              "type": "group"
+            },
+            "inventory": {
+              "settings": {
+                "display_mode": "status",
+                "low_stock_threshold": 5
+              },
+              "type": "product-inventory"
+            },
+            "price": {
+              "settings": {},
+              "type": "product-price"
+            },
+            "title": {
+              "settings": {},
+              "type": "product-title"
+            },
+            "variant-picker": {
+              "settings": {},
+              "type": "product-variant-picker"
+            }
+          },
+          "settings": {
+            "alignment": "left",
+            "appearance_type": "inherit",
+            "border_thickness": 0,
+            "color_scheme": "scheme-1",
+            "container_position": "center",
+            "corner_radius": "square",
+            "customize_mobile_padding": false,
+            "gap_desktop": 24,
+            "gap_mobile": 24,
+            "limit_width": true,
+            "max_width": 500,
+            "padding_bottom": 0,
+            "padding_bottom_mobile": 0,
+            "padding_left": 0,
+            "padding_left_mobile": 0,
+            "padding_right": 0,
+            "padding_right_mobile": 0,
+            "padding_top": 0,
+            "padding_top_mobile": 0,
+            "shadow": "none"
+          },
+          "static": true,
+          "type": "_product-details"
+        },
+        "product-media": {
+          "settings": {
+            "autoplay": false,
+            "desktop_layout": "left_thumbnails",
+            "full_width_media": false,
+            "gap": 12,
+            "gap_mobile": 10,
+            "loop_video": false,
+            "mobile_layout": "slider",
+            "zoom": "open_lightbox"
+          },
+          "static": true,
+          "type": "_product-media"
+        }
+      },
+      "settings": {
+        "color_scheme": "scheme-1",
+        "customize_mobile_padding": true,
+        "gap": 70,
+        "gap_mobile": 30,
+        "media_width": "large",
+        "padding_bottom": 120,
+        "padding_bottom_mobile": 60,
+        "padding_top": 0,
+        "padding_top_mobile": 0,
+        "sticky_content": true,
+        "width": "full"
+      },
+      "type": "product-information"
+    }
+  }
+}

@@ -38,14 +38,14 @@
   {% if settings.default_color_scheme.id != blank %}
     {% assign default_color_scheme = settings.default_color_scheme.id %}
   {% endif %}
-  <body class="{{ default_color_scheme | default: 'scheme-1' }}">{% sections 'foxify-header-group' %}
-    {% sections 'header-group' %}
-    {% sections 'overlay-group' %}
+  <body class="{{ default_color_scheme | default: 'scheme-1' }}"> {% sections 'foxify-header-group' %} 
+    
+    
 
     <main id="MainContent" tabindex="-1">
-      {{ content_for_layout }}
+      <div class="foxify-container">{{ content_for_layout }}</div>
     </main>
 
-    {% sections 'footer-group' %}
-  {%- render 'foxify-footer' -%}{% sections 'foxify-footer-group' %}</body>
+    
+  {%- render 'foxify-footer' -%} {% sections 'foxify-footer-group' %} </body>
 </html>
