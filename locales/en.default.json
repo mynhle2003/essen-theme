@@ -108,6 +108,43 @@
     "order_note": "Add order note",
     "save_note": "Save note"
   },
+  "collection_list": {
+    "default_title": "Collection",
+    "default_description": "Collection description",
+    "products_count": "{{ count }} products",
+    "previous": "Previous collection",
+    "next": "Next collection"
+  },
+  "collection_tabs": {
+    "default_tab": "Collection tab",
+    "empty_collection": "This collection has no products.",
+    "previous": "Previous slide",
+    "next": "Next slide",
+    "view_all": "View all"
+  },
+  "collections": {
+    "title": "Collections"
+  },
+  "contact": {
+    "form": {
+      "post_success": "Thanks for contacting us. We'll get back to you as soon as possible."
+    }
+  },
+  "countdown": {
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Min",
+    "seconds": "Sec",
+    "expired": "The countdown has ended."
+  },
+  "customers": {
+    "login": {
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "title": "Login"
+    }
+  },
   "email_signup": {
     "email_label": "Email",
     "placeholder": "Your email address",
@@ -120,53 +157,31 @@
     "subscription_preferences_option_4": "Option 4",
     "subscription_preferences_option_5": "Option 5"
   },
+  "gift_card": {
+    "add_to_apple_wallet": "Add to Apple Wallet",
+    "card": "Gift card",
+    "expired": "This gift card has expired",
+    "expires_on": "Expires on {{ expires_on }}",
+    "use_at_checkout": "Use this gift card at checkout",
+    "recipient_title": "Gift card recipient",
+    "recipient_helper": "Add a recipient so the gift card can be delivered directly to them.",
+    "recipient_toggle": "Send this gift card to someone",
+    "recipient_email": "Recipient email",
+    "recipient_name": "Recipient name (optional)",
+    "recipient_message": "Message (optional)",
+    "recipient_send_on": "Send on (optional)"
+  },
   "localization": {
     "country_label": "Country/region",
     "language_label": "Language"
   },
-  "contact": {
-    "form": {
-      "post_success": "Thanks for contacting us. We'll get back to you as soon as possible."
-    }
-  },
-  "customers": {
-    "login": {
-      "email": "Email",
-      "password": "Password",
-      "submit": "Sign in",
-      "title": "Login"
-    }
-  },
-  "collections": {
-    "title": "Collections"
+  "password": {
+    "title": "This shop is private",
+    "password": "Password",
+    "enter": "Enter"
   },
   "policies": {
     "no_policies": "Add store policies in Shopify admin to show policy links."
-  },
-  "collection_tabs": {
-    "default_tab": "Collection tab",
-    "empty_collection": "This collection has no products.",
-    "previous": "Previous slide",
-    "next": "Next slide",
-    "view_all": "View all"
-  },
-  "collection_list": {
-    "default_title": "Collection",
-    "default_description": "Collection description",
-    "products_count": "{{ count }} products",
-    "previous": "Previous collection",
-    "next": "Next collection"
-  },
-  "video": {
-    "play": "Play video",
-    "pause": "Pause video"
-  },
-  "countdown": {
-    "days": "Days",
-    "hours": "Hours",
-    "minutes": "Min",
-    "seconds": "Sec",
-    "expired": "The countdown has ended."
   },
   "products": {
     "product_title": "Product title",
@@ -217,25 +232,6 @@
     "read_more": "Read more",
     "read_less": "Read less"
   },
-  "gift_card": {
-    "add_to_apple_wallet": "Add to Apple Wallet",
-    "card": "Gift card",
-    "expired": "This gift card has expired",
-    "expires_on": "Expires on {{ expires_on }}",
-    "use_at_checkout": "Use this gift card at checkout",
-    "recipient_title": "Gift card recipient",
-    "recipient_helper": "Add a recipient so the gift card can be delivered directly to them.",
-    "recipient_toggle": "Send this gift card to someone",
-    "recipient_email": "Recipient email",
-    "recipient_name": "Recipient name (optional)",
-    "recipient_message": "Message (optional)",
-    "recipient_send_on": "Send on (optional)"
-  },
-  "password": {
-    "title": "This shop is private",
-    "password": "Password",
-    "enter": "Enter"
-  },
   "search": {
     "title": "Search",
     "placeholder": "Search articles, pages, or products",
@@ -260,5 +256,55 @@
     "pinterest": "Pinterest",
     "x": "X",
     "linkedin": "LinkedIn"
+  },
+  "video": {
+    "play": "Play video",
+    "pause": "Pause video"
+  },
+  "gempages": {
+    "Carousel": {
+      "no_slider": "No Slider"
+    },
+    "CarouselV3": {
+      "no_slider": "No Slider"
+    },
+    "Newsletter": {
+      "err_msg_default": "Can’t send email. Please try again later.",
+      "success_msg_default": "Thanks for subscribing"
+    },
+    "IconListV2": {
+      "icons_not_found": "Icons not found"
+    },
+    "IconList": {
+      "icons_not_found": "Icons not found"
+    },
+    "IconListHoz": {
+      "icons_not_found": "Icons not found"
+    },
+    "Product": {
+      "product_not_found": "Product not found"
+    },
+    "ProductList": {
+      "product_not_found": "Product Not Found!",
+      "no_products_found": "No products found!",
+      "no_related_products": "No related products!"
+    },
+    "ProductListV3": {
+      "product_not_found": "Product Not Found!",
+      "no_products_found": "No products found!",
+      "no_related_products": "No related products!"
+    },
+    "ProductTitle": {
+      "product_not_found": "Product Not Found"
+    },
+    "ProductVariants": {
+      "please_select": "Please select an option"
+    },
+    "StockCounter": {
+      "let_buy_now": "<mark>HURRY!</mark> LET BUY NOW"
+    },
+    "Breadcrumb": {
+      "home": "Home"
+    }
   }
 }
