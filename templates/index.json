@@ -351,9 +351,211 @@
         "padding_top_mobile": 0,
         "padding_bottom_mobile": 0
       }
+    },
+    "collection_tabs_dk8Qbd": {
+      "type": "collection-tabs",
+      "blocks": {
+        "collection_tab_rLpcmx": {
+          "type": "collection-tab",
+          "settings": {
+            "label": "Best sellers",
+            "collection": ""
+          },
+          "blocks": {
+            "product-card": {
+              "type": "product-card",
+              "static": true,
+              "settings": {
+                "show_ranking": false,
+                "color_type": "inherit",
+                "color_scheme": "scheme-1"
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": []
+        },
+        "collection_tab_W7RHKX": {
+          "type": "collection-tab",
+          "settings": {
+            "label": "Work-Casual",
+            "collection": ""
+          },
+          "blocks": {
+            "product-card": {
+              "type": "product-card",
+              "static": true,
+              "settings": {
+                "show_ranking": false,
+                "color_type": "inherit",
+                "color_scheme": "scheme-1"
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": []
+        },
+        "collection_tab_t4zEB3": {
+          "type": "collection-tab",
+          "settings": {
+            "label": "Weekend basics",
+            "collection": ""
+          },
+          "blocks": {
+            "product-card": {
+              "type": "product-card",
+              "static": true,
+              "settings": {
+                "show_ranking": false,
+                "color_type": "inherit",
+                "color_scheme": "scheme-1"
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": []
+        },
+        "header": {
+          "type": "header",
+          "disabled": true,
+          "static": true,
+          "settings": {
+            "width": "fit",
+            "max_width": 750,
+            "customize_mobile_size": false,
+            "width_mobile": "fit",
+            "max_width_mobile": 480,
+            "alignment": "left",
+            "customize_mobile_alignment": false,
+            "alignment_mobile": "left",
+            "gap_desktop": 12,
+            "gap_mobile": 8,
+            "padding_top": 0,
+            "padding_bottom": 0,
+            "padding_left": 0,
+            "padding_right": 0,
+            "customize_mobile_padding": false,
+            "padding_top_mobile": 0,
+            "padding_bottom_mobile": 0,
+            "padding_left_mobile": 0,
+            "padding_right_mobile": 0
+          },
+          "blocks": {
+            "heading_K8cwXM": {
+              "type": "heading",
+              "settings": {
+                "text": "<p>Collection tabs</p>",
+                "heading_size": "lg",
+                "custom_heading_size": 24,
+                "html_tag": "h2",
+                "text_color": "",
+                "width": "fit",
+                "max_width": 640,
+                "customize_mobile_size": false,
+                "width_mobile": "fit",
+                "max_width_mobile": 480,
+                "padding_top": 0,
+                "padding_bottom": 0,
+                "padding_left": 0,
+                "padding_right": 0,
+                "customize_mobile_padding": false,
+                "padding_top_mobile": 0,
+                "padding_bottom_mobile": 0,
+                "padding_left_mobile": 0,
+                "padding_right_mobile": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "heading_K8cwXM"
+          ]
+        },
+        "tab-layout": {
+          "type": "tab-layout",
+          "static": true,
+          "settings": {
+            "vertical_layout": false,
+            "style": "underline",
+            "active_style": "primary",
+            "gap_desktop": 16,
+            "gap_mobile": 16,
+            "font": "heading",
+            "heading_size": "lg"
+          },
+          "blocks": {}
+        },
+        "collection-tabs-view-all": {
+          "type": "collection-tabs-view-all",
+          "static": true,
+          "settings": {
+            "button_label": "View all",
+            "button_style": "tertiary",
+            "show_icon": false,
+            "icon": "arrow",
+            "icon_position": "after",
+            "icon_size": "inherit",
+            "icon_width": 20,
+            "width": "fit",
+            "width_mobile": "fit",
+            "padding_top": 0,
+            "padding_bottom": 0,
+            "padding_left": 0,
+            "padding_right": 0,
+            "customize_mobile_padding": false,
+            "padding_top_mobile": 0,
+            "padding_bottom_mobile": 0,
+            "padding_left_mobile": 0,
+            "padding_right_mobile": 0
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "collection_tab_rLpcmx",
+        "collection_tab_W7RHKX",
+        "collection_tab_t4zEB3"
+      ],
+      "name": "t:general.collection_tabs",
+      "settings": {
+        "section_width": "full_width",
+        "layout_direction": "vertical",
+        "tab_position": "center",
+        "mobile_alignment": "center",
+        "gap_desktop": 40,
+        "gap_mobile": 36,
+        "max_products": 8,
+        "layout_type": "carousel",
+        "columns_desktop": "4",
+        "columns_mobile": "1",
+        "show_next_slide_preview_on_desktop": false,
+        "product_gap_desktop": 24,
+        "product_gap_mobile": 39,
+        "show_navigation_on_desktop": true,
+        "navigation_position": "inside",
+        "navigation_style": "secondary",
+        "navigation_icon": "chevron",
+        "navigation_behavior": "show_on_hover",
+        "show_pagination_on_desktop": true,
+        "pagination_type": "progress_bar",
+        "pagination_top_padding_desktop": 48,
+        "pagination_top_padding_mobile": 24,
+        "pagination_limit_width": false,
+        "pagination_max_width": 260,
+        "autoplay": false,
+        "autoplay_pause_on_hover": true,
+        "autoplay_speed": 4,
+        "color_scheme": "scheme-1",
+        "padding_top": 80,
+        "padding_bottom": 80,
+        "customize_mobile_padding": true,
+        "padding_top_mobile": 56,
+        "padding_bottom_mobile": 56
+      }
     }
   },
   "order": [
-    "slideshow_eYcpcr"
+    "slideshow_eYcpcr",
+    "collection_tabs_dk8Qbd"
   ]
 }
