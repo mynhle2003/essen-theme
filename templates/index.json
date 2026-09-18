@@ -9,100 +9,39 @@
  */
 {
   "sections": {
-    "collection_tabs_nfYmeC": {
-      "type": "collection-tabs",
+    "slideshow_eYcpcr": {
+      "type": "slideshow",
       "blocks": {
-        "collection_tab_D9mGF7": {
-          "type": "collection-tab",
+        "slideshow_slide_CqaeXf": {
+          "type": "slideshow-slide",
           "settings": {
-            "label": "Best sellers",
-            "collection": ""
+            "layout": "classic",
+            "link": "",
+            "open_in_new_tab": false,
+            "media_type": "image",
+            "media_2_type": "image",
+            "show_overlay": true,
+            "overlay_color": "#00000033",
+            "parallax_effect": "none",
+            "content_width": "fit",
+            "content_max_width": 640,
+            "desktop_position": "center_left",
+            "mobile_position": "center_left",
+            "desktop_gap": 16,
+            "mobile_gap": 12,
+            "color_scheme": "scheme-3"
           },
           "blocks": {
-            "product-card": {
-              "type": "product-card",
-              "static": true,
-              "settings": {
-                "show_ranking": false,
-                "color_type": "inherit",
-                "color_scheme": "scheme-1"
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": []
-        },
-        "collection_tab_FMtRnq": {
-          "type": "collection-tab",
-          "settings": {
-            "label": "Work-Casual",
-            "collection": ""
-          },
-          "blocks": {
-            "product-card": {
-              "type": "product-card",
-              "static": true,
-              "settings": {
-                "show_ranking": false,
-                "color_type": "inherit",
-                "color_scheme": "scheme-1"
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": []
-        },
-        "collection_tab_yWDHxB": {
-          "type": "collection-tab",
-          "settings": {
-            "label": "Weekend basics",
-            "collection": ""
-          },
-          "blocks": {
-            "product-card": {
-              "type": "product-card",
-              "static": true,
-              "settings": {
-                "show_ranking": false,
-                "color_type": "inherit",
-                "color_scheme": "scheme-1"
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": []
-        },
-        "header": {
-          "type": "header",
-          "static": true,
-          "settings": {
-            "width": "fit",
-            "max_width": 750,
-            "customize_mobile_size": false,
-            "width_mobile": "fit",
-            "max_width_mobile": 480,
-            "gap_desktop": 12,
-            "gap_mobile": 8,
-            "padding_top": 0,
-            "padding_bottom": 0,
-            "padding_left": 0,
-            "padding_right": 0,
-            "customize_mobile_padding": false,
-            "padding_top_mobile": 0,
-            "padding_bottom_mobile": 0,
-            "padding_left_mobile": 0,
-            "padding_right_mobile": 0
-          },
-          "blocks": {
-            "heading_A73hg4": {
+            "heading_Exkygk": {
               "type": "heading",
               "settings": {
-                "text": "<p>Collection tabs</p>",
-                "heading_size": "lg",
+                "text": "<p>Subtle design Essential classics</p>",
+                "heading_size": "display",
+                "custom_heading_size": 24,
                 "html_tag": "h2",
                 "text_color": "",
-                "width": "fit",
-                "max_width": 640,
+                "width": "custom",
+                "max_width": 560,
                 "customize_mobile_size": false,
                 "width_mobile": "fit",
                 "max_width_mobile": 480,
@@ -117,96 +56,304 @@
                 "padding_right_mobile": 0
               },
               "blocks": {}
+            },
+            "text_MegDYy": {
+              "type": "text",
+              "name": "t:general.text",
+              "settings": {
+                "text": "<p>Comfortable pieces for work, weekend, and everything in between.</p>",
+                "text_size": "md",
+                "text_color": "",
+                "width": "custom",
+                "max_width": 580,
+                "customize_mobile_size": false,
+                "width_mobile": "fit",
+                "max_width_mobile": 480,
+                "padding_top": 0,
+                "padding_bottom": 0,
+                "padding_left": 0,
+                "padding_right": 0,
+                "customize_mobile_padding": false,
+                "padding_top_mobile": 0,
+                "padding_bottom_mobile": 0,
+                "padding_left_mobile": 0,
+                "padding_right_mobile": 0
+              },
+              "blocks": {}
+            },
+            "button_Rfx4hB": {
+              "type": "button",
+              "settings": {
+                "button_label": "Explore the Collection",
+                "button_link": "",
+                "button_open_in_new_tab": false,
+                "button_style": "primary",
+                "show_icon": false,
+                "icon": "arrow",
+                "icon_position": "after",
+                "icon_size": "inherit",
+                "icon_width": 20,
+                "width": "fit",
+                "width_mobile": "fit",
+                "padding_top": 24,
+                "padding_bottom": 0,
+                "padding_left": 0,
+                "padding_right": 0,
+                "customize_mobile_padding": false,
+                "padding_top_mobile": 0,
+                "padding_bottom_mobile": 0,
+                "padding_left_mobile": 0,
+                "padding_right_mobile": 0
+              },
+              "blocks": {}
             }
           },
           "block_order": [
-            "heading_A73hg4"
+            "heading_Exkygk",
+            "text_MegDYy",
+            "button_Rfx4hB"
           ]
         },
-        "tab-layout": {
-          "type": "tab-layout",
-          "static": true,
+        "slideshow_slide_TqmnyD": {
+          "type": "slideshow-slide",
           "settings": {
-            "vertical_layout": false,
-            "style": "underline",
-            "active_style": "primary",
-            "gap_desktop": 16,
-            "gap_mobile": 16,
-            "font": "body",
-            "heading_size": "lg"
+            "layout": "classic",
+            "link": "",
+            "open_in_new_tab": false,
+            "media_type": "image",
+            "media_2_type": "image",
+            "show_overlay": true,
+            "overlay_color": "#00000033",
+            "parallax_effect": "none",
+            "content_width": "fit",
+            "content_max_width": 640,
+            "desktop_position": "center_left",
+            "mobile_position": "center_left",
+            "desktop_gap": 16,
+            "mobile_gap": 12,
+            "color_scheme": "scheme-3"
           },
-          "blocks": {}
+          "blocks": {
+            "heading_diLKeR": {
+              "type": "heading",
+              "settings": {
+                "text": "<p>Seamless style. For active living</p>",
+                "heading_size": "display",
+                "custom_heading_size": 24,
+                "html_tag": "h2",
+                "text_color": "",
+                "width": "custom",
+                "max_width": 580,
+                "customize_mobile_size": false,
+                "width_mobile": "fit",
+                "max_width_mobile": 480,
+                "padding_top": 0,
+                "padding_bottom": 0,
+                "padding_left": 0,
+                "padding_right": 0,
+                "customize_mobile_padding": false,
+                "padding_top_mobile": 0,
+                "padding_bottom_mobile": 0,
+                "padding_left_mobile": 0,
+                "padding_right_mobile": 0
+              },
+              "blocks": {}
+            },
+            "text_TQAnrp": {
+              "type": "text",
+              "name": "t:general.text",
+              "settings": {
+                "text": "<p>Our pieces are designed to perfectly adapt to any setting of your day.</p>",
+                "text_size": "md",
+                "text_color": "",
+                "width": "custom",
+                "max_width": 580,
+                "customize_mobile_size": false,
+                "width_mobile": "fit",
+                "max_width_mobile": 480,
+                "padding_top": 0,
+                "padding_bottom": 0,
+                "padding_left": 0,
+                "padding_right": 0,
+                "customize_mobile_padding": false,
+                "padding_top_mobile": 0,
+                "padding_bottom_mobile": 0,
+                "padding_left_mobile": 0,
+                "padding_right_mobile": 0
+              },
+              "blocks": {}
+            },
+            "button_cdCjGF": {
+              "type": "button",
+              "settings": {
+                "button_label": "Shop for essentials",
+                "button_link": "",
+                "button_open_in_new_tab": false,
+                "button_style": "primary",
+                "show_icon": false,
+                "icon": "arrow",
+                "icon_position": "after",
+                "icon_size": "inherit",
+                "icon_width": 20,
+                "width": "fit",
+                "width_mobile": "fit",
+                "padding_top": 24,
+                "padding_bottom": 0,
+                "padding_left": 0,
+                "padding_right": 0,
+                "customize_mobile_padding": false,
+                "padding_top_mobile": 0,
+                "padding_bottom_mobile": 0,
+                "padding_left_mobile": 0,
+                "padding_right_mobile": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "heading_diLKeR",
+            "text_TQAnrp",
+            "button_cdCjGF"
+          ]
         },
-        "collection-tabs-view-all": {
-          "type": "collection-tabs-view-all",
-          "static": true,
+        "slideshow_slide_xBXAja": {
+          "type": "slideshow-slide",
           "settings": {
-            "button_label": "View all",
-            "button_style": "tertiary",
-            "show_icon": false,
-            "icon": "arrow",
-            "icon_position": "after",
-            "icon_size": "inherit",
-            "icon_width": 20,
-            "width": "fit",
-            "width_mobile": "fit",
-            "padding_top": 0,
-            "padding_bottom": 0,
-            "padding_left": 0,
-            "padding_right": 0,
-            "customize_mobile_padding": false,
-            "padding_top_mobile": 0,
-            "padding_bottom_mobile": 0,
-            "padding_left_mobile": 0,
-            "padding_right_mobile": 0
+            "layout": "classic",
+            "link": "",
+            "open_in_new_tab": false,
+            "media_type": "image",
+            "media_2_type": "image",
+            "show_overlay": true,
+            "overlay_color": "#00000033",
+            "parallax_effect": "none",
+            "content_width": "fit",
+            "content_max_width": 640,
+            "desktop_position": "center_left",
+            "mobile_position": "center_left",
+            "desktop_gap": 16,
+            "mobile_gap": 12,
+            "color_scheme": "scheme-3"
           },
-          "blocks": {}
+          "blocks": {
+            "heading_Rew6rx": {
+              "type": "heading",
+              "settings": {
+                "text": "<p>Crafted for lasting values</p>",
+                "heading_size": "display",
+                "custom_heading_size": 24,
+                "html_tag": "h2",
+                "text_color": "",
+                "width": "custom",
+                "max_width": 580,
+                "customize_mobile_size": false,
+                "width_mobile": "fit",
+                "max_width_mobile": 480,
+                "padding_top": 0,
+                "padding_bottom": 0,
+                "padding_left": 0,
+                "padding_right": 0,
+                "customize_mobile_padding": false,
+                "padding_top_mobile": 0,
+                "padding_bottom_mobile": 0,
+                "padding_left_mobile": 0,
+                "padding_right_mobile": 0
+              },
+              "blocks": {}
+            },
+            "text_ft6hh8": {
+              "type": "text",
+              "name": "t:general.text",
+              "settings": {
+                "text": "<p>In the world of fast fashion, we take a different path.</p>",
+                "text_size": "md",
+                "text_color": "",
+                "width": "custom",
+                "max_width": 580,
+                "customize_mobile_size": false,
+                "width_mobile": "fit",
+                "max_width_mobile": 480,
+                "padding_top": 0,
+                "padding_bottom": 0,
+                "padding_left": 0,
+                "padding_right": 0,
+                "customize_mobile_padding": false,
+                "padding_top_mobile": 0,
+                "padding_bottom_mobile": 0,
+                "padding_left_mobile": 0,
+                "padding_right_mobile": 0
+              },
+              "blocks": {}
+            },
+            "button_7RbTfU": {
+              "type": "button",
+              "settings": {
+                "button_label": "Explore classic designs",
+                "button_link": "",
+                "button_open_in_new_tab": false,
+                "button_style": "primary",
+                "show_icon": false,
+                "icon": "arrow",
+                "icon_position": "after",
+                "icon_size": "inherit",
+                "icon_width": 20,
+                "width": "fit",
+                "width_mobile": "fit",
+                "padding_top": 24,
+                "padding_bottom": 0,
+                "padding_left": 0,
+                "padding_right": 0,
+                "customize_mobile_padding": false,
+                "padding_top_mobile": 0,
+                "padding_bottom_mobile": 0,
+                "padding_left_mobile": 0,
+                "padding_right_mobile": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "heading_Rew6rx",
+            "text_ft6hh8",
+            "button_7RbTfU"
+          ]
         }
       },
       "block_order": [
-        "collection_tab_D9mGF7",
-        "collection_tab_FMtRnq",
-        "collection_tab_yWDHxB"
+        "slideshow_slide_CqaeXf",
+        "slideshow_slide_TqmnyD",
+        "slideshow_slide_xBXAja"
       ],
-      "name": "t:general.collection_tabs",
+      "name": "Slideshow",
       "settings": {
-        "section_width": "full_width",
-        "layout_direction": "vertical",
-        "tab_position": "left",
-        "mobile_alignment": "left",
-        "gap_desktop": 59,
-        "gap_mobile": 30,
-        "max_products": 8,
-        "layout_type": "carousel",
-        "columns_desktop": "4",
-        "columns_mobile": "1",
-        "show_next_slide_preview_on_desktop": false,
-        "product_gap_desktop": 4,
-        "product_gap_mobile": 4,
-        "show_navigation_on_desktop": true,
-        "navigation_position": "inside",
-        "navigation_style": "secondary",
-        "navigation_icon": "chevron",
-        "navigation_behavior": "show_on_hover",
-        "show_pagination_on_desktop": true,
-        "pagination_type": "progress_bar",
-        "pagination_top_padding_desktop": 50,
-        "pagination_top_padding_mobile": 24,
-        "pagination_limit_width": true,
-        "pagination_max_width": 260,
+        "width": "full_bleed",
+        "transition_style": "fade",
+        "full_width_content": false,
+        "desktop_height": "medium",
+        "mobile_height": "medium",
         "autoplay": false,
-        "autoplay_pause_on_hover": true,
-        "autoplay_speed": 4,
+        "pause_on_hover": true,
+        "autoplay_delay": 6,
+        "show_navigation": false,
+        "navigation_style": "primary",
+        "navigation_icon": "arrow",
+        "navigation_behavior": "show_on_hover",
+        "show_pagination": true,
+        "pagination_type": "bullets",
+        "pagination_position_desktop": "center",
+        "pagination_position_mobile": "center",
+        "aria_label": "Slideshow",
         "color_scheme": "scheme-1",
-        "padding_top": 16,
-        "padding_bottom": 32,
-        "customize_mobile_padding": true,
-        "padding_top_mobile": 8,
-        "padding_bottom_mobile": 24
+        "background_color": "",
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "customize_mobile_padding": false,
+        "padding_top_mobile": 0,
+        "padding_bottom_mobile": 0
       }
     }
   },
   "order": [
-    "collection_tabs_nfYmeC"
+    "slideshow_eYcpcr"
   ]
 }
