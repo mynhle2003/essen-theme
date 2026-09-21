@@ -170,9 +170,29 @@
     const selector = '[data-zoom-image-banner]';
     const imageSelector = '[data-zoom-image]';
     const states = new WeakMap();
+    const activeStates = new Set();
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+
+    const getScrollMetrics = (state) => {
+      const bounds = state.section.getBoundingClientRect();
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1;
+      const sectionCenter = bounds.top + (bounds.height / 2);
+      // Use the section's center, rather than its top edge, so the image
+      // starts only when the section itself reaches the viewport center.
+      const start = viewportHeight * 0.5;
+      const end = viewportHeight * 0.32;
+
+      return {
+        bounds,
+        viewportHeight,
+        sectionCenter,
+        start,
+        end,
+        progress: clamp((start - sectionCenter) / Math.max(start - end, 1)),
+      };
+    };
 
     const applyProgress = (state, progress) => {
       const easedProgress = progress * progress * (3 - (2 * progress));
@@ -187,18 +207,161 @@
       });
     };
 
+    const setProgress = (state, progress) => {
+      state.progress = clamp(progress);
+      applyProgress(state, state.progress);
+    };
+
     const update = (state) => {
       if (reducedMotionQuery.matches) {
-        applyProgress(state, 1);
+        state.targetProgress = 1;
+        state.locked = false;
+        setProgress(state, 1);
         return;
       }
 
-      const bounds = state.section.getBoundingClientRect();
-      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 1;
-      const start = viewportHeight * 0.92;
-      const end = viewportHeight * 0.32;
-      const progress = clamp((start - bounds.top) / Math.max(start - end, 1));
-      applyProgress(state, progress);
+      if (state.locked) return;
+
+      const metrics = getScrollMetrics(state);
+
+      // Keep the image at its endpoint after handing control back to the
+      // page. The opposite wheel direction takes control again only when
+      // the section center reaches the viewport center.
+      if (state.handoffDirection === 1) {
+        state.targetProgress = 1;
+        setProgress(state, 1);
+        return;
+      }
+      if (state.handoffDirection === -1) {
+        state.targetProgress = 0;
+        setProgress(state, 0);
+        return;
+      }
+
+      state.handoffDirection = 0;
+      state.locked = false;
+      state.targetProgress = metrics.progress;
+      setProgress(state, metrics.progress);
+    };
+
+    const normalizeWheelDelta = (event) => {
+      if (event.deltaMode === 1) return event.deltaY * 16;
+      if (event.deltaMode === 2) return event.deltaY * (window.innerHeight || 1);
+      return event.deltaY;
+    };
+
+    const canCaptureWheel = (metrics, direction) => {
+      if (metrics.bounds.bottom <= 0 || metrics.bounds.top >= metrics.viewportHeight) return false;
+      return direction > 0
+        ? metrics.sectionCenter <= metrics.start
+        : metrics.sectionCenter >= metrics.start;
+    };
+
+    const getWheelCandidate = (state, direction) => {
+      if (!state.visible && !state.locked && !state.handoffDirection) return null;
+
+      const metrics = getScrollMetrics(state);
+
+      // Once an endpoint is reached, the next wheel event in the same
+      // direction belongs to the page. When reversing, wait until the
+      // section center reaches the viewport center before taking control.
+      if (!state.locked && state.handoffDirection === direction) return null;
+
+      const canReverseHandoff = state.handoffDirection
+        && state.handoffDirection !== direction
+        && canCaptureWheel(metrics, direction);
+      const shouldCapture = state.locked || canReverseHandoff || canCaptureWheel(metrics, direction);
+      const currentProgress = state.locked || state.handoffDirection ? state.targetProgress : metrics.progress;
+      const hasProgressToConsume = state.locked
+        || (direction > 0 ? currentProgress < 1 : currentProgress > 0);
+
+      if (!shouldCapture || !hasProgressToConsume) return null;
+
+      return {
+        state,
+        metrics,
+        currentProgress,
+        priority: state.locked ? 0 : state.handoffDirection ? 1 : 2,
+        distance: Math.abs(metrics.sectionCenter - metrics.start),
+      };
+    };
+
+    const setWheelControlled = (state, controlled) => {
+      if (state.wheelControlled === controlled) return;
+
+      state.wheelControlled = controlled;
+      state.images.forEach((image) => {
+        if (controlled) {
+          image.classList.add('is-wheel-controlled');
+        } else {
+          image.classList.remove('is-wheel-controlled');
+        }
+      });
+    };
+
+    const animateProgress = (state) => {
+      if (state.progressFrame) return;
+
+      state.progressFrame = window.requestAnimationFrame(() => {
+        state.progressFrame = 0;
+        const difference = state.targetProgress - state.progress;
+
+        if (Math.abs(difference) < 0.001) {
+          setProgress(state, state.targetProgress);
+
+          if (state.locked && (state.targetProgress <= 0 || state.targetProgress >= 1)) {
+            state.locked = false;
+            state.handoffDirection = state.pendingHandoffDirection;
+            state.pendingHandoffDirection = 0;
+            setWheelControlled(state, false);
+          }
+          return;
+        }
+
+        setProgress(state, state.progress + (difference * 0.24));
+        animateProgress(state);
+      });
+    };
+
+    const consumeWheel = (candidate, event, delta) => {
+      const { state, metrics, currentProgress } = candidate;
+      const direction = delta > 0 ? 1 : -1;
+
+      event.preventDefault();
+      state.locked = true;
+      state.handoffDirection = 0;
+      setWheelControlled(state, true);
+
+      const progressDelta = delta / Math.max(metrics.viewportHeight * 0.6, 1);
+      const nextTargetProgress = clamp(currentProgress + progressDelta);
+      state.targetProgress = nextTargetProgress <= 0.001
+        ? 0
+        : nextTargetProgress >= 0.999
+          ? 1
+          : nextTargetProgress;
+      state.pendingHandoffDirection = state.targetProgress <= 0 || state.targetProgress >= 1 ? direction : 0;
+      animateProgress(state);
+    };
+
+    const handleWheel = (event) => {
+      if (event.defaultPrevented || event.ctrlKey || !event.cancelable) return;
+
+      const delta = normalizeWheelDelta(event);
+      if (!delta) return;
+
+      const direction = delta > 0 ? 1 : -1;
+      const candidates = [];
+      activeStates.forEach((state) => {
+        const candidate = getWheelCandidate(state, direction);
+        if (candidate) candidates.push(candidate);
+      });
+
+      const candidate = candidates.sort((first, second) => {
+        if (first.priority !== second.priority) return first.priority - second.priority;
+        return first.distance - second.distance;
+      })[0];
+
+      if (candidate) consumeWheel(candidate, event, delta);
     };
 
     const initialize = (section) => {
@@ -212,6 +375,13 @@
         visible: true,
         observer: null,
         schedule: null,
+        progress: 0,
+        targetProgress: 0,
+        progressFrame: 0,
+        pendingHandoffDirection: 0,
+        wheelControlled: false,
+        locked: false,
+        handoffDirection: 0,
       };
 
       const refresh = () => update(state);
@@ -238,6 +408,7 @@
       }
 
       states.set(section, state);
+      if (!reducedMotionQuery.matches && images.length) activeStates.add(state);
       refresh();
       window.requestAnimationFrame(() => {
         if (states.get(section) !== state) return;
@@ -250,9 +421,12 @@
       if (!state) return;
 
       state.observer?.disconnect();
+      activeStates.delete(state);
       window.removeEventListener('scroll', state.schedule);
       window.removeEventListener('resize', state.schedule);
       if (state.frame) window.cancelAnimationFrame(state.frame);
+      if (state.progressFrame) window.cancelAnimationFrame(state.progressFrame);
+      setWheelControlled(state, false);
       state.images.forEach((image) => {
         image.style.removeProperty('--scrolling-image-scale');
         image.style.removeProperty('--scrolling-image-clip-inset');
@@ -290,6 +464,7 @@
       refreshRoot(target);
     };
 
+    document.addEventListener('wheel', handleWheel, { passive: false, capture: true });
     document.addEventListener('shopify:section:load', (event) => initializeRoot(event.target));
     document.addEventListener('shopify:section:unload', (event) => destroyRoot(event.target));
     document.addEventListener('shopify:section:select', (event) => refreshEventTarget(event.target));
