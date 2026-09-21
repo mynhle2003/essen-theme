@@ -493,7 +493,7 @@
           "type": "tabs-view-all-button",
           "static": true,
           "settings": {
-            "button_label": "View all",
+            "button_label": "",
             "button_style": "tertiary",
             "show_icon": false,
             "icon": "arrow",
@@ -802,10 +802,10 @@
           ]
         },
         "view-all": {
-          "type": "collection-list-view-all",
+          "type": "view-all-button",
           "static": true,
           "settings": {
-            "button_label": "View all",
+            "button_label": "Shop all",
             "button_link": "",
             "button_open_in_new_tab": false,
             "button_style": "text",
@@ -834,8 +834,8 @@
             "gap_desktop": 4,
             "gap_mobile": 4,
             "show_navigation_on_desktop": true,
-            "navigation_position": "inside",
-            "navigation_style": "secondary",
+            "navigation_position": "top",
+            "navigation_style": "icon_only",
             "navigation_icon": "chevron",
             "navigation_behavior": "show_on_hover",
             "show_pagination_on_desktop": true,
@@ -880,7 +880,8 @@
                   "static": true,
                   "settings": {
                     "show_product_count": true,
-                    "heading_size": "xs",
+                    "heading_size": "custom",
+                    "custom_heading_size": 14,
                     "html_tag": "h3",
                     "product_count_font": "body",
                     "product_count_font_size": "sm",
@@ -1172,6 +1173,26 @@
             "heading_cQzqNT"
           ]
         },
+        "featured-collection-view-all": {
+          "type": "view-all-button",
+          "static": true,
+          "settings": {
+            "button_label": "View all",
+            "button_link": "",
+            "button_open_in_new_tab": false,
+            "button_style": "text",
+            "show_icon": false,
+            "icon": "arrow",
+            "icon_position": "after",
+            "icon_size": "inherit",
+            "icon_width": 20,
+            "button_style_mobile": "outline",
+            "button_height_mobile": "inherit",
+            "full_width_mobile": true,
+            "show_icon_mobile": false
+          },
+          "blocks": {}
+        },
         "product-list": {
           "type": "product-list",
           "static": true,
@@ -1213,31 +1234,6 @@
             }
           },
           "block_order": []
-        },
-        "featured-collection-view-all": {
-          "type": "tabs-view-all-button",
-          "static": true,
-          "settings": {
-            "button_label": "View all",
-            "button_style": "tertiary",
-            "show_icon": false,
-            "icon": "arrow",
-            "icon_position": "after",
-            "icon_size": "inherit",
-            "icon_width": 20,
-            "width": "fit",
-            "width_mobile": "fit",
-            "padding_top": 0,
-            "padding_bottom": 0,
-            "padding_left": 0,
-            "padding_right": 0,
-            "customize_mobile_padding": false,
-            "padding_top_mobile": 0,
-            "padding_bottom_mobile": 0,
-            "padding_left_mobile": 0,
-            "padding_right_mobile": 0
-          },
-          "blocks": {}
         }
       },
       "name": "t:general.featured_collection",
@@ -1284,7 +1280,6 @@
             "corner_radius": "square",
             "shadow": "none",
             "overlay_color": "",
-            "overlay_opacity": 30,
             "backdrop_blur": 0,
             "padding_top": 0,
             "padding_bottom": 0,
@@ -1364,6 +1359,7 @@
             "duration_minutes": 0,
             "hide_when_expired": true,
             "number_size": "md",
+            "custom_number_size": 24,
             "label_size": "xs",
             "font": "accent",
             "font_size": "md",
@@ -1514,7 +1510,6 @@
                 "corner_radius": "square",
                 "shadow": "none",
                 "overlay_color": "",
-                "overlay_opacity": 30,
                 "backdrop_blur": 0,
                 "padding_top": 0,
                 "padding_bottom": 0,
@@ -1549,6 +1544,7 @@
                   "type": "product-title",
                   "settings": {
                     "heading_size": "xl",
+                    "custom_heading_size": 24,
                     "html_tag": "h2",
                     "text_case": "original",
                     "padding_top": 0,
@@ -1724,7 +1720,6 @@
             "corner_radius": "square",
             "shadow": "none",
             "overlay_color": "",
-            "overlay_opacity": 30,
             "backdrop_blur": 0,
             "padding_top": 0,
             "padding_bottom": 0,
@@ -2047,27 +2042,22 @@
           ]
         },
         "blog-posts-view-all": {
-          "type": "tabs-view-all-button",
+          "type": "view-all-button",
           "static": true,
           "settings": {
             "button_label": "View all",
-            "button_style": "tertiary",
+            "button_link": "",
+            "button_open_in_new_tab": false,
+            "button_style": "text",
             "show_icon": false,
             "icon": "arrow",
             "icon_position": "after",
             "icon_size": "inherit",
             "icon_width": 20,
-            "width": "fit",
-            "width_mobile": "fit",
-            "padding_top": 0,
-            "padding_bottom": 0,
-            "padding_left": 0,
-            "padding_right": 0,
-            "customize_mobile_padding": false,
-            "padding_top_mobile": 0,
-            "padding_bottom_mobile": 0,
-            "padding_left_mobile": 0,
-            "padding_right_mobile": 0
+            "button_style_mobile": "outline",
+            "button_height_mobile": "inherit",
+            "full_width_mobile": true,
+            "show_icon_mobile": false
           },
           "blocks": {}
         },
@@ -2128,6 +2118,7 @@
                   "settings": {
                     "line_limit": "no_limit",
                     "heading_size": "sm",
+                    "custom_heading_size": 24,
                     "html_tag": "h3",
                     "padding_top": 8,
                     "padding_bottom": 0,
