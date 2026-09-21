@@ -1,8 +1,13 @@
 {% doc %}
-  Renders a layout group that composes theme blocks in a horizontal or
+  Renders a layout group that composes theme and app blocks in a horizontal or
   vertical flow. The group owns its local layout, surface, border, overlay,
   and spacing without changing the typography contract of its children. Parent
   layouts should position this block without overriding its local alignment.
+
+  Group is a generic composition surface, so it accepts any available child
+  block. Product-specific blocks keep their product context when this group is
+  nested inside Product Details; outside a product-aware parent they render
+  according to their own empty-state behavior.
 
   @example
   {% content_for 'block', type: 'group', id: 'group' %}
@@ -148,6 +153,11 @@
     assign group_backdrop_blur = 0
   endif
 
+  assign group_overlay_opacity = block.settings.overlay_opacity | default: 30 | plus: 0
+  if group_overlay_opacity < 0 or group_overlay_opacity > 100
+    assign group_overlay_opacity = 30
+  endif
+
   assign padding_top = block.settings.padding_top | default: 0 | plus: 0
   assign padding_bottom = block.settings.padding_bottom | default: 0 | plus: 0
   assign padding_left = block.settings.padding_left | default: 0 | plus: 0
@@ -202,18 +212,15 @@
   assign group_class = group_class | append: ' group--radius-' | append: group_radius
   assign group_class = group_class | append: ' group--shadow-' | append: group_shadow
   assign group_class = group_class | append: ' group--border-' | append: group_border_type
-  assign group_class = group_class | append: ' group--appearance-' | append: group_appearance_type
   assign group_class = group_class | append: ' section-color-scope'
   if group_appearance_type == 'scheme'
     assign group_class = group_class | append: ' color-scheme ' | append: group_scheme
   endif
+  if block.settings.overlay_color != blank or group_backdrop_blur > 0
+    assign group_class = group_class | append: ' group--has-overlay'
+  endif
   if group_vertical_on_mobile
     assign group_class = group_class | append: ' group--mobile-vertical'
-  endif
-  if group_backdrop_blur > 0
-    assign group_class = group_class | append: ' backdrop-blur'
-  else
-    assign group_class = group_class | append: ' motion-block'
   endif
 %}
 
@@ -256,7 +263,8 @@
     {% if block.settings.background_image != blank %}--group-background-image: url('{{ block.settings.background_image | image_url: width: 2400 }}');{% endif %}
   {% endif %}
   {% if block.settings.overlay_color != blank %}--group-overlay-color: rgb({{ block.settings.overlay_color.rgba }});{% endif %}
-  {% if group_backdrop_blur > 0 %}--backdrop-blur: {{ group_backdrop_blur }}px;{% endif %}
+  {% if group_overlay_opacity != 30 %}--group-overlay-opacity: {{ group_overlay_opacity | divided_by: 100.0 }};{% endif %}
+  {% if group_backdrop_blur > 0 %}--group-backdrop-blur: {{ group_backdrop_blur }}px;{% endif %}
 {% endcapture %}
 {% assign group_style = group_style | strip %}
 
@@ -287,8 +295,9 @@
     --group-background-color: initial;
     --group-background-image: initial;
     --group-border-color: var(--border-color);
-    --group-overlay-color: transparent;
-    --backdrop-blur: 0px;
+    --group-overlay-color: initial;
+    --group-overlay-opacity: initial;
+    --group-backdrop-blur: initial;
     --group-align: start;
     --group-align-mobile: var(--group-align);
     --flex-align: var(--group-align);
@@ -304,9 +313,7 @@
     border: 0 solid var(--group-border-color, var(--border-color));
     border-radius: var(--group-radius, var(--radius-square));
     background-color: var(--group-background-color, var(--background-color));
-    background-image:
-      linear-gradient(var(--group-overlay-color), var(--group-overlay-color)),
-      var(--group-background-image, none);
+    background-image: var(--group-background-image, none);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -319,15 +326,6 @@
 
   .group--horizontal > .group--width-fill {
     flex: 1 1 0%;
-  }
-
-  .group.group--appearance-inherit {
-    background-color: transparent;
-    background-image: linear-gradient(var(--group-overlay-color), var(--group-overlay-color));
-  }
-
-  .group.backdrop-blur {
-    isolation: auto;
   }
 
   .group--align-start {
@@ -397,7 +395,23 @@
     box-shadow: 0 1rem 2rem color-mix(in srgb, var(--shadow-color) 24%, transparent);
   }
 
+  .group--has-overlay::before {
+    --group-overlay-opacity: 0.3;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    background: var(--group-overlay-color, transparent);
+    opacity: var(--group-overlay-opacity);
+    -webkit-backdrop-filter: blur(var(--group-backdrop-blur, 0px));
+    backdrop-filter: blur(var(--group-backdrop-blur, 0px));
+    content: '';
+    pointer-events: none;
+  }
+
   .group > * {
+    position: relative;
+    z-index: 1;
     min-width: 0;
   }
 
@@ -431,33 +445,16 @@
   "name": "t:general.group",
   "tag": null,
   "blocks": [
-    { "type": "button" },
-    { "type": "buttons" },
-    { "type": "divider" },
-    { "type": "eyebrow" },
-    { "type": "header" },
-    { "type": "heading" },
-    { "type": "icon" },
-    { "type": "image" },
-    { "type": "image-card" },
-    { "type": "spacer" },
-    { "type": "text" },
-    { "type": "video" },
-    { "type": "group" },
-    { "type": "grid" },
-    { "type": "row" },
-    { "type": "email-signup" },
-    { "type": "localization" },
-    { "type": "logo" },
-    { "type": "menu" },
-    { "type": "payment-icons" },
-    { "type": "policy-links" },
-    { "type": "contact-form" },
-    { "type": "marquee" },
-    { "type": "carousel" },
+    { "type": "@theme" },
+    { "type": "@app" },
     { "type": "product-badges" },
     { "type": "product-title" },
-    { "type": "product-price" }
+    { "type": "product-price" },
+    { "type": "product-description" },
+    { "type": "product-variant-picker" },
+    { "type": "product-inventory" },
+    { "type": "product-buy-buttons" },
+    { "type": "product-accordion" }
   ],
   "settings": [
     {
@@ -708,6 +705,16 @@
       "id": "overlay_color",
       "label": "t:labels.overlay_color",
       "alpha": true
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "t:labels.overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 30
     },
     {
       "type": "range",

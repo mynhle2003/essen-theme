@@ -63,7 +63,7 @@
 %}
 
 <{{ wrapper }}
-  class="image {{ class }}"
+  class="image{% if image == blank %} placeholder-image{% endif %} {{ class }}"
   {% if url != blank %}
     href="{{ url | escape }}"
     {% if open_in_new_tab %}

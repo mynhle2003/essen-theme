@@ -16,8 +16,6 @@ class VariantPicker extends HTMLElement {
     this.handleKeydown = this.handleKeydown.bind(this);
     this.handlePopState = this.handlePopState.bind(this);
     this.handleExternalVariantChange = this.handleExternalVariantChange.bind(this);
-    this.handleSizeChartClose = this.handleSizeChartClose.bind(this);
-    this.handleSizeChartCancel = this.handleSizeChartCancel.bind(this);
 
     const eventOptions = { signal: this.signal };
     this.addEventListener('change', this.handleChange, eventOptions);
@@ -25,8 +23,6 @@ class VariantPicker extends HTMLElement {
     this.addEventListener('keydown', this.handleKeydown, eventOptions);
     window.addEventListener('popstate', this.handlePopState, eventOptions);
     this.sectionRoot?.addEventListener('variant:change', this.handleExternalVariantChange, eventOptions);
-    this.sizeChartDialog?.addEventListener('close', this.handleSizeChartClose, eventOptions);
-    this.sizeChartDialog?.addEventListener('cancel', this.handleSizeChartCancel, eventOptions);
 
     this.applyUrlVariant();
     this.sync({ source: 'initial' });
@@ -39,7 +35,7 @@ class VariantPicker extends HTMLElement {
       this.abortController?.abort();
       this.abortController = null;
       this.signal = null;
-      this.sizeChartOpener = null;
+      window.ThemeOverlay.get(this.sizeChartDialog)?.destroy();
     });
   }
 
@@ -498,9 +494,7 @@ class VariantPicker extends HTMLElement {
       return;
     }
 
-    if (event.target === this.sizeChartDialog) {
-      this.closeSizeChart();
-    }
+
   }
 
   handleKeydown(event) {
@@ -537,45 +531,13 @@ class VariantPicker extends HTMLElement {
   }
 
   openSizeChart(opener) {
-    const dialog = this.sizeChartDialog;
-    if (!dialog || dialog.open) return;
-
-    this.sizeChartOpener = opener;
-    opener.setAttribute('aria-expanded', 'true');
-
-    try {
-      if (typeof dialog.showModal === 'function') {
-        dialog.showModal();
-      } else {
-        dialog.setAttribute('open', '');
-      }
-    } catch (error) {
-      dialog.setAttribute('open', '');
-    }
+    window.ThemeOverlay.get(this.sizeChartDialog)?.open({ opener });
   }
 
   closeSizeChart() {
-    const dialog = this.sizeChartDialog;
-    if (!dialog) return;
-
-    if (typeof dialog.close === 'function' && dialog.open) {
-      dialog.close();
-    } else {
-      dialog.removeAttribute('open');
-      this.handleSizeChartClose();
-    }
+    window.ThemeOverlay.get(this.sizeChartDialog)?.close();
   }
 
-  handleSizeChartCancel(event) {
-    event.preventDefault();
-    this.closeSizeChart();
-  }
-
-  handleSizeChartClose() {
-    this.sizeChartOpener?.setAttribute('aria-expanded', 'false');
-    if (this.sizeChartOpener?.isConnected) this.sizeChartOpener.focus();
-    this.sizeChartOpener = null;
-  }
 }
 
 if (!customElements.get('variant-picker')) {

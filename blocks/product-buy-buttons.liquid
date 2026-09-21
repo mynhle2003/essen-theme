@@ -200,7 +200,6 @@
 
   assign back_in_stock_form_id = 'BackInStockForm-' | append: section.id | append: '-' | append: block.id
   assign back_in_stock_dialog_id = 'BackInStockDialog-' | append: section.id | append: '-' | append: block.id
-  assign back_in_stock_title_id = back_in_stock_dialog_id | append: '-title'
   assign back_in_stock_email_id = back_in_stock_form_id | append: '-email'
   assign back_in_stock_name_id = back_in_stock_form_id | append: '-name'
   assign back_in_stock_phone_id = back_in_stock_form_id | append: '-phone'
@@ -440,31 +439,7 @@
             attributes: back_in_stock_trigger_attributes
           %}
 
-          <dialog
-            id="{{ back_in_stock_dialog_id }}"
-            class="product-buy-buttons__back-in-stock-dialog"
-            data-back-in-stock-dialog
-            data-desktop-layout="{{ back_in_stock_layout_desktop }}"
-            data-mobile-layout="{{ back_in_stock_layout_mobile }}"
-            data-form-state="idle"
-            aria-modal="true"
-            aria-labelledby="{{ back_in_stock_title_id }}"
-            scroll-lock
-          >
-            <div class="product-buy-buttons__back-in-stock-surface">
-              <header class="product-buy-buttons__back-in-stock-header">
-                <span class="bottom-sheet__handle product-buy-buttons__back-in-stock-handle" aria-hidden="true"></span>
-                <h2 id="{{ back_in_stock_title_id }}" class="heading-text heading-sm">{{ 'products.back_in_stock_title' | t }}</h2>
-                <button
-                  class="overlay-close product-buy-buttons__back-in-stock-close"
-                  type="button"
-                  aria-label="{{ 'products.close_back_in_stock' | t | escape }}"
-                  data-back-in-stock-close
-                >
-                  {% render 'icon', icon: 'x-mark', bare: true, class: 'overlay-close__icon' %}
-                </button>
-              </header>
-              <div class="product-buy-buttons__back-in-stock-content">
+          {% capture notify_content %}
                 <p class="form__helper">{{ 'products.back_in_stock_description' | t }}</p>
                 {% form 'contact', id: back_in_stock_form_id, class: 'product-buy-buttons__back-in-stock-form', data-back-in-stock-form: '' %}
                   {% if form.posted_successfully? %}<span hidden data-back-in-stock-form-state="success"></span>{% elsif form.errors %}<span hidden data-back-in-stock-form-state="error"></span>{% endif %}
@@ -503,9 +478,9 @@
                   {% endif %}
                   <button class="btn btn-primary btn--primary product-buy-buttons__back-in-stock-submit" type="submit">{{ 'products.back_in_stock_submit' | t }}</button>
                 {% endform %}
-              </div>
-            </div>
-          </dialog>
+          {% endcapture %}
+          {% assign notify_title = 'products.back_in_stock_title' | t %}
+          {% render 'component-overlay', id: back_in_stock_dialog_id, label: notify_title, title: notify_title, content: notify_content, desktop_layout: back_in_stock_layout_desktop, mobile_layout: back_in_stock_layout_mobile, attributes: 'data-back-in-stock-dialog data-form-state="idle"' %}
         </div>
       {% endif %}
     {% elsif request.design_mode %}
@@ -724,6 +699,12 @@
       "unit": "px",
       "default": 0,
       "visible_if": "{{ block.settings.customize_mobile_padding }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:general.buy_buttons",
+      "category": "t:general.product"
     }
   ]
 }

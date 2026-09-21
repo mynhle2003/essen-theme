@@ -82,7 +82,6 @@
     assign size_chart_width = 600
   endif
   assign size_chart_label = 'products.size_guide' | t
-  assign close_size_chart_label = 'products.close_size_guide' | t
   assign unavailable_selection_label = 'products.variant_selection_unavailable' | t
   assign size_chart_dialog_id = picker_id | append: '-size-guide'
   assign size_chart_page_title = size_chart_page.title | default: blank
@@ -277,32 +276,7 @@
     {% endfor %}
   {% endif %}
   {% if has_size_chart %}
-    <dialog
-      id="{{ size_chart_dialog_id }}"
-      class="variant-picker__size-chart"
-      data-size-chart-dialog
-      data-desktop-layout="{{ size_chart_desktop_layout }}"
-      data-mobile-layout="{{ size_chart_mobile_layout }}"
-      style="--variant-picker-size-chart-width: {{ size_chart_width }}px;"
-      aria-labelledby="{{ size_chart_dialog_id }}-title"
-      scroll-lock
-    >
-      <div class="variant-picker__size-chart-surface">
-        <header class="variant-picker__size-chart-header">
-          <span class="bottom-sheet__handle variant-picker__size-chart-handle" aria-hidden="true"></span>
-          <h2 id="{{ size_chart_dialog_id }}-title" class="heading-text heading-sm">
-            {{ size_chart_page_title | escape }}
-          </h2>
-          <button
-            class="overlay-close variant-picker__size-chart-close"
-            type="button"
-            aria-label="{{ close_size_chart_label | escape }}"
-            data-size-chart-close
-          >
-            {% render 'icon', icon: 'x-mark', bare: true, class: 'overlay-close__icon' %}
-          </button>
-        </header>
-        <div class="variant-picker__size-chart-content rte">
+    {% capture chart_content %}
           {% if size_chart_page.content != blank %}
             {{ size_chart_page.content }}
           {% elsif size_chart_page.url != blank %}
@@ -310,8 +284,8 @@
           {% else %}
             <p>{{ 'products.size_guide_unavailable' | t }}</p>
           {% endif %}
-        </div>
-      </div>
-    </dialog>
+    {% endcapture %}
+    {% assign chart_title = size_chart_page_title | escape %}
+    {% render 'component-overlay', id: size_chart_dialog_id, label: size_chart_page_title, title: chart_title, content: chart_content, desktop_layout: size_chart_desktop_layout, mobile_layout: size_chart_mobile_layout, attributes: 'data-size-chart-dialog', body_class: 'rte', width: size_chart_width %}
   {% endif %}
 </variant-picker>

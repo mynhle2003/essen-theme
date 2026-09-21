@@ -4,7 +4,10 @@
 
   @param {product} product - Product to render
   @param {string} [class] - Additional classes
-  @param {boolean} [show_ranking] - Whether to render a valid product rating
+  @param {boolean} [show_ranking] - Whether to render the product position in its parent collection
+  @param {number} [ranking_position] - 1-based position in the parent collection
+  @param {string} [ranking_color] - Custom color for the ranking badge
+  @param {boolean} [show_rating] - Essen custom: whether to render the product rating
   @param {string} [color_type] - Inherit or override the card color scheme
   @param {object} [color_scheme] - Optional block-level color scheme override
   @param {boolean} [placeholder] - Whether to render the styled placeholder card
@@ -164,13 +167,22 @@
   assign quick_add_label = 'products.quick_add' | t
   assign quick_view_label = 'products.quick_view' | t
   assign product_card_motion_speed = 'standard'
+  # Essen custom: keep the legacy direct-snippet behavior for callers that
+  # still pass show_ranking instead of the explicit rating flag.
+  assign product_card_show_rating = show_rating
+  if product_card_show_rating == blank
+    assign product_card_show_rating = show_ranking
+  endif
 %}
 
 {% if placeholder or product == blank %}
   {% render 'product-card-placeholder',
     card_class: card_class,
     attributes: attributes,
-    placeholder_price: 19
+    placeholder_price: 19,
+    show_ranking: show_ranking,
+    ranking_position: ranking_position,
+    ranking_color: ranking_color
   %}
 {% else %}
 <article
@@ -191,11 +203,13 @@
       crop: 'center'
     %}
 
-    {% render 'product-badges',
-      product: product,
-      show_sale_badge: show_sale_badge,
-      show_sold_out_badge: show_sold_out_badge
-    %}
+    <div class="product-card__media-overlay">
+      {% render 'product-badges',
+        product: product,
+        show_sale_badge: show_sale_badge,
+        show_sold_out_badge: show_sold_out_badge
+      %}
+    </div>
 
     {% if quick_add_enabled and product.available and current_variant != blank %}
       {% render 'product-card-quick-add',
@@ -216,7 +230,11 @@
         motion_speed: product_card_motion_speed
       %}
     {% endif %}
-  </div>
+
+    {% if show_ranking and ranking_position != blank %}
+      {% render 'product-card-ranking', position: ranking_position, color: ranking_color %}
+    {% endif %}
+    </div>
 
   <div class="product-card__content">
     {% if swatches_enabled and swatch_position == 'top' %}
@@ -231,7 +249,7 @@
         <p class="product-card__type body-sm">{{ product.type | escape }}</p>
       {% endif %}
       {% render 'product-card-title', product: product %}
-      {% if show_ranking %}
+      {% if product_card_show_rating %}
         {% render 'product-card-rating', product: product %}
       {% endif %}
       {% render 'product-card-price', item: product %}

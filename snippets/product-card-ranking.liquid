@@ -1,0 +1,17 @@
+{% doc %}
+  Renders the product's 1-based position in its parent collection.
+
+  @param {number} position - Product position in the parent collection
+  @param {string} [color] - Custom color for the ranking number
+{% enddoc %}
+
+{% liquid
+  assign product_card_ranking_position = position | plus: 0
+  assign product_card_ranking_color = color | default: 'color-mix(in srgb, var(--body-color) 6%, var(--background-color))'
+%}
+
+{% if product_card_ranking_position > 0 %}
+  <div class="product-card__ranking" role="img" aria-label="{{ 'products.ranking' | t: rank: product_card_ranking_position }}">
+    <span class="product-card__ranking-number" style="--product-card-ranking-color: {{ product_card_ranking_color | escape }};">{{ product_card_ranking_position }}</span>
+  </div>
+{% endif %}

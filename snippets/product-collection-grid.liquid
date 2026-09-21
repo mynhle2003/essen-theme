@@ -22,6 +22,7 @@
   @param {string} [item_class] - Additional class for each grid item
   @param {string} [items_data_attributes] - Additional grid data attributes
   @param {boolean} [next_slide_preview] - Whether to reveal the next slide on desktop
+  @param {boolean} [next_slide_preview_on_mobile] - Whether to show a 1.2-slide mobile preview
   @param {string} [carousel_id] - Stable ID for the carousel root
   @param {string} [aria_label] - Accessible name for the carousel
   @param {string} [previous_selector] - CSS selector for the previous control
@@ -137,11 +138,13 @@
   endif
 
   assign product_collection_grid_card_show_ranking = false
+  assign product_collection_grid_card_ranking_color = blank
   assign product_collection_grid_card_color_type = 'inherit'
   assign product_collection_grid_card_color_scheme = 'scheme-1'
   assign product_collection_grid_card_editor_attributes = blank
   if product_card_block != blank
     assign product_collection_grid_card_show_ranking = product_card_block.settings.show_ranking
+    assign product_collection_grid_card_ranking_color = product_card_block.settings.ranking_color
     assign product_collection_grid_card_color_type = product_card_block.settings.color_type | default: 'inherit'
     assign product_collection_grid_card_color_scheme = product_card_block.settings.color_scheme | default: 'scheme-1'
     assign product_collection_grid_card_editor_attributes = product_card_block.shopify_attributes
@@ -209,6 +212,8 @@
           product: product_collection_grid_card_product,
           placeholder: product_collection_grid_card_placeholder,
           show_ranking: product_collection_grid_card_show_ranking,
+          ranking_position: forloop.index,
+          ranking_color: product_collection_grid_card_ranking_color,
           color_type: product_collection_grid_card_color_type,
           color_scheme: product_collection_grid_card_color_scheme,
           attributes: product_collection_grid_card_editor_attributes
@@ -260,6 +265,7 @@
       aria_label: product_collection_grid_aria_label,
       pagination: product_collection_grid_pagination,
       show_next_slide_preview: next_slide_preview,
+      show_next_slide_preview_on_mobile: next_slide_preview_on_mobile,
       autoplay: autoplay,
       pause_on_hover: autoplay_pause_on_hover,
       autoplay_delay: autoplay_delay

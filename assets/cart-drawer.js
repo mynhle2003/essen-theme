@@ -700,84 +700,36 @@
     const panel = drawer?.querySelector('[data-cart-drawer-order-options]');
     if (!drawer || !panel) return;
     const isOpen = Boolean(name);
+    const previousTrigger = drawer.querySelector('[data-cart-drawer-order-options-open][aria-expanded="true"]');
+    if (!isOpen && panel.contains(document.activeElement)) previousTrigger?.focus({ preventScroll: true });
+    panel.inert = !isOpen;
     drawer.classList.toggle('is-order-options-open', isOpen);
     panel.setAttribute('aria-hidden', String(!isOpen));
     drawer.querySelectorAll('[data-cart-drawer-order-options-open]').forEach((trigger) => {
       trigger.setAttribute('aria-expanded', String(isOpen && trigger.dataset.cartDrawerOrderOptionsOpen === name));
     });
+    if (!isOpen) return;
+    state.orderOptionsDrag?.reset();
     drawer.querySelectorAll('[data-cart-drawer-order-options-content]').forEach((content) => {
       content.hidden = content.dataset.cartDrawerOrderOptionsContent !== name;
     });
-    if (!isOpen) return;
     const trigger = drawer.querySelector(`[data-cart-drawer-order-options-open="${name}"]`);
     const title = panel.querySelector('[data-cart-drawer-order-options-title]');
     if (title) title.textContent = trigger?.dataset.cartDrawerOrderOptionsTitle || 'Cart options';
     window.requestAnimationFrame(() => panel.querySelector(`[data-cart-drawer-order-options-content="${name}"] input, [data-cart-drawer-order-options-content="${name}"] textarea, [data-cart-drawer-order-options-content="${name}"] select, [data-cart-drawer-order-options-close]`)?.focus({ preventScroll: true }));
   };
 
-  const resetOrderOptionsDrag = () => {
-    const drag = state.orderOptionsDrag;
-    if (!drag) return;
-    drag.panel.classList.remove('is-sheet-dragging');
-    drag.panel.style.removeProperty('transition');
-    drag.panel.style.removeProperty('transform');
-    state.orderOptionsDrag = null;
-  };
-
   const beginOrderOptionsDrag = (event) => {
-    if (window.innerWidth > 767 || !event.isPrimary || event.button !== 0) return;
-    const header = event.target instanceof Element
-      ? event.target.closest('[data-cart-drawer-order-options-sheet-header]')
-      : null;
-    if (!header || event.target.closest('[data-cart-drawer-order-options-close]')) return;
-    const panel = header.closest('[data-cart-drawer-order-options]');
-    if (!panel || !state.drawer?.classList.contains('is-order-options-open')) return;
-
-    state.orderOptionsDrag = {
-      panel,
-      header,
-      pointerId: event.pointerId,
-      startY: event.clientY,
-      lastY: event.clientY,
-      lastTime: performance.now(),
-      velocity: 0,
-    };
-    panel.classList.add('is-sheet-dragging');
-    panel.style.transition = 'none';
-    header.setPointerCapture?.(event.pointerId);
-    event.preventDefault();
-  };
-
-  const moveOrderOptionsDrag = (event) => {
-    const drag = state.orderOptionsDrag;
-    if (!drag || event.pointerId !== drag.pointerId) return;
-    const distance = Math.max(0, event.clientY - drag.startY);
-    const now = performance.now();
-    drag.velocity = (event.clientY - drag.lastY) / Math.max(1, now - drag.lastTime);
-    drag.lastY = event.clientY;
-    drag.lastTime = now;
-    drag.panel.style.transform = `translate3d(0, ${distance}px, 0)`;
-    event.preventDefault();
-  };
-
-  const endOrderOptionsDrag = (event, cancelled = false) => {
-    const drag = state.orderOptionsDrag;
-    if (!drag || event.pointerId !== drag.pointerId) return;
-    const distance = Math.max(0, event.clientY - drag.startY);
-    const shouldClose = !cancelled && (distance >= Math.min(140, window.innerHeight * 0.2) || (distance >= 32 && drag.velocity > 0.55));
-    drag.header.releasePointerCapture?.(event.pointerId);
-    if (shouldClose) {
-      drag.panel.style.transition = 'transform var(--motion-duration-standard) var(--motion-ease-standard)';
-      drag.panel.style.transform = 'translate3d(0, 100%, 0)';
-      window.setTimeout(() => {
-        setOrderOptionsOpen();
-        resetOrderOptionsDrag();
-      }, 280);
-      return;
-    }
-    drag.panel.style.transition = 'transform var(--motion-duration-standard) var(--motion-ease-standard)';
-    drag.panel.style.transform = 'translate3d(0, 0, 0)';
-    window.setTimeout(resetOrderOptionsDrag, 360);
+    const header = event.target.closest?.('[data-cart-drawer-order-options-sheet-header]');
+    const panel = header?.closest('[data-cart-drawer-order-options]');
+    if (!panel || !window.ThemeOverlay.mobile.matches) return;
+    state.orderOptionsDrag?.destroy();
+    state.orderOptionsDrag = new window.ThemeOverlay.SheetGesture({
+      panel, header, delegated: true,
+      enabled: () => state.drawer?.classList.contains('is-order-options-open') && window.ThemeOverlay.mobile.matches,
+      close: () => setOrderOptionsOpen(),
+    });
+    state.orderOptionsDrag.start(event);
   };
 
   const estimateShipping = async (form) => {
@@ -869,9 +821,6 @@
     seedVariantComparePrices();
 
     nextDrawer.querySelector('[data-cart-drawer-order-options-sheet-header]')?.addEventListener('pointerdown', beginOrderOptionsDrag);
-    nextDrawer.querySelector('[data-cart-drawer-order-options]')?.addEventListener('pointermove', moveOrderOptionsDrag);
-    nextDrawer.querySelector('[data-cart-drawer-order-options]')?.addEventListener('pointerup', endOrderOptionsDrag);
-    nextDrawer.querySelector('[data-cart-drawer-order-options]')?.addEventListener('pointercancel', (event) => endOrderOptionsDrag(event, true));
 
     nextDrawer.addEventListener('click', (event) => {
       if (event.target.closest('[data-cart-drawer-close]')) {
@@ -1049,6 +998,8 @@
     const target = event.target;
     if (target === state.sectionRoot || target?.contains?.(state.drawer)) {
       close({ force: true });
+      state.orderOptionsDrag?.destroy();
+      state.orderOptionsDrag = null;
       state.drawer = null;
       state.sectionRoot = null;
       state.editorSelected = false;

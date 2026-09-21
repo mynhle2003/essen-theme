@@ -867,6 +867,7 @@
     --sale-price-color: {{ default_sale_price }};
     --color-background: var(--background-color);
     --color-foreground: var(--body-color);
+    --color-foreground-rgb: {{ default_body | color_to_rgb | remove: 'rgb(' | remove: ')' | replace: ',', '' }};
     --color-accent: var(--accent-color);
     --color-border: var(--border-color);
     --color-surface: color-mix(in srgb, var(--background-color) 94%, var(--body-color));
@@ -1119,7 +1120,7 @@
     --overlay-radius: {{ overlay_radius }};
     --badge-font-family: var(--font-body-family);
     --badge-font-size: var(--font-body-xs);
-    --badge-font-weight: 600;
+    --badge-font-weight: 500;
     --badge-letter-spacing: var(--font-body-letter-spacing);
     --badge-padding: 0.2rem 0.55rem;
     --badge-sale-price: {{ badge_sale_price }};
@@ -1210,6 +1211,7 @@
 
       --color-background: var(--background-color);
       --color-foreground: var(--body-color);
+      --color-foreground-rgb: {{ scheme.settings.text | color_to_rgb | remove: 'rgb(' | remove: ')' | replace: ',', '' }};
       --color-accent: var(--accent-color);
       --color-border: var(--border-color);
       --color-surface: color-mix(in srgb, var(--background-color) 94%, var(--body-color));

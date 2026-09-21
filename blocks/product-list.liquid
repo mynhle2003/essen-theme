@@ -160,7 +160,7 @@
         endif
       %}
       <div class="{% if product_list_layout == 'carousel' %}swiper-slide {% endif %}product-collection-grid__item product-card-layout__item product-list__item">
-        {% content_for 'block', type: 'product-card', id: 'product-card', product: product_list_card_product, closest.product: product_list_card_product, placeholder: product_list_card_placeholder %}
+        {% content_for 'block', type: 'product-card', id: 'product-card', product: product_list_card_product, closest.product: product_list_card_product, placeholder: product_list_card_placeholder, ranking_position: forloop.index %}
       </div>
     {% endfor %}
   {% endif %}

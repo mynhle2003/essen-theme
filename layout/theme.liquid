@@ -19,6 +19,8 @@
 
     {% # Load and preload the critical CSS %}
     {{ 'critical.css' | asset_url | stylesheet_tag: preload: true }}
+    {{ 'component-overlay.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'component-overlay.js' | asset_url }}" defer></script>
     {{ 'accordion-details.css' | asset_url | stylesheet_tag }}
     {{ 'menu.css' | asset_url | stylesheet_tag }}
     <script src="{{ 'header.js' | asset_url }}" defer></script>

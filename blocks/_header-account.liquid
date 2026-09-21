@@ -29,18 +29,18 @@
 {% if shop.customer_accounts_enabled %}
   <shopify-account class="{{ account_class }}" menu="customer-account-main-menu" {{ block.shopify_attributes }}>
     <span slot="signed-out-avatar" class="header-account__avatar" aria-label="{{ account_label | escape }}">
-      <span class="icon" aria-hidden="true">
+      {% unless account_type == 'text' %}<span class="icon" aria-hidden="true">
         {% render 'icon', icon: 'user', bare: true %}
-      </span>
+      </span>{% endunless %}
       {% unless account_type == 'icon' %}<span class="header-action__label">{{ account_label | escape }}</span>{% endunless %}
       <span class="header-account__mobile-label">{{ 'customers.login.submit' | t }}</span>
     </span>
   </shopify-account>
 {% else %}
   <a class="{{ account_class }}" href="{{ routes.account_login_url }}" aria-label="{{ account_label | escape }}" {{ block.shopify_attributes }}>
-    <span class="icon" aria-hidden="true">
+    {% unless account_type == 'text' %}<span class="icon" aria-hidden="true">
       {% render 'icon', icon: 'user', bare: true %}
-    </span>
+    </span>{% endunless %}
     {% unless account_type == 'icon' %}<span class="header-action__label">{{ account_label | escape }}</span>{% endunless %}
     <span class="header-account__mobile-label">{{ 'customers.login.submit' | t }}</span>
   </a>

@@ -14,6 +14,7 @@
     "back_to_shopping": "Back to shopping"
   },
   "accessibility": {
+    "close": "Close",
     "account": "Account",
     "cart": "Cart",
     "menu": "Menu",
@@ -79,6 +80,10 @@
     "decrease": "Decrease quantity",
     "empty": "Your cart is empty",
     "increase": "Increase quantity",
+    "duties_and_taxes_included": "Duties and taxes included.",
+    "duties_included": "Duties included.",
+    "shipping_policy_html": "<a href=\"{{ link }}\">Shipping</a> calculated at checkout.",
+    "taxes_included": "Taxes included.",
     "taxes_at_checkout": "Taxes and shipping calculated at checkout.",
     "total": "Total",
     "title": "Cart",
@@ -198,6 +203,7 @@
     "quick_add": "Quick add",
     "quick_view": "Quick view",
     "placeholder_title": "Product title",
+    "ranking": "Product ranking: {{ rank }}",
     "rating": "Rated {{ rating }} out of {{ scale }}",
     "no_product": "Product unavailable in this context.",
     "sale": "Sale",

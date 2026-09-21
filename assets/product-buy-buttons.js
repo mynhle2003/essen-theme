@@ -28,23 +28,18 @@ class ProductBuyButtons extends HTMLElement {
     this.backInStockDialog = this.querySelector('[data-back-in-stock-dialog]');
     this.backInStockForm = this.querySelector('[data-back-in-stock-form]');
     this.backInStockContext = this.backInStockForm?.querySelector('[data-back-in-stock-context]');
-    this.backInStockOpener = null;
 
     this.handleVariantChange = this.handleVariantChange.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleInput = this.handleInput.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleDialogCancel = this.handleDialogCancel.bind(this);
-    this.handleDialogClose = this.handleDialogClose.bind(this);
 
     this.sectionRoot?.addEventListener('variant:change', this.handleVariantChange, { signal: this.signal });
     this.sectionRoot?.addEventListener('input', this.handleInput, { signal: this.signal });
     this.sectionRoot?.addEventListener('change', this.handleChange, { signal: this.signal });
     this.addEventListener('click', this.handleClick, { signal: this.signal });
     this.form?.addEventListener('submit', this.handleSubmit, { signal: this.signal });
-    this.backInStockDialog?.addEventListener('cancel', this.handleDialogCancel, { signal: this.signal });
-    this.backInStockDialog?.addEventListener('close', this.handleDialogClose, { signal: this.signal });
 
     this.syncGiftCardRecipient();
     this.normalizeQuantity();
@@ -72,7 +67,7 @@ class ProductBuyButtons extends HTMLElement {
       this.sectionRoot = null;
       this.form = null;
       this.currentQuantityRule = null;
-      this.backInStockOpener = null;
+      window.ThemeOverlay.get(this.backInStockDialog)?.destroy();
     });
   }
 
@@ -320,53 +315,15 @@ class ProductBuyButtons extends HTMLElement {
       return;
     }
 
-    if (event.target === this.backInStockDialog) this.closeBackInStock(true);
+
   }
 
-  openBackInStock(restoreFocus = true) {
-    const dialog = this.backInStockDialog;
-    if (!dialog || dialog.open) return;
-
-    this.backInStockOpener = restoreFocus ? this.backInStockTrigger : null;
-    this.backInStockTrigger?.setAttribute('aria-expanded', 'true');
-    try {
-      if (typeof dialog.showModal === 'function') dialog.showModal();
-      else dialog.setAttribute('open', '');
-    } catch (error) {
-      dialog.setAttribute('open', '');
-    }
-    window.requestAnimationFrame(() => {
-      dialog.querySelector('input:not([type="hidden"]):not(:disabled), textarea:not(:disabled), select:not(:disabled)')?.focus({ preventScroll: true });
-    });
+  openBackInStock(fromTrigger = true) {
+    window.ThemeOverlay.get(this.backInStockDialog)?.open({ opener: fromTrigger ? this.backInStockTrigger : null });
   }
 
   closeBackInStock(restoreFocus = true) {
-    const dialog = this.backInStockDialog;
-    if (!dialog) return;
-
-    if (!restoreFocus) this.backInStockOpener = null;
-    if (typeof dialog.close === 'function' && dialog.open) dialog.close();
-    else {
-      dialog.removeAttribute('open');
-      this.handleDialogClose();
-    }
-  }
-
-  handleDialogCancel(event) {
-    event.preventDefault();
-    this.closeBackInStock(true);
-  }
-
-  handleDialogClose() {
-    this.backInStockTrigger?.setAttribute('aria-expanded', 'false');
-    if (
-      this.backInStockOpener?.isConnected
-      && !this.backInStockOpener.hidden
-      && this.backInStockOpener.getAttribute('aria-hidden') !== 'true'
-    ) {
-      this.backInStockOpener.focus({ preventScroll: true });
-    }
-    this.backInStockOpener = null;
+    window.ThemeOverlay.get(this.backInStockDialog)?.close({ restoreFocus });
   }
 
   updateBackInStockContext(variantId, variant) {

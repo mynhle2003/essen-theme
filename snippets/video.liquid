@@ -20,12 +20,24 @@
   assign video_pause_label = 'video.pause' | t
   assign video_width = video.preview_image.width | default: 1600
   assign video_height = video.preview_image.height
+  assign video_is_placeholder = true
   if video_autoplay
     assign video_muted = true
   endif
+  if video != blank
+    assign video_is_placeholder = false
+  elsif external_video != blank
+    assign external_video_type = external_video.type | default: '' | downcase
+    assign external_video_id = external_video.id | default: ''
+    if external_video_type == 'youtube' or external_video_type == 'vimeo'
+      if external_video_id != blank
+        assign video_is_placeholder = false
+      endif
+    endif
+  endif
 %}
 
-<theme-video class="video {{ class }}" data-video-media>
+<theme-video class="video{% if video_is_placeholder %} placeholder-image{% endif %} {{ class }}" data-video-media>
   {% if video != blank %}
     {{ video | video_tag: image_size: '1600x', autoplay: video_autoplay, loop: video_loop, muted: video_muted, controls: true, loading: 'lazy', width: video_width, height: video_height }}
     {% if poster != blank and video_autoplay == false %}

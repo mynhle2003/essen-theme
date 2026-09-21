@@ -177,11 +177,16 @@
 
   const hasOpenHeaderSubmenu = (header) => Boolean(header.querySelector('details[open], details:hover, details:focus-within, details.is-submenu-closing'));
 
-  const hasOpenMegaMenu = (header) => Boolean(
-    header.querySelector(
-      '.header-menu__details--mega[open], .header-menu__details--mega:hover, .header-menu__details--mega:focus-within, .header-menu__details--mega.is-submenu-closing',
-    ),
-  );
+  const hasOpenMegaMenu = (header) => Array.from(
+    header.querySelectorAll('.header-menu__details--mega'),
+  ).some((details) => {
+    if (details.open || details.classList.contains('is-submenu-closing')) return true;
+
+    // Hover/focus only opens a mega menu when this menu is configured to use
+    // the hover trigger. In click mode, these states must not activate the
+    // backdrop before the visitor opens the details element.
+    return details.dataset.headerSubmenuTrigger === 'hover' && details.matches(':hover, :focus-within');
+  });
 
   const synchronizeSubmenuOffsets = (header) => {
     const headerTop = header.querySelector('.header-top');
@@ -690,99 +695,18 @@
     });
   };
 
-  const resetLocalizationSheetDrag = () => {
-    const drag = localizationSheetDrag;
-    if (!drag) return;
-    drag.panel.classList.remove('is-sheet-dragging');
-    drag.panel.style.removeProperty('transition');
-    drag.panel.style.removeProperty('transform');
-    localizationSheetDrag = null;
-  };
-
   const beginLocalizationSheetDrag = (event) => {
-    if (window.innerWidth > 767 || !event.isPrimary || event.button !== 0) return;
-
-    const sheetHeader = event.target instanceof Element
-      ? event.target.closest('.header-localization__sheet-header')
-      : null;
-    if (event.target instanceof Element && event.target.closest('[data-header-localization-close]')) return;
-
-    const panel = sheetHeader?.closest('.header-localization__panel');
+    const header = event.target.closest?.('.header-localization__sheet-header');
+    const panel = header?.closest('.header-localization__panel');
     const details = panel?.closest('.header-localization__details[open]');
-    if (!sheetHeader || !panel || !details) return;
-
-    resetLocalizationSheetDrag();
-    localizationSheetDrag = {
-      pointerId: event.pointerId,
-      sheetHeader,
-      panel,
-      details,
-      startY: event.clientY,
-      lastY: event.clientY,
-      lastTime: performance.now(),
-      distance: 0,
-      velocity: 0,
-    };
-    panel.classList.add('is-sheet-dragging');
-    panel.style.transition = 'none';
-    panel.style.transform = 'translate3d(0, 0, 0)';
-    sheetHeader.setPointerCapture?.(event.pointerId);
-    event.preventDefault();
-  };
-
-  const moveLocalizationSheetDrag = (event) => {
-    const drag = localizationSheetDrag;
-    if (!drag || event.pointerId !== drag.pointerId) return;
-
-    const now = performance.now();
-    const elapsed = Math.max(now - drag.lastTime, 1);
-    drag.velocity = (event.clientY - drag.lastY) / elapsed;
-    drag.lastY = event.clientY;
-    drag.lastTime = now;
-    drag.distance = Math.max(0, event.clientY - drag.startY);
-    drag.panel.style.transform = `translate3d(0, ${drag.distance}px, 0)`;
-    event.preventDefault();
-  };
-
-  const endLocalizationSheetDrag = (event, cancelled = false) => {
-    const drag = localizationSheetDrag;
-    if (!drag || event.pointerId !== drag.pointerId) return;
-
-    drag.sheetHeader.releasePointerCapture?.(event.pointerId);
-    const closeDistance = Math.min(140, drag.panel.getBoundingClientRect().height * 0.2);
-    const shouldClose = !cancelled && (
-      drag.distance >= closeDistance || (drag.distance >= 32 && drag.velocity > 0.55)
-    );
-
-    drag.panel.classList.remove('is-sheet-dragging');
-    localizationSheetDrag = null;
-
-    if (shouldClose) {
-      drag.details.classList.remove('is-sheet-open');
-      drag.panel.style.transition = 'transform var(--motion-duration-standard) var(--motion-ease-standard)';
-      window.requestAnimationFrame(() => {
-        drag.panel.style.transform = `translate3d(0, ${Math.max(window.innerHeight, drag.panel.offsetHeight + 60)}px, 0)`;
-      });
-      const transitionMs = getTransitionTotalMs(drag.panel);
-      window.setTimeout(() => {
-        drag.details.classList.remove('is-sheet-open');
-        drag.details.removeAttribute('open');
-        drag.details.querySelector(':scope > .header-localization__summary')?.focus({ preventScroll: true });
-        drag.panel.style.removeProperty('transition');
-        drag.panel.style.removeProperty('transform');
-        scheduleUpdate();
-      }, transitionMs + 50);
-      return;
-    }
-
-    drag.panel.style.transition = 'transform var(--motion-duration-standard) var(--motion-ease-standard)';
-    window.requestAnimationFrame(() => {
-      drag.panel.style.transform = 'translate3d(0, 0, 0)';
+    if (!details || !window.ThemeOverlay.mobile.matches) return;
+    localizationSheetDrag?.destroy();
+    localizationSheetDrag = new window.ThemeOverlay.SheetGesture({
+      panel, header, delegated: true,
+      enabled: () => details.open && window.ThemeOverlay.mobile.matches,
+      close: () => closeLocalizationSheet(details, { restoreFocus: true }),
     });
-    window.setTimeout(() => {
-      drag.panel.style.removeProperty('transition');
-      drag.panel.style.removeProperty('transform');
-    }, 360);
+    localizationSheetDrag.start(event);
   };
 
   const initializeAccountSheets = (header) => {
@@ -834,9 +758,6 @@
     scheduleUpdate();
   });
   document.addEventListener('pointerdown', beginLocalizationSheetDrag);
-  document.addEventListener('pointermove', moveLocalizationSheetDrag, { passive: false });
-  document.addEventListener('pointerup', endLocalizationSheetDrag);
-  document.addEventListener('pointercancel', (event) => endLocalizationSheetDrag(event, true));
 
   document.addEventListener('focusin', (event) => {
     const headerTop = event.target.closest?.(HEADER_SELECTOR);
@@ -876,6 +797,10 @@
   });
 
   document.addEventListener('shopify:section:unload', (event) => {
+    if (event.target.contains(localizationSheetDrag?.panel)) {
+      localizationSheetDrag.destroy();
+      localizationSheetDrag = null;
+    }
     removeFooterLocalizations(event.target);
     removeHeaders(event.target);
   });

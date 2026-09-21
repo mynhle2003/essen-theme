@@ -78,8 +78,8 @@
           </summary>
 
           <button class="header-localization__sheet-backdrop" type="button" aria-label="Close country selector" data-header-localization-close></button>
-          <div class="header-localization__panel">
-            <header class="header-localization__sheet-header">
+          <div class="header-localization__panel component-sheet--mobile">
+            <header class="header-localization__sheet-header component-sheet__header">
               <span class="bottom-sheet__handle header-localization__sheet-handle" aria-hidden="true"></span>
               <h2 class="heading-text heading-sm">Country</h2>
               <button class="overlay-close header-localization__sheet-close" type="button" aria-label="Close country selector" data-header-localization-close>{% render 'icon', icon: 'x-mark', bare: true, class: 'overlay-close__icon' %}</button>
@@ -114,8 +114,8 @@
             {% render 'icon', icon: 'chevron-down', class: 'header-localization__icon' %}
           </summary>
           <button class="header-localization__sheet-backdrop" type="button" aria-label="Close language selector" data-header-localization-close></button>
-          <div class="header-localization__panel">
-            <header class="header-localization__sheet-header">
+          <div class="header-localization__panel component-sheet--mobile">
+            <header class="header-localization__sheet-header component-sheet__header">
               <span class="bottom-sheet__handle header-localization__sheet-handle" aria-hidden="true"></span>
               <h2 class="heading-text heading-sm">Language</h2>
               <button class="overlay-close header-localization__sheet-close" type="button" aria-label="Close language selector" data-header-localization-close>{% render 'icon', icon: 'x-mark', bare: true, class: 'overlay-close__icon' %}</button>
@@ -369,7 +369,7 @@
       min-width: 0;
       padding: 0 var(--page-margin-mobile) 1.25rem;
       overflow-y: auto;
-      border-radius: var(--bottom-sheet-radius) var(--bottom-sheet-radius) 0 0;
+
       box-shadow: none;
       opacity: 1;
       visibility: visible;
@@ -462,14 +462,16 @@
       "type": "checkbox",
       "id": "show_country_name",
       "label": "Show country name",
-      "default": false
+      "default": false,
+      "visible_if": "{{ block.settings.show_country_selector }}"
     },
     {
       "type": "checkbox",
       "id": "show_country_flag",
       "label": "Show country code",
       "info": "Uses the country ISO code as a compact flag fallback.",
-      "default": true
+      "default": true,
+      "visible_if": "{{ block.settings.show_country_selector }}"
     },
     {
       "type": "header",

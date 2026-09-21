@@ -1,1 +1,14 @@
 extends: theme-check:recommended
+
+# These files are generated and overwritten by installed third-party Shopify
+# integrations. Their external assets/templates are not part of this theme.
+ignore:
+  - node_modules/**
+  - layout/ecom.liquid
+  - sections/ecom-*.liquid
+  - sections/ecom_*.liquid
+  - sections/gp-*.liquid
+  - snippets/ecom-*.liquid
+  - snippets/ecom_*.liquid
+  - snippets/foxify-*.liquid
+  - snippets/gp-head.liquid

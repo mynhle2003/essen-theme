@@ -32,11 +32,15 @@
   data-cart-drawer-open
   {{ block.shopify_attributes }}
 >
-  <span class="icon" aria-hidden="true">
-    {% render 'icon', icon: 'shopping-bag', bare: true %}
-    <span class="header-cart__count" data-cart-count aria-label="{{ cart.item_count }}"{% if cart.item_count == 0 %} hidden{% endif %}>{% if cart.item_count > 99 %}99+{% else %}{{ cart.item_count }}{% endif %}</span>
-  </span>
-  {% unless cart_type == 'icon' %}<span class="header-action__label">{{ cart_label | escape }}</span>{% endunless %}
+  {% unless cart_type == 'text' %}
+    <span class="icon" aria-hidden="true">
+      {% render 'icon', icon: 'shopping-bag', bare: true %}
+      {% if cart_type == 'icon' %}<span class="header-cart__count" data-cart-count aria-label="{{ cart.item_count }}"{% if cart.item_count == 0 %} hidden{% endif %}>{% if cart.item_count > 99 %}99+{% else %}{{ cart.item_count }}{% endif %}</span>{% elsif cart_type == 'icon_with_text' %}<span class="header-cart__count header-cart__count--mobile-icon" data-cart-count aria-label="{{ cart.item_count }}"{% if cart.item_count == 0 %} hidden{% endif %}>{% if cart.item_count > 99 %}99+{% else %}{{ cart.item_count }}{% endif %}</span>{% endif %}
+    </span>
+  {% endunless %}
+  {% unless cart_type == 'icon' %}
+    <span class="header-action__label">{{ cart_label | escape }}<span class="header-cart__count header-cart__count--text" data-cart-count aria-label="{{ cart.item_count }}"{% if cart.item_count == 0 %} hidden{% endif %}>{% if cart.item_count > 99 %}99+{% else %}{{ cart.item_count }}{% endif %}</span></span>
+  {% endunless %}
 </a>
 
 {% stylesheet %}
@@ -81,6 +85,34 @@
     font-size: 9px;
     line-height: 1;
     text-align: center;
+  }
+
+  .header-cart__count--text {
+    position: static;
+    display: inline-grid;
+    margin-inline-start: 0.3em;
+    vertical-align: middle;
+  }
+
+  .header-cart__count--mobile-icon {
+    display: none;
+  }
+
+  @media (max-width: 767.98px) {
+    .header-top .header-cart--type-text .header-action__label {
+      position: static;
+      width: auto;
+      height: auto;
+      padding: 0;
+      margin: 0;
+      overflow: visible;
+      clip: auto;
+      white-space: nowrap;
+    }
+
+    .header-cart__count--mobile-icon {
+      display: grid;
+    }
   }
 
   .header-cart--badge-primary .header-cart__count {

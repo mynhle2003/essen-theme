@@ -64,6 +64,11 @@
   if current_variant != blank and current_variant.compare_at_price != blank and current_variant.compare_at_price > current_variant.price
     assign current_sale = true
   endif
+
+  assign show_tax_shipping_notice = false
+  if cart.taxes_included or cart.duties_included or shop.shipping_policy.body != blank
+    assign show_tax_shipping_notice = true
+  endif
 %}
 
 {% capture price_style %}
@@ -81,44 +86,57 @@
 {% assign price_style = price_style | strip %}
 
 <div class="{{ price_class }}" data-product-price-container data-section-id="{{ section.id }}" aria-live="polite"{% if price_style != blank %} style="{{ price_style }}"{% endif %} {{ block.shopify_attributes }}>
-  {% if current_variant != blank %}
-    {% render 'price', item: current_variant, context: 'product-page', class: 'product-page__price' %}
-  {% else %}
-    {% if price_product != blank %}
-      {% render 'price', item: price_product, context: 'product-page', class: 'product-page__price' %}
-    {% elsif request.design_mode %}
-      {% render 'price', amount: 1999, context: 'product-page', class: 'product-page__price' %}
-    {% endif %}
-  {% endif %}
-
-  {% if block.settings.show_sale_badge %}
-    <div data-variant-sale-badge-container>
-      {% if current_sale %}
-        {% liquid
-          assign sale_discount = current_variant.compare_at_price | minus: current_variant.price
-          assign sale_percentage = sale_discount | times: 100.0 | divided_by: current_variant.compare_at_price | round
-          assign sale_badge_type = settings.badge_sale_type | default: 'text'
-          case sale_badge_type
-            when 'percentage'
-              assign sale_label = 'products.sale_percentage' | t: percentage: sale_percentage
-            when 'percentage_only'
-              assign sale_label = 'products.sale_percentage_only' | t: percentage: sale_percentage
-            when 'amount_saved'
-              assign sale_amount = sale_discount | money
-              assign sale_label = 'products.sale_amount_saved' | t: amount: sale_amount
-            else
-              assign sale_label = 'products.sale' | t
-          endcase
-        %}
-        <div class="product-price__sale-badge">
-          {% render 'badge', text: sale_label, tone: 'sale' %}
-        </div>
+  <div class="product-price__content">
+    {% if current_variant != blank %}
+      {% render 'price', item: current_variant, context: 'product-page', class: 'product-page__price' %}
+    {% else %}
+      {% if price_product != blank %}
+        {% render 'price', item: price_product, context: 'product-page', class: 'product-page__price' %}
+      {% elsif request.design_mode %}
+        {% render 'price', amount: 1999, context: 'product-page', class: 'product-page__price' %}
       {% endif %}
-    </div>
-  {% endif %}
+    {% endif %}
 
-  {% if block.settings.show_tax_shipping_notice %}
-    <p class="product-price__notice body-xs">{{ 'cart.taxes_at_checkout' | t }}</p>
+    {% if block.settings.show_sale_badge %}
+      <div data-variant-sale-badge-container>
+        {% if current_sale %}
+          {% liquid
+            assign sale_discount = current_variant.compare_at_price | minus: current_variant.price
+            assign sale_percentage = sale_discount | times: 100.0 | divided_by: current_variant.compare_at_price | round
+            assign sale_badge_type = settings.badge_sale_type | default: 'text'
+            case sale_badge_type
+              when 'percentage'
+                assign sale_label = 'products.sale_percentage' | t: percentage: sale_percentage
+              when 'percentage_only'
+                assign sale_label = 'products.sale_percentage_only' | t: percentage: sale_percentage
+              when 'amount_saved'
+                assign sale_amount = sale_discount | money
+                assign sale_label = 'products.sale_amount_saved' | t: amount: sale_amount
+              else
+                assign sale_label = 'products.sale' | t
+            endcase
+          %}
+          <div class="product-price__sale-badge">
+            {% render 'badge', text: sale_label, tone: 'sale' %}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  {% if block.settings.show_tax_shipping_notice and show_tax_shipping_notice %}
+    <p class="product-price__notice body-xs">
+      {% if cart.duties_included and cart.taxes_included %}
+        {{ 'cart.duties_and_taxes_included' | t }}
+      {% elsif cart.taxes_included %}
+        {{ 'cart.taxes_included' | t }}
+      {% elsif cart.duties_included %}
+        {{ 'cart.duties_included' | t }}
+      {% endif %}
+      {% if shop.shipping_policy.body != blank %}
+        {{ 'cart.shipping_policy_html' | t: link: shop.shipping_policy.url }}
+      {% endif %}
+    </p>
   {% endif %}
 
   <div hidden data-variant-price-templates aria-hidden="true">
@@ -316,6 +334,12 @@
       "unit": "px",
       "default": 0,
       "visible_if": "{{ block.settings.customize_mobile_padding }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:general.product_price",
+      "category": "t:general.product"
     }
   ]
 }

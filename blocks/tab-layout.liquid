@@ -44,6 +44,11 @@
     assign tab_layout_font_size = 'lg'
   endunless
 
+  assign tab_layout_custom_size = block.settings.custom_heading_size | default: 24 | plus: 0
+  if tab_layout_custom_size < 10 or tab_layout_custom_size > 100
+    assign tab_layout_custom_size = 24
+  endif
+
   assign tab_layout_font_family = 'var(--font-heading-family)'
   assign tab_layout_font_style = 'var(--font-heading-style)'
   assign tab_layout_font_weight = 'var(--font-heading-weight)'
@@ -73,6 +78,11 @@
       assign tab_layout_line_height_token = 'var(--font-heading-xl-line-height)'
       assign tab_layout_letter_spacing_token = 'var(--font-heading-xl-letter-spacing)'
       assign tab_layout_text_transform_token = 'var(--font-heading-xl-text-transform)'
+    when 'lg'
+      assign tab_layout_font_size_token = 'var(--font-heading-lg)'
+      assign tab_layout_line_height_token = 'var(--font-heading-lg-line-height)'
+      assign tab_layout_letter_spacing_token = 'var(--font-heading-lg-letter-spacing)'
+      assign tab_layout_text_transform_token = 'var(--font-heading-lg-text-transform)'
     when 'md'
       assign tab_layout_font_size_token = 'var(--font-heading-md)'
       assign tab_layout_line_height_token = 'var(--font-heading-md-line-height)'
@@ -133,6 +143,10 @@
         assign tab_layout_letter_spacing_token = 'var(--font-body-letter-spacing)'
         assign tab_layout_text_transform_token = 'var(--font-body-text-transform)'
     endcase
+  endif
+
+  if tab_layout_font_size == 'custom'
+    assign tab_layout_font_size_token = tab_layout_custom_size | append: 'px'
   endif
 %}
 
@@ -420,21 +434,25 @@
   };
 
   const updateViewAll = (state, trigger) => {
-    const viewAll = state.scope.querySelector('[data-collection-tabs-view-all]') || (state.viewAll?.isConnected ? state.viewAll : null);
-    state.viewAll = viewAll || null;
-    if (!viewAll) return;
+    const viewAll = Array.from(state.scope.querySelectorAll('[data-collection-tabs-view-all]'));
+    state.viewAll = viewAll;
+    if (!viewAll.length) return;
 
     const url = trigger?.dataset.collectionUrl?.trim() || '';
     if (url) {
-      viewAll.setAttribute('href', url);
-      viewAll.removeAttribute('aria-disabled');
-      viewAll.removeAttribute('tabindex');
+      viewAll.forEach((button) => {
+        button.setAttribute('href', url);
+        button.removeAttribute('aria-disabled');
+        button.removeAttribute('tabindex');
+      });
       return;
     }
 
-    viewAll.removeAttribute('href');
-    viewAll.setAttribute('aria-disabled', 'true');
-    viewAll.setAttribute('tabindex', '-1');
+    viewAll.forEach((button) => {
+      button.removeAttribute('href');
+      button.setAttribute('aria-disabled', 'true');
+      button.setAttribute('tabindex', '-1');
+    });
   };
 
   const getExternalNavigation = (state) => state.scope.querySelector('[data-collection-tabs-navigation]');
@@ -539,7 +557,7 @@
       navigation,
       entries: [],
       activeEntry: null,
-      viewAll: scope.querySelector('[data-collection-tabs-view-all]') || null,
+      viewAll: Array.from(scope.querySelectorAll('[data-collection-tabs-view-all]')),
       controller,
       observer: null,
       panelAnimation: null,
@@ -751,7 +769,7 @@
     {
       "type": "select",
       "id": "heading_size",
-      "label": "t:labels.heading_size",
+      "label": "t:labels.font_size",
       "options": [
         { "value": "display", "label": "t:options.heading_size.display" },
         { "value": "xl", "label": "t:options.heading_size.xl" },
@@ -762,6 +780,17 @@
         { "value": "custom", "label": "t:options.heading_size.custom" }
       ],
       "default": "lg"
+    },
+    {
+      "type": "range",
+      "id": "custom_heading_size",
+      "label": "Custom size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24,
+      "visible_if": "{{ block.settings.heading_size == 'custom' }}"
     }
   ],
   "presets": [

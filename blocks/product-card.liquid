@@ -8,24 +8,34 @@
 
   @param {product} [product] - Product resource supplied by the parent list
   @param {boolean} [placeholder] - Whether to render the shared empty card state
+  @param {number} [ranking_position] - 1-based position in the parent collection
   @param {boolean} [show_ranking_override] - Internal parent override for legacy card settings
   @param {string} [color_type_override] - Internal parent override for legacy card settings
   @param {object} [color_scheme_override] - Internal parent override for legacy card settings
   @param {string} [editor_attributes_override] - Internal parent override for legacy editor attributes
 
   A parent may pass `placeholder: true` while a product resource is not
-  available so the card can preserve the parent layout in the Theme Editor.
+  available so the card can preserve the parent layout in the editor and
+  storefront preview.
 
   @example
   {% content_for 'block', type: 'product-card', id: 'product-card' %}
 {% enddoc %}
 
 {% liquid
-  assign card_product = product
+  assign card_product = closest.product | default: product
+  assign product_card_ranking_position = ranking_position
+  if product_card_ranking_position != blank
+    assign product_card_ranking_position = product_card_ranking_position | plus: 0
+  endif
   assign product_card_show_ranking = block.settings.show_ranking
+  assign product_card_ranking_color = block.settings.ranking_color
   if show_ranking_override != nil
     assign product_card_show_ranking = show_ranking_override
   endif
+  # Essen custom: the existing show_ranking setting also controls the
+  # product rating block. Keep that behavior while the base adds rankings.
+  assign product_card_show_rating = product_card_show_ranking
   assign product_card_color_type = block.settings.color_type
   if color_type_override != nil
     assign product_card_color_type = color_type_override
@@ -44,6 +54,9 @@
   {% render 'product-card',
     product: card_product,
     show_ranking: product_card_show_ranking,
+    show_rating: product_card_show_rating,
+    ranking_position: product_card_ranking_position,
+    ranking_color: product_card_ranking_color,
     color_type: product_card_color_type,
     color_scheme: product_card_color_scheme,
     attributes: product_card_editor_attributes
@@ -53,6 +66,9 @@
     product: blank,
     placeholder: true,
     show_ranking: product_card_show_ranking,
+    show_rating: product_card_show_rating,
+    ranking_position: product_card_ranking_position,
+    ranking_color: product_card_ranking_color,
     color_type: product_card_color_type,
     color_scheme: product_card_color_scheme,
     attributes: product_card_editor_attributes
@@ -91,6 +107,12 @@
       "id": "show_ranking",
       "label": "t:labels.show_ranking",
       "default": false
+    },
+    {
+      "type": "color",
+      "id": "ranking_color",
+      "label": "t:labels.ranking_color",
+      "visible_if": "{{ block.settings.show_ranking }}"
     },
     {
       "type": "header",

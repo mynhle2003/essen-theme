@@ -1,6 +1,14 @@
 import { EffectFade, Pagination, Thumbs } from './swiper-loader.js';
 import { createSwiperCarousel, destroySwiperCarousel } from './swiper-carousel.js';
 
+// Zoom relative to the fitted image, capped by source resolution and display size.
+const LIGHTBOX_ZOOM_SCALE = 3;
+const LIGHTBOX_MAX_IMAGE_SIZE = 2000;
+const LIGHTBOX_DRAG_THRESHOLD = 4;
+const LIGHTBOX_DISMISS_AXIS_RATIO = 1.15;
+const LIGHTBOX_DISMISS_ANIMATION_MS = 240;
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
 class ProductMediaGallery extends HTMLElement {
   connectedCallback() {
     if (this.abortController) return;
@@ -12,18 +20,37 @@ class ProductMediaGallery extends HTMLElement {
 
     this.handleClick = this.handleClick.bind(this);
     this.handleKeydown = this.handleKeydown.bind(this);
+    this.handleLightboxPointerDown = this.handleLightboxPointerDown.bind(this);
+    this.handleLightboxPointerMove = this.handleLightboxPointerMove.bind(this);
+    this.handleLightboxPointerUp = this.handleLightboxPointerUp.bind(this);
+    this.handleLightboxDragStart = this.handleLightboxDragStart.bind(this);
     this.handleBreakpoint = this.handleBreakpoint.bind(this);
     this.handleVariantChange = this.handleVariantChange.bind(this);
 
-    this.addEventListener('click', this.handleClick, { signal: this.signal });
+    this.addEventListener('click', this.handleClick, { signal: this.signal, capture: true });
     this.addEventListener('keydown', this.handleKeydown, { signal: this.signal });
+    this.addEventListener('pointerdown', this.handleLightboxPointerDown, { signal: this.signal, capture: true });
+    this.addEventListener('pointermove', this.handleLightboxPointerMove, { signal: this.signal, capture: true });
+    this.addEventListener('pointerup', this.handleLightboxPointerUp, { signal: this.signal, capture: true });
+    this.addEventListener('pointercancel', this.handleLightboxPointerUp, { signal: this.signal, capture: true });
+    this.addEventListener('dragstart', this.handleLightboxDragStart, { signal: this.signal, capture: true });
     this.mobileQuery.addEventListener('change', this.handleBreakpoint, { signal: this.signal });
+    window.addEventListener('resize', () => {
+      if (!this.lightbox?.open) return;
+      this.resetLightboxZoom();
+      this.layoutLightboxImages();
+    }, { signal: this.signal });
     this.productInformation?.addEventListener('variant:change', this.handleVariantChange, { signal: this.signal });
     this.lightbox?.addEventListener('close', () => this.destroyLightbox(), { signal: this.signal });
+    this.lightbox?.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      this.closeLightbox();
+    }, { signal: this.signal });
     this.lightbox?.addEventListener('click', (event) => {
-      if (event.target === this.lightbox) this.lightbox.close();
+      if (event.target === this.lightbox) this.closeLightbox();
     }, { signal: this.signal });
 
+    this.applyVariantMediaFilter(this.dataset.currentVariantId);
     this.syncThumbnailVisibility();
     this.initializeGallery();
     this.initializeShopifyMedia();
@@ -52,6 +79,45 @@ class ProductMediaGallery extends HTMLElement {
     return this.querySelector('[data-product-media-lightbox]');
   }
 
+  get lightboxZoomState() {
+    if (!this._lightboxZoomState) {
+      this._lightboxZoomState = {
+        scale: 1,
+        x: 0,
+        y: 0,
+        image: null,
+        slide: null,
+        dragging: false,
+        pointerId: null,
+        startX: 0,
+        startY: 0,
+        originX: 0,
+        originY: 0,
+        moved: false,
+        suppressClickUntil: 0,
+        mediaPointerId: null,
+        mediaStartX: 0,
+        mediaStartY: 0,
+        mediaMoved: false,
+        mediaSuppressClickUntil: 0,
+        dismissCandidate: false,
+        dismissDragging: false,
+        dismissAnimating: false,
+        dismissPointerId: null,
+        dismissAxis: null,
+        dismissStartX: 0,
+        dismissStartY: 0,
+        dismissOffset: 0,
+        dismissImage: null,
+        dismissCapture: null,
+        dismissSlide: null,
+        dismissTimer: null,
+      };
+    }
+
+    return this._lightboxZoomState;
+  }
+
   get galleryMode() {
     if (this.mobileQuery.matches) return 'mobile';
     return ['left_thumbnails', 'bottom_thumbnails'].includes(this.dataset.desktopLayout) ? 'desktop-carousel' : 'desktop-static';
@@ -59,6 +125,46 @@ class ProductMediaGallery extends HTMLElement {
 
   visibleSlides() {
     return Array.from(this.querySelectorAll('[data-product-media]')).filter((slide) => !slide.hidden);
+  }
+
+  activeMediaId() {
+    const activeSlide = this.mainSwiper?.slides?.[this.mainSwiper.activeIndex];
+    if (activeSlide && !activeSlide.hidden) return activeSlide.dataset.mediaId || '';
+
+    return this.visibleSlides()[0]?.dataset.mediaId || '';
+  }
+
+  variantIdsFor(element) {
+    return (element?.dataset.variantIds || '')
+      .split(',')
+      .map((variantId) => variantId.trim())
+      .filter(Boolean);
+  }
+
+  setMediaVisibility(element, hidden) {
+    if (!element) return;
+
+    element.hidden = hidden;
+    element.style.display = hidden ? 'none' : '';
+    element.setAttribute('aria-hidden', String(hidden));
+  }
+
+  applyVariantMediaFilter(variantId) {
+    if (this.dataset.filterVariantMedia !== 'true') return false;
+
+    const slides = Array.from(this.querySelectorAll('[data-product-media]'));
+    const normalizedVariantId = String(variantId || '');
+    const hasLinkedMedia = Boolean(normalizedVariantId) && slides.some((slide) =>
+      this.variantIdsFor(slide).includes(normalizedVariantId),
+    );
+
+    slides.forEach((slide) => {
+      const variantIds = this.variantIdsFor(slide);
+      const hidden = hasLinkedMedia && variantIds.length > 0 && !variantIds.includes(normalizedVariantId);
+      this.setMediaVisibility(slide, hidden);
+    });
+
+    return true;
   }
 
   destroyGallery() {
@@ -91,17 +197,21 @@ class ProductMediaGallery extends HTMLElement {
     this.activeGalleryMode = mode;
     const isMobile = mode === 'mobile';
     const showThumbnails = !isMobile || this.dataset.mobileLayout === 'thumbnails';
-    const showPagination = isMobile && this.dataset.mobileLayout === 'slider';
+    const showPagination = isMobile && this.dataset.mobileLayout === 'slider' && this.dataset.mobileShowPagination === 'true';
     const gapProperty = isMobile ? '--product-media-gap-mobile' : '--product-media-gap';
-    const gap = Number.parseFloat(getComputedStyle(this).getPropertyValue(gapProperty)) || 0;
+    const thumbnailGapProperty = isMobile ? '--product-media-thumbnail-gap-mobile' : '--product-media-thumbnail-gap';
+    const computedStyle = getComputedStyle(this);
+    const gapValue = Number.parseFloat(computedStyle.getPropertyValue(gapProperty));
+    const gap = Number.isFinite(gapValue) ? gapValue : (isMobile ? 10 : 12);
+    const thumbnailGapValue = Number.parseFloat(computedStyle.getPropertyValue(thumbnailGapProperty));
+    const thumbnailGap = Number.isFinite(thumbnailGapValue) ? thumbnailGapValue : gap;
 
     if (showThumbnails && this.thumbnailElement) {
       this.thumbnailSwiper = createSwiperCarousel(this.thumbnailElement, {
         slidesPerView: 'auto',
-        spaceBetween: gap,
+        spaceBetween: thumbnailGap,
         direction: !isMobile && this.dataset.desktopLayout === 'left_thumbnails' ? 'vertical' : 'horizontal',
         watchSlidesProgress: true,
-        slideToClickedSlide: true,
         a11y: { enabled: true },
       });
     }
@@ -127,14 +237,28 @@ class ProductMediaGallery extends HTMLElement {
   }
 
   handleBreakpoint() {
-    const activeMediaId = this.mainSwiper?.slides?.[this.mainSwiper.activeIndex]?.dataset.mediaId || '';
+    const activeMediaId = this.activeMediaId();
     this.initializeGallery(activeMediaId);
   }
 
   handleVariantChange(event) {
-    const mediaId = event.detail?.variant?.featured_media?.id;
+    const variantId = String(event.detail?.variantId || event.detail?.variant?.id || '');
+    const featuredMediaId = event.detail?.variant?.featured_media?.id;
     window.requestAnimationFrame(() => {
+      this.dataset.currentVariantId = variantId;
+      const filtersVariantMedia = this.applyVariantMediaFilter(variantId);
       this.syncThumbnailVisibility();
+      const visibleMediaIds = new Set(this.visibleSlides().map((slide) => String(slide.dataset.mediaId)));
+      const mediaId = featuredMediaId && visibleMediaIds.has(String(featuredMediaId))
+        ? String(featuredMediaId)
+        : this.activeMediaId();
+
+      if (filtersVariantMedia) {
+        this.destroyGallery();
+        this.initializeGallery(mediaId);
+        return;
+      }
+
       if (this.galleryMode === 'desktop-static') {
         if (mediaId) this.scrollToMedia(String(mediaId), true);
         return;
@@ -146,29 +270,482 @@ class ProductMediaGallery extends HTMLElement {
   }
 
   handleClick(event) {
-    if (event.target.closest('[data-product-lightbox-close]')) {
-      this.lightbox?.close();
+    const target = event.target;
+    if (!target?.closest) return;
+
+    // Pointer capture retargets the click following a drag to the dialog itself.
+    // Consume it before either image zoom or the backdrop-close handler runs.
+    if (target.closest('[data-product-media-lightbox]') && this.lightboxZoomState.suppressClickUntil > performance.now()) {
+      this.lightboxZoomState.suppressClickUntil = 0;
+      event.preventDefault();
+      event.stopPropagation();
       return;
     }
 
-    const thumbnail = event.target.closest('[data-product-media-thumbnail]');
+    if (target.closest('[data-product-lightbox-close]')) {
+      this.closeLightbox();
+      event.stopPropagation();
+      return;
+    }
+    if (this.lightboxTransition && target.closest('[data-product-media-lightbox]')) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    const lightboxThumbnail = target.closest('[data-product-lightbox-thumbnail]');
+    if (lightboxThumbnail) {
+      const slides = Array.from(this.lightboxSwiper?.slides || []);
+      const index = slides.findIndex((slide) => String(slide.dataset.mediaId) === String(lightboxThumbnail.dataset.mediaId));
+      if (index >= 0) this.lightboxSwiper?.slideTo(index);
+      event.stopPropagation();
+      return;
+    }
+
+    const lightboxImage = target.closest('.product-media-lightbox__image');
+    if (lightboxImage) {
+      this.toggleLightboxZoom(lightboxImage, event);
+      event.stopPropagation();
+      return;
+    }
+
+    const thumbnail = target.closest('[data-product-media-thumbnail]');
     if (thumbnail) {
-      this.galleryMode === 'desktop-static'
-        ? this.scrollToMedia(thumbnail.dataset.mediaId)
-        : this.showMedia(thumbnail.dataset.mediaId);
+      if (this.galleryMode === 'desktop-static') {
+        this.scrollToMedia(thumbnail.dataset.mediaId);
+      }
       return;
     }
 
-    const media = event.target.closest('[data-product-media-content]');
+    const media = target.closest('[data-product-media-content]');
     if (!media) return;
+    const state = this.lightboxZoomState;
+    if (state.mediaSuppressClickUntil > performance.now()) {
+      state.mediaSuppressClickUntil = 0;
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
     this.activateMedia(media);
   }
 
   handleKeydown(event) {
-    const media = event.target.closest('[data-product-media-content]');
+    const target = event.target;
+    if (!target?.closest) return;
+
+    const lightboxSlide = target.closest('.product-media-lightbox__slide');
+    if (lightboxSlide && ['Enter', ' '].includes(event.key)) {
+      event.preventDefault();
+      const image = lightboxSlide.querySelector('.product-media-lightbox__image');
+      if (image) this.toggleLightboxZoom(image, event);
+      return;
+    }
+
+    const media = target.closest('[data-product-media-content]');
     if (!media || !['Enter', ' '].includes(event.key)) return;
     event.preventDefault();
     this.activateMedia(media);
+  }
+
+  handleLightboxPointerDown(event) {
+    const state = this.lightboxZoomState;
+    const target = event.target;
+    const lightbox = target?.closest?.('[data-product-media-lightbox]');
+    const image = target?.closest?.('.product-media-lightbox__image');
+    if (lightbox && this.lightboxTransition) return;
+
+    // Swiper can emit a click after a completed swipe; keep that synthetic click
+    // from opening the lightbox while preserving a normal tap/click.
+    if (!lightbox && target?.closest?.('[data-product-media-content]')) {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      state.mediaPointerId = event.pointerId;
+      state.mediaStartX = event.clientX;
+      state.mediaStartY = event.clientY;
+      state.mediaMoved = false;
+      state.mediaSuppressClickUntil = 0;
+      return;
+    }
+
+    if (!lightbox || !this.lightboxSwiper || state.dismissAnimating) return;
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+
+    if (state.scale <= 1) {
+      const activeSlide = this.lightboxSwiper.slides?.[this.lightboxSwiper.activeIndex];
+      const interactiveTarget = target.closest?.('button, a, input, select, textarea, [data-product-lightbox-thumbnail]');
+      if (!activeSlide || interactiveTarget) return;
+
+      state.dismissCandidate = true;
+      state.dismissDragging = false;
+      state.dismissPointerId = event.pointerId;
+      state.dismissAxis = null;
+      state.dismissStartX = event.clientX;
+      state.dismissStartY = event.clientY;
+      state.dismissOffset = 0;
+      state.dismissImage = image;
+      state.dismissCapture = lightbox;
+      state.dismissSlide = activeSlide;
+      return;
+    }
+
+    if (image !== state.image) return;
+
+    state.dragging = true;
+    state.pointerId = event.pointerId;
+    state.startX = event.clientX;
+    state.startY = event.clientY;
+    state.originX = state.x;
+    state.originY = state.y;
+    state.moved = false;
+    state.slide?.classList.add('is-dragging');
+    image.setPointerCapture?.(event.pointerId);
+    event.stopPropagation();
+  }
+
+  handleLightboxPointerMove(event) {
+    const state = this.lightboxZoomState;
+    if (state.mediaPointerId === event.pointerId) {
+      const deltaX = event.clientX - state.mediaStartX;
+      const deltaY = event.clientY - state.mediaStartY;
+      if (!state.mediaMoved && Math.hypot(deltaX, deltaY) >= LIGHTBOX_DRAG_THRESHOLD) {
+        state.mediaMoved = true;
+      }
+      if (state.mediaMoved) state.mediaSuppressClickUntil = performance.now() + 300;
+      return;
+    }
+
+    if (state.dragging && state.pointerId === event.pointerId) {
+      const deltaX = event.clientX - state.startX;
+      const deltaY = event.clientY - state.startY;
+      if (!state.moved && Math.hypot(deltaX, deltaY) < LIGHTBOX_DRAG_THRESHOLD) return;
+      state.moved = true;
+      const bounds = this.getLightboxPanBounds(state.slide);
+      const resist = (value, min, max) => {
+        if (value > max) return max + ((value - max) * 0.25);
+        if (value < min) return min + ((value - min) * 0.25);
+        return value;
+      };
+      state.x = resist(state.originX + deltaX, bounds.minX, bounds.maxX);
+      state.y = resist(state.originY + deltaY, bounds.minY, bounds.maxY);
+      this.applyLightboxZoom();
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    if (!state.dismissCandidate || state.dismissPointerId !== event.pointerId) return;
+
+    const deltaX = event.clientX - state.dismissStartX;
+    const deltaY = event.clientY - state.dismissStartY;
+    if (!state.dismissAxis) {
+      if (Math.hypot(deltaX, deltaY) < 8) return;
+      if (Math.abs(deltaX) > Math.abs(deltaY) * LIGHTBOX_DISMISS_AXIS_RATIO) {
+        state.dismissAxis = 'horizontal';
+        this.resetLightboxDismiss();
+        return;
+      }
+      if (Math.abs(deltaY) <= Math.abs(deltaX) * LIGHTBOX_DISMISS_AXIS_RATIO) return;
+
+      state.dismissAxis = 'vertical';
+      state.dismissDragging = true;
+      state.dismissCapture?.setPointerCapture?.(event.pointerId);
+      this.lightbox?.classList.add('is-dismiss-dragging');
+      if (this.lightboxSwiper) this.lightboxSwiper.allowTouchMove = false;
+    }
+
+    if (state.dismissAxis !== 'vertical') return;
+    state.dismissOffset = deltaY;
+    this.applyLightboxDismiss();
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  handleLightboxPointerUp(event) {
+    const state = this.lightboxZoomState;
+    if (state.mediaPointerId === event.pointerId) {
+      if (state.mediaMoved && event.type === 'pointerup') {
+        state.mediaSuppressClickUntil = performance.now() + 300;
+      } else if (event.type === 'pointercancel') {
+        state.mediaSuppressClickUntil = 0;
+      }
+      state.mediaPointerId = null;
+      state.mediaMoved = false;
+      return;
+    }
+
+    if (state.dragging && state.pointerId === event.pointerId) {
+      state.image?.releasePointerCapture?.(event.pointerId);
+      state.dragging = false;
+      state.pointerId = null;
+      state.slide?.classList.remove('is-dragging');
+      this.clampLightboxPan(state.slide);
+      if (state.moved) {
+        state.suppressClickUntil = performance.now() + 250;
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      return;
+    }
+
+    if (!state.dismissCandidate || state.dismissPointerId !== event.pointerId) return;
+
+    if (state.dismissAxis === 'vertical') {
+      this.finishLightboxDismiss(event.type === 'pointercancel');
+      state.suppressClickUntil = performance.now() + 250;
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    this.resetLightboxDismiss();
+  }
+
+  handleLightboxDragStart(event) {
+    if (event.target?.closest?.('.product-media-lightbox__image')) event.preventDefault();
+  }
+
+  getLightboxPanBounds(slide) {
+    const viewport = this.querySelector('[data-product-lightbox-swiper]');
+    const zoomWidth = Number(slide?.dataset.zoomWidth || 0);
+    const zoomHeight = Number(slide?.dataset.zoomHeight || 0);
+    const viewportWidth = slide?.clientWidth || viewport?.clientWidth || 0;
+    const viewportHeight = slide?.clientHeight || viewport?.clientHeight || 0;
+
+    return {
+      minX: zoomWidth <= viewportWidth ? (viewportWidth - zoomWidth) / 2 : viewportWidth - zoomWidth,
+      maxX: zoomWidth <= viewportWidth ? (viewportWidth - zoomWidth) / 2 : 0,
+      minY: zoomHeight <= viewportHeight ? (viewportHeight - zoomHeight) / 2 : viewportHeight - zoomHeight,
+      maxY: zoomHeight <= viewportHeight ? (viewportHeight - zoomHeight) / 2 : 0,
+    };
+  }
+
+  setLightboxPan(slide, x, y) {
+    if (!slide) return;
+    slide.dataset.panX = String(x);
+    slide.dataset.panY = String(y);
+    const image = slide.querySelector('.product-media-lightbox__image');
+    const scale = Number(slide.dataset.zoomScale || 1);
+    if (image) image.style.transform = `translate3d(${x}px, ${y}px, 0px) scale(${scale})`;
+    if (this.lightboxZoomState.slide === slide) {
+      this.lightboxZoomState.x = x;
+      this.lightboxZoomState.y = y;
+    }
+  }
+
+  layoutLightboxImage(slide) {
+    const image = slide?.querySelector('.product-media-lightbox__image');
+    if (!slide || !image) return { x: 0, y: 0 };
+
+    image.loading = 'eager';
+    const viewportWidth = slide.clientWidth || window.innerWidth;
+    const viewportHeight = slide.clientHeight || window.innerHeight;
+    const sourceWidth = Number(image.getAttribute('width')) || image.naturalWidth || viewportWidth;
+    const sourceHeight = Number(image.getAttribute('height')) || image.naturalHeight || viewportHeight;
+    const fit = Math.min(viewportWidth / sourceWidth, viewportHeight / sourceHeight, 1);
+    const width = sourceWidth * fit;
+    const height = sourceHeight * fit;
+    slide.dataset.fitWidth = String(width);
+    slide.dataset.fitHeight = String(height);
+    slide.style.setProperty('--lightbox-fit-width', `${width}px`);
+    slide.style.setProperty('--lightbox-fit-height', `${height}px`);
+    slide.style.setProperty('--lightbox-fit-x', `${(viewportWidth - width) / 2}px`);
+    slide.style.setProperty('--lightbox-fit-y', `${(viewportHeight - height) / 2}px`);
+  }
+
+  layoutLightboxImages() {
+    const lightbox = this.lightbox;
+    if (!lightbox) return;
+    lightbox.classList.add('is-layout-updating');
+    lightbox.querySelectorAll('.product-media-lightbox__slide').forEach((slide) => this.layoutLightboxImage(slide));
+    lightbox.getBoundingClientRect();
+    lightbox.classList.remove('is-layout-updating');
+  }
+
+  prepareLightboxZoom(slide) {
+    const image = slide.querySelector('.product-media-lightbox__image');
+    const width = Number(slide.dataset.fitWidth);
+    const height = Number(slide.dataset.fitHeight);
+    const sourceWidth = Number(image.getAttribute('width')) || width;
+    const sourceHeight = Number(image.getAttribute('height')) || height;
+    const scale = Math.max(1, Math.min(LIGHTBOX_ZOOM_SCALE, sourceWidth / width, sourceHeight / height, LIGHTBOX_MAX_IMAGE_SIZE / Math.max(width, height)));
+    const zoomWidth = width * scale;
+    const zoomHeight = height * scale;
+    slide.dataset.zoomScale = String(scale);
+    slide.dataset.zoomWidth = String(zoomWidth);
+    slide.dataset.zoomHeight = String(zoomHeight);
+    return scale;
+  }
+
+  clampLightboxPan(slide) {
+    if (!slide) return;
+    const bounds = this.getLightboxPanBounds(slide);
+    const x = clamp(Number(slide.dataset.panX || 0), bounds.minX, bounds.maxX);
+    const y = clamp(Number(slide.dataset.panY || 0), bounds.minY, bounds.maxY);
+    this.setLightboxPan(slide, x, y);
+  }
+
+  get lightboxPanel() {
+    return this.lightbox?.querySelector('.product-media-lightbox__panel');
+  }
+
+  getLightboxDismissThreshold() {
+    const viewport = this.querySelector('[data-product-lightbox-swiper]');
+    const height = viewport?.clientHeight || window.innerHeight;
+    return Math.max(96, Math.min(240, height * 0.18));
+  }
+
+  applyLightboxDismiss() {
+    const lightbox = this.lightbox;
+    if (!lightbox) return;
+
+    const viewport = this.querySelector('[data-product-lightbox-swiper]');
+    const height = viewport?.clientHeight || window.innerHeight;
+    const progress = clamp(Math.abs(this.lightboxZoomState.dismissOffset) / Math.max(1, height), 0, 1);
+    lightbox.style.setProperty('--lightbox-dismiss-y', `${this.lightboxZoomState.dismissOffset}px`);
+    lightbox.style.setProperty('--lightbox-dismiss-progress', String(progress));
+    lightbox.style.setProperty('--lightbox-surface-amount', `${(1 - progress) * 100}%`);
+  }
+
+  finishLightboxDismiss(cancelled = false) {
+    const state = this.lightboxZoomState;
+    const panel = this.lightboxPanel;
+    if (!panel) {
+      this.resetLightboxDismiss();
+      return;
+    }
+
+    state.dismissCandidate = false;
+    state.dismissDragging = false;
+    const pointerId = state.dismissPointerId;
+    state.dismissPointerId = null;
+    state.dismissCapture?.releasePointerCapture?.(pointerId);
+    state.dismissImage?.releasePointerCapture?.(pointerId);
+    state.dismissImage = null;
+    state.dismissCapture = null;
+    state.dismissSlide = null;
+    this.lightbox?.classList.remove('is-dismiss-dragging');
+
+    if (cancelled || Math.abs(state.dismissOffset) < this.getLightboxDismissThreshold()) {
+      state.dismissOffset = 0;
+      this.lightbox?.classList.add('is-dismiss-snapping');
+      this.applyLightboxDismiss();
+      window.clearTimeout(state.dismissTimer);
+      state.dismissTimer = window.setTimeout(() => {
+        this.lightbox?.classList.remove('is-dismiss-snapping');
+      }, LIGHTBOX_DISMISS_ANIMATION_MS);
+      if (this.lightboxSwiper) this.lightboxSwiper.allowTouchMove = true;
+      return;
+    }
+
+    this.closeLightbox();
+  }
+
+  resetLightboxDismiss() {
+    const state = this.lightboxZoomState;
+    window.clearTimeout(state.dismissTimer);
+    state.dismissTimer = null;
+    state.dismissCandidate = false;
+    state.dismissDragging = false;
+    state.dismissAnimating = false;
+    state.dismissPointerId = null;
+    state.dismissAxis = null;
+    state.dismissOffset = 0;
+    state.dismissImage = null;
+    state.dismissCapture = null;
+    state.dismissSlide = null;
+    this.lightbox?.classList.remove('is-dismiss-dragging', 'is-dismiss-snapping', 'is-dismiss-animating');
+    this.lightbox?.style.removeProperty('--lightbox-dismiss-y');
+    this.lightbox?.style.removeProperty('--lightbox-dismiss-progress');
+    this.lightbox?.style.removeProperty('--lightbox-surface-amount');
+    if (this.lightboxSwiper) this.lightboxSwiper.allowTouchMove = true;
+  }
+
+  toggleLightboxZoom(image, event = {}) {
+    const state = this.lightboxZoomState;
+    if (state.suppressClickUntil > performance.now()) {
+      state.suppressClickUntil = 0;
+      return;
+    }
+
+    const activeSlide = this.lightboxSwiper?.slides?.[this.lightboxSwiper.activeIndex];
+    const slide = image.closest('.product-media-lightbox__slide');
+    if (!activeSlide || slide !== activeSlide) return;
+
+    if (state.scale > 1) {
+      this.resetLightboxZoom();
+      return;
+    }
+
+    const imageRect = image.getBoundingClientRect();
+    const slideRect = slide.getBoundingClientRect();
+    const hasPointerCoordinates = Number.isFinite(event?.clientX) && Number.isFinite(event?.clientY);
+    state.image = image;
+    state.slide = slide;
+    state.scale = this.prepareLightboxZoom(slide);
+
+    const bounds = this.getLightboxPanBounds(slide);
+    const focusX = hasPointerCoordinates
+      ? clamp(event.clientX - imageRect.left, 0, imageRect.width)
+      : imageRect.width / 2;
+    const focusY = hasPointerCoordinates
+      ? clamp(event.clientY - imageRect.top, 0, imageRect.height)
+      : imageRect.height / 2;
+    const focusRatioX = imageRect.width > 0 ? focusX / imageRect.width : 0.5;
+    const focusRatioY = imageRect.height > 0 ? focusY / imageRect.height : 0.5;
+    const zoomWidth = Number(slide.dataset.zoomWidth || imageRect.width);
+    const zoomHeight = Number(slide.dataset.zoomHeight || imageRect.height);
+    const viewportFocusX = hasPointerCoordinates ? event.clientX - slideRect.left : slideRect.width / 2;
+    const viewportFocusY = hasPointerCoordinates ? event.clientY - slideRect.top : slideRect.height / 2;
+
+    state.x = clamp(viewportFocusX - (focusRatioX * zoomWidth), bounds.minX, bounds.maxX);
+    state.y = clamp(viewportFocusY - (focusRatioY * zoomHeight), bounds.minY, bounds.maxY);
+    this.applyLightboxZoom();
+  }
+
+  applyLightboxZoom() {
+    const state = this.lightboxZoomState;
+    if (!state.image || !state.slide) return;
+
+    if (state.scale > 1) this.setLightboxPan(state.slide, state.x, state.y);
+    else state.image.style.removeProperty('transform');
+    state.slide.classList.toggle('is-zoomed', state.scale > 1);
+    state.slide.setAttribute('aria-pressed', String(state.scale > 1));
+    if (this.lightboxSwiper) this.lightboxSwiper.allowTouchMove = state.scale <= 1;
+  }
+
+  clearLightboxZoom(slide) {
+    if (!slide) return;
+
+    slide.classList.remove('is-zoomed', 'is-dragging');
+    slide.setAttribute('aria-pressed', 'false');
+    slide.removeAttribute('data-zoom-width');
+    slide.removeAttribute('data-zoom-height');
+    slide.removeAttribute('data-zoom-scale');
+    slide.removeAttribute('data-pan-x');
+    slide.removeAttribute('data-pan-y');
+    slide.style.removeProperty('--lightbox-zoom-width');
+    slide.style.removeProperty('--lightbox-zoom-height');
+
+    const image = slide.querySelector('.product-media-lightbox__image');
+    image?.style.removeProperty('transform');
+    image?.style.removeProperty('transform-origin');
+  }
+
+  resetLightboxZoom() {
+    const state = this.lightboxZoomState;
+    this.resetLightboxDismiss();
+    this.lightbox?.querySelectorAll('.product-media-lightbox__slide').forEach((slide) => {
+      this.clearLightboxZoom(slide);
+    });
+    state.scale = 1;
+    state.x = 0;
+    state.y = 0;
+    state.image = null;
+    state.slide = null;
+    state.dragging = false;
+    state.pointerId = null;
+    state.moved = false;
+    state.suppressClickUntil = 0;
+    if (this.lightboxSwiper) this.lightboxSwiper.allowTouchMove = true;
   }
 
   activateMedia(media) {
@@ -181,8 +758,7 @@ class ProductMediaGallery extends HTMLElement {
     const slides = Array.from(this.querySelectorAll('[data-product-media]'));
     this.querySelectorAll('[data-product-media-thumbnail]').forEach((thumbnail) => {
       const slide = slides.find((item) => item.dataset.mediaId === thumbnail.dataset.mediaId);
-      thumbnail.hidden = Boolean(slide?.hidden);
-      thumbnail.setAttribute('aria-hidden', String(Boolean(slide?.hidden)));
+      this.setMediaVisibility(thumbnail, Boolean(slide?.hidden));
     });
   }
 
@@ -208,8 +784,13 @@ class ProductMediaGallery extends HTMLElement {
 
   openLightbox(mediaId, opener) {
     if (!this.lightbox?.showModal) return;
+    const sourceImage = opener?.querySelector('img');
+    const sourceGeometry = sourceImage && this.lightboxImageGeometry(sourceImage);
     this.lightboxOpener = opener;
     this.destroyLightbox(false);
+    // Native dialog focus restoration must belong to this opening, not the
+    // previously focused gallery item (pointer activation need not focus it).
+    opener?.focus({ preventScroll: true });
     this.lightbox.showModal();
     document.documentElement.classList.add('product-media-lightbox-open');
 
@@ -219,6 +800,8 @@ class ProductMediaGallery extends HTMLElement {
       modules: [EffectFade],
       effect: 'fade',
       fadeEffect: { crossFade: true },
+      slidesPerView: 1,
+      watchOverflow: true,
       speed: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 240,
       controls: {
         scope: this.lightbox,
@@ -227,26 +810,149 @@ class ProductMediaGallery extends HTMLElement {
       },
       a11y: { enabled: true },
     });
+    this.resetLightboxZoom();
+    this.layoutLightboxImages();
     const index = Array.from(this.lightboxSwiper.slides).findIndex(
       (slide) => String(slide.dataset.mediaId) === String(mediaId),
     );
     if (index >= 0) this.lightboxSwiper.slideTo(index, 0);
     this.updateLightboxCounter();
-    this.lightboxSwiper.on('slideChange', () => this.updateLightboxCounter());
+    this.lightboxSwiper.on('slideChange', () => {
+      this.resetLightboxZoom();
+      this.updateLightboxCounter();
+    });
+    this.animateLightboxTransition(true, sourceImage, sourceGeometry);
+  }
+
+  // Measure the painted image, including object-fit cropping in the gallery.
+  lightboxImageGeometry(image) {
+    const rect = image.getBoundingClientRect();
+    const style = getComputedStyle(image);
+    const ratio = (Number(image.getAttribute('width')) || image.naturalWidth) /
+      (Number(image.getAttribute('height')) || image.naturalHeight);
+    if (!ratio || !rect.width || !rect.height) return null;
+    const cover = style.objectFit === 'cover';
+    const width = (cover ? rect.width / rect.height < ratio : rect.width / rect.height > ratio)
+      ? rect.height * ratio : rect.width;
+    const height = width / ratio;
+    const position = style.objectPosition.split(' ').map((value) => Number.parseFloat(value) / 100);
+    const x = rect.left + (rect.width - width) * (Number.isFinite(position[0]) ? position[0] : 0.5);
+    const y = rect.top + (rect.height - height) * (Number.isFinite(position[1]) ? position[1] : 0.5);
+    return { x, y, width, height, clip: [Math.max(0, rect.top - y) / height * 100,
+      Math.max(0, x + width - rect.right) / width * 100,
+      Math.max(0, y + height - rect.bottom) / height * 100,
+      Math.max(0, rect.left - x) / width * 100] };
+  }
+
+  clearLightboxTransition() {
+    const transition = this.lightboxTransition;
+    this.lightboxTransition = null;
+    transition?.animations.forEach((animation) => animation.cancel());
+    transition?.clone?.remove();
+    transition?.source?.classList.remove('is-lightbox-source');
+    this.lightbox?.classList.remove('is-transitioning', 'is-closing');
+  }
+
+  async animateLightboxTransition(opening, source, sourceGeometry) {
+    const lightbox = this.lightbox;
+    const slide = this.lightboxSwiper?.slides?.[this.lightboxSwiper.activeIndex];
+    const image = slide?.querySelector('.product-media-lightbox__image');
+    if (!image || !source || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (!opening) this.finishLightboxClose();
+      return;
+    }
+    const from = sourceGeometry || this.lightboxImageGeometry(opening ? source : (this.lightboxTransition?.clone || image));
+    const to = this.lightboxImageGeometry(opening ? image : source);
+    this.clearLightboxTransition();
+    if (!from || !to) {
+      if (!opening) this.finishLightboxClose();
+      return;
+    }
+    const clone = image.cloneNode(false);
+    clone.className = 'product-media-lightbox__transition-image';
+    clone.alt = '';
+    clone.setAttribute('aria-hidden', 'true');
+    clone.removeAttribute('style');
+    clone.src = opening ? source.currentSrc || source.src : image.currentSrc || image.src;
+    clone.style.width = `${to.width}px`;
+    clone.style.height = `${to.height}px`;
+    lightbox.append(clone);
+    source.classList.add('is-lightbox-source');
+    lightbox.classList.add('is-transitioning');
+    lightbox.classList.toggle('is-closing', !opening);
+    const options = { duration: 333, easing: 'cubic-bezier(0.4, 0, 0.22, 1)', fill: 'both' };
+    const frame = (rect) => ({
+      transform: `translate3d(${rect.x}px, ${rect.y}px, 0) scale(${rect.width / to.width}, ${rect.height / to.height})`,
+      clipPath: `inset(${rect.clip.map((value) => `${value}%`).join(' ')})`,
+    });
+    const animations = [clone.animate([frame(from), frame(to)], options)];
+    const panel = this.lightboxPanel;
+    const background = getComputedStyle(panel).backgroundColor;
+    animations.push(panel.animate({ backgroundColor: opening ? ['transparent', background] : [background, 'transparent'] }, options));
+    for (const control of lightbox.querySelectorAll('.product-media-lightbox__toolbar, .product-media-lightbox__navigation, .product-media-lightbox__thumbnails')) {
+      animations.push(control.animate({ opacity: opening ? [0, 1] : [1, 0] }, options));
+    }
+    animations.push(lightbox.animate({ opacity: opening ? [0, 1] : [1, 0] }, { ...options, pseudoElement: '::backdrop' }));
+    const transition = { clone, source, animations };
+    this.lightboxTransition = transition;
+    await Promise.all(animations.map((animation) => animation.finished.catch(() => {})));
+    if (this.lightboxTransition !== transition) return;
+    if (!opening) this.finishLightboxClose();
+    this.clearLightboxTransition();
+  }
+
+  finishLightboxClose() {
+    // dialog.close() restores focus synchronously. Swiper's A11y listener
+    // otherwise queues a slideTo for that old focus target on the next frame.
+    const a11y = this.mainSwiper?.params.a11y;
+    const scrollOnFocus = a11y?.scrollOnFocus;
+    if (a11y) a11y.scrollOnFocus = false;
+    try {
+      this.lightbox?.close();
+      if (this.lightboxOpener?.isConnected) this.lightboxOpener.focus({ preventScroll: true });
+    } finally {
+      if (a11y) a11y.scrollOnFocus = scrollOnFocus;
+    }
+  }
+
+  closeLightbox() {
+    if (!this.lightbox?.open || this.lightbox.classList.contains('is-closing')) return;
+    const slide = this.lightboxSwiper?.slides?.[this.lightboxSwiper.activeIndex];
+    const mediaId = slide?.dataset.mediaId;
+    const media = Array.from(this.querySelectorAll('[data-product-media-content]')).find((item) =>
+      item.dataset.mediaId === mediaId && !item.closest('[data-product-media]')?.hidden);
+    if (media && this.mainSwiper) this.showMedia(mediaId, true);
+    if (media) this.lightboxOpener = media;
+    this.animateLightboxTransition(false, media?.querySelector('img'));
   }
 
   updateLightboxCounter() {
     const current = this.querySelector('[data-product-lightbox-current]');
     const total = this.querySelector('[data-product-lightbox-total]');
-    if (current) current.textContent = String((this.lightboxSwiper?.realIndex || 0) + 1);
+    const activeIndex = this.lightboxSwiper?.realIndex ?? this.lightboxSwiper?.activeIndex ?? 0;
+    if (current) current.textContent = String(activeIndex + 1);
     if (total) total.textContent = String(this.lightboxSwiper?.slides?.length || 0);
+    this.updateLightboxThumbnailState(activeIndex);
+  }
+
+  updateLightboxThumbnailState(activeIndex = 0) {
+    this.querySelectorAll('[data-product-lightbox-thumbnail]').forEach((thumbnail, index) => {
+      const isActive = index === activeIndex;
+      thumbnail.classList.toggle('is-active', isActive);
+      thumbnail.setAttribute('aria-current', String(isActive));
+      if (isActive && typeof thumbnail.scrollIntoView === 'function') {
+        thumbnail.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      }
+    });
   }
 
   destroyLightbox(restoreFocus = true) {
+    this.clearLightboxTransition();
+    this.resetLightboxZoom();
     destroySwiperCarousel(this.lightboxSwiper);
     this.lightboxSwiper = null;
     document.documentElement.classList.remove('product-media-lightbox-open');
-    if (restoreFocus && this.lightboxOpener?.isConnected) this.lightboxOpener.focus();
+    if (restoreFocus && this.lightboxOpener?.isConnected) this.lightboxOpener.focus({ preventScroll: true });
     if (restoreFocus) this.lightboxOpener = null;
   }
 

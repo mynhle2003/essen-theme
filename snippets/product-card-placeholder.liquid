@@ -5,6 +5,9 @@
   @param {string} card_class - Fully resolved Product Card classes from the shared card component
   @param {string} [attributes] - Theme Editor attributes for the card root
   @param {number} [placeholder_price] - Sample amount in shop currency units
+  @param {boolean} [show_ranking] - Whether to render the placeholder position
+  @param {number} [ranking_position] - 1-based position in the parent collection
+  @param {string} [ranking_color] - Custom color for the ranking badge
 
   @example
   {% render 'product-card-placeholder', card_class: 'product-card product-card--standard' %}
@@ -17,6 +20,10 @@
 >
   <div class="product-card__media">
     {% render 'product-card-image', placeholder: true %}
+
+    {% if show_ranking and ranking_position != blank %}
+      {% render 'product-card-ranking', position: ranking_position, color: ranking_color %}
+    {% endif %}
   </div>
   <div class="product-card__content">
     <div class="product-card__details">
