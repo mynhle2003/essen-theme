@@ -675,7 +675,7 @@
             "heading_cQzqNT": {
               "type": "heading",
               "settings": {
-                "text": "<p>Explore our wardrobe essentials. Built to define your daily code.</p>",
+                "text": "<p>Trending this week</p>",
                 "heading_size": "lg",
                 "custom_heading_size": 24,
                 "html_tag": "h2",
@@ -712,8 +712,8 @@
             "columns_desktop": "4",
             "columns_mobile": "1",
             "show_next_slide_preview_on_desktop": false,
-            "product_gap_desktop": 4,
-            "product_gap_mobile": 4,
+            "product_gap_desktop": 24,
+            "product_gap_mobile": 12,
             "show_navigation_on_desktop": true,
             "navigation_position": "top",
             "navigation_style": "icon_only",
