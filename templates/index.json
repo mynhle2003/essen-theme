@@ -845,11 +845,11 @@
         "gap_desktop": 40,
         "gap_mobile": 36,
         "color_scheme": "scheme-1",
-        "padding_top": 0,
-        "padding_bottom": 0,
-        "customize_mobile_padding": false,
-        "padding_top_mobile": 0,
-        "padding_bottom_mobile": 0
+        "padding_top": 80,
+        "padding_bottom": 80,
+        "customize_mobile_padding": true,
+        "padding_top_mobile": 56,
+        "padding_bottom_mobile": 56
       }
     }
   },
