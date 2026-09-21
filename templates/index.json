@@ -1106,13 +1106,13 @@
         "media_position": "right",
         "mobile_media_position": "first",
         "gap_desktop": 50,
-        "gap_mobile": 16,
+        "gap_mobile": 56,
         "color_scheme": "scheme-2",
         "padding_top": 0,
         "padding_bottom": 0,
-        "customize_mobile_padding": false,
+        "customize_mobile_padding": true,
         "padding_top_mobile": 0,
-        "padding_bottom_mobile": 0
+        "padding_bottom_mobile": 56
       }
     },
     "featured_collection_wAkDME": {
@@ -1201,7 +1201,7 @@
             "max_products": 6,
             "layout_type": "carousel",
             "columns_desktop": "4",
-            "columns_mobile": "1",
+            "columns_mobile": "2",
             "show_next_slide_preview_on_desktop": false,
             "product_gap_desktop": 24,
             "product_gap_mobile": 12,
@@ -1212,8 +1212,8 @@
             "navigation_behavior": "show_on_hover",
             "show_pagination_on_desktop": true,
             "pagination_type": "progress_bar",
-            "pagination_top_padding_desktop": 50,
-            "pagination_top_padding_mobile": 24,
+            "pagination_top_padding_desktop": 40,
+            "pagination_top_padding_mobile": 62,
             "pagination_limit_width": true,
             "pagination_max_width": 260,
             "autoplay": false,
