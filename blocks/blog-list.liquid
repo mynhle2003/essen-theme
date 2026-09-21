@@ -79,10 +79,8 @@
   endif
 
   assign blog_list_show_navigation = true
-  if blog_list_navigation_position != 'top'
-    if block.settings.show_navigation_on_desktop == false or block.settings.show_navigation_on_desktop == 'false'
-      assign blog_list_show_navigation = false
-    endif
+  if block.settings.show_navigation_on_desktop == false or block.settings.show_navigation_on_desktop == 'false'
+    assign blog_list_show_navigation = false
   endif
 
   assign blog_list_show_next_slide_preview = false
@@ -367,12 +365,9 @@
       --swiper-carousel-grid-gap: var(--blog-list-gap-mobile, 4px);
     }
 
-    .blog-list__navigation {
-      display: none;
-    }
-
+    .blog-list__navigation,
     .blog-list__navigation.blog-list__navigation--top {
-      display: flex;
+      display: none;
     }
   }
 {% endstylesheet %}

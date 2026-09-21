@@ -1,63 +1,31 @@
 {% doc %}
-  Renders the Collection list View all action.
+  Renders the standard View all button block.
 
-  This action owns its destination because Collection list has no active-tab
-  runtime to assign one. Desktop and mobile presentation are configured
-  independently while both controls retain the same accessible link target.
+  This action accepts an explicit destination and falls back to the closest
+  resource URL when a compatible section supplies one. Desktop and mobile
+  presentation are configured independently while both controls retain the
+  same accessible link target.
 
   @example
-  {% content_for 'block', type: 'collection-list-view-all', id: 'view-all' %}
+  {% content_for 'block', type: 'view-all-button', id: 'view-all' %}
 {% enddoc %}
 
 {% liquid
-  assign collection_list_view_all_label = block.settings.button_label | strip
-  if collection_list_view_all_label == blank
-    assign collection_list_view_all_label = 'collection_tabs.view_all' | t
+  assign collection_list_view_all_fallback_label = 'collection_tabs.view_all' | t
+  assign collection_list_view_all_url = block.settings.button_link
+  assign collection_list_view_all_is_dynamic = false
+  if collection_list_view_all_url == blank and closest.collection != blank
+    assign collection_list_view_all_url = closest.collection.url
+    assign collection_list_view_all_is_dynamic = true
   endif
-
-  assign collection_list_view_all_desktop_style = block.settings.button_style | default: 'text'
-  unless collection_list_view_all_desktop_style == 'solid' or collection_list_view_all_desktop_style == 'outline' or collection_list_view_all_desktop_style == 'text'
-    assign collection_list_view_all_desktop_style = 'text'
-  endunless
-
-  assign collection_list_view_all_mobile_style = block.settings.button_style_mobile | default: 'outline'
-  unless collection_list_view_all_mobile_style == 'solid' or collection_list_view_all_mobile_style == 'outline' or collection_list_view_all_mobile_style == 'text'
-    assign collection_list_view_all_mobile_style = collection_list_view_all_desktop_style
-  endunless
-
-  assign collection_list_view_all_icon_name = block.settings.icon | default: 'arrow'
-  unless collection_list_view_all_icon_name == 'arrow'
-    assign collection_list_view_all_icon_name = 'arrow'
-  endunless
-
-  assign collection_list_view_all_icon = blank
-  if block.settings.show_icon
-    assign collection_list_view_all_icon = collection_list_view_all_icon_name
-  endif
-
-  assign collection_list_view_all_mobile_icon = blank
-  if block.settings.show_icon_mobile
-    assign collection_list_view_all_mobile_icon = collection_list_view_all_icon_name
+  assign collection_list_view_all_attributes = 'data-view-all-button'
+  if collection_list_view_all_is_dynamic
+    assign collection_list_view_all_attributes = collection_list_view_all_attributes | append: ' data-view-all-button-dynamic'
   endif
 
   assign collection_list_view_all_can_render = false
-  if block.settings.button_link != blank or request.design_mode
+  if collection_list_view_all_url != blank or request.design_mode
     assign collection_list_view_all_can_render = true
-  endif
-
-  assign collection_list_view_all_icon_position = block.settings.icon_position | default: 'after'
-  unless collection_list_view_all_icon_position == 'before' or collection_list_view_all_icon_position == 'after'
-    assign collection_list_view_all_icon_position = 'after'
-  endunless
-
-  assign collection_list_view_all_icon_size = block.settings.icon_size | default: 'inherit'
-  unless collection_list_view_all_icon_size == 'inherit' or collection_list_view_all_icon_size == 'custom'
-    assign collection_list_view_all_icon_size = 'inherit'
-  endunless
-
-  assign collection_list_view_all_icon_width = block.settings.icon_width | default: 20 | plus: 0
-  if collection_list_view_all_icon_width < 12 or collection_list_view_all_icon_width > 32
-    assign collection_list_view_all_icon_width = 20
   endif
 
   assign collection_list_view_all_mobile_height = block.settings.button_height_mobile | default: 'inherit'
@@ -80,33 +48,41 @@
 {% endcapture %}
 {% assign collection_list_view_all_style_attribute = collection_list_view_all_style_attribute | strip %}
 
-{% if collection_list_view_all_label != blank and collection_list_view_all_can_render %}
+{% if collection_list_view_all_can_render %}
   <div
     class="collection-list-view-all{% if block.settings.full_width_mobile %} collection-list-view-all--full-width-mobile{% endif %}"
     {% if collection_list_view_all_style_attribute != blank %}style="{{ collection_list_view_all_style_attribute }}"{% endif %}
     {{ block.shopify_attributes }}
   >
-    {% render 'theme-button',
-      label: collection_list_view_all_label,
-      url: block.settings.button_link,
+    {% render 'view-all-button',
+      label: block.settings.button_label,
+      fallback_label: collection_list_view_all_fallback_label,
+      url: collection_list_view_all_url,
       open_in_new_tab: block.settings.button_open_in_new_tab,
-      variant: collection_list_view_all_desktop_style,
-      icon: collection_list_view_all_icon,
-      icon_position: collection_list_view_all_icon_position,
-      icon_size: collection_list_view_all_icon_size,
-      icon_width: collection_list_view_all_icon_width,
-      class: 'collection-list-view-all__button collection-list-view-all__button--desktop'
+      variant: block.settings.button_style,
+      fallback_variant: 'text',
+      show_icon: block.settings.show_icon,
+      icon: block.settings.icon,
+      icon_position: block.settings.icon_position,
+      icon_size: block.settings.icon_size,
+      icon_width: block.settings.icon_width,
+      class: 'collection-list-view-all__button collection-list-view-all__button--desktop',
+      attributes: collection_list_view_all_attributes
     %}
-    {% render 'theme-button',
-      label: collection_list_view_all_label,
-      url: block.settings.button_link,
+    {% render 'view-all-button',
+      label: block.settings.button_label,
+      fallback_label: collection_list_view_all_fallback_label,
+      url: collection_list_view_all_url,
       open_in_new_tab: block.settings.button_open_in_new_tab,
-      variant: collection_list_view_all_mobile_style,
-      icon: collection_list_view_all_mobile_icon,
-      icon_position: collection_list_view_all_icon_position,
-      icon_size: collection_list_view_all_icon_size,
-      icon_width: collection_list_view_all_icon_width,
-      class: 'collection-list-view-all__button collection-list-view-all__button--mobile'
+      variant: block.settings.button_style_mobile,
+      fallback_variant: block.settings.button_style,
+      show_icon: block.settings.show_icon_mobile,
+      icon: block.settings.icon,
+      icon_position: block.settings.icon_position,
+      icon_size: block.settings.icon_size,
+      icon_width: block.settings.icon_width,
+      class: 'collection-list-view-all__button collection-list-view-all__button--mobile',
+      attributes: collection_list_view_all_attributes
     %}
   </div>
 {% endif %}

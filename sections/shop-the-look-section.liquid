@@ -24,6 +24,15 @@
     assign shop_the_look_gap_mobile = 16
   endif
 
+  assign shop_the_look_image_block = section.blocks | where: 'type', 'image' | first
+  assign shop_the_look_image_ratio_desktop = 'auto'
+  if shop_the_look_image_block != blank
+    assign shop_the_look_image_ratio_desktop = shop_the_look_image_block.settings.image_ratio_desktop | default: 'auto'
+  endif
+  unless shop_the_look_image_ratio_desktop == 'auto' or shop_the_look_image_ratio_desktop == 'square' or shop_the_look_image_ratio_desktop == 'portrait' or shop_the_look_image_ratio_desktop == 'landscape' or shop_the_look_image_ratio_desktop == 'wide' or shop_the_look_image_ratio_desktop == 'custom'
+    assign shop_the_look_image_ratio_desktop = 'auto'
+  endunless
+
   assign shop_the_look_scheme = section.settings.color_scheme | default: 'scheme-1'
   if section.settings.color_scheme.id != blank
     assign shop_the_look_scheme = section.settings.color_scheme.id
@@ -52,6 +61,7 @@
 <div
   class="section-spacing shop-the-look-section section-color-scope {{ shop_the_look_scheme }} shop-the-look-section--media-{{ shop_the_look_media_position }} shop-the-look-section--mobile-media-{{ shop_the_look_mobile_media_position }}"
   {% if shop_the_look_style != blank %}style="{{ shop_the_look_style }}"{% endif %}
+  data-shop-the-look-image-ratio-desktop="{{ shop_the_look_image_ratio_desktop }}"
   data-shop-the-look-section
 >
   <div class="container {{ shop_the_look_section_width }} shop-the-look-section__container">
@@ -91,7 +101,7 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: var(--shop-the-look-gap-desktop, 50px);
-    align-items: stretch;
+    align-items: center;
     width: 100%;
     min-width: 0;
   }
@@ -127,6 +137,20 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  @media (min-width: 768px) {
+    .shop-the-look-section[data-shop-the-look-image-ratio-desktop]:not([data-shop-the-look-image-ratio-desktop='auto']) .shop-the-look-section__media,
+    .shop-the-look-section__media:has(> .image-block[class*='image-block--ratio-desktop-']:not(.image-block--ratio-desktop-auto)) {
+      align-self: center;
+    }
+
+    .shop-the-look-section[data-shop-the-look-image-ratio-desktop]:not([data-shop-the-look-image-ratio-desktop='auto']) .shop-the-look-section__media > .image-block,
+    .shop-the-look-section[data-shop-the-look-image-ratio-desktop]:not([data-shop-the-look-image-ratio-desktop='auto']) .shop-the-look-section__media > .image-block > .image-block__media,
+    .shop-the-look-section__media:has(> .image-block[class*='image-block--ratio-desktop-']:not(.image-block--ratio-desktop-auto)) > .image-block,
+    .shop-the-look-section__media:has(> .image-block[class*='image-block--ratio-desktop-']:not(.image-block--ratio-desktop-auto)) > .image-block > .image-block__media {
+      height: auto;
+    }
   }
 
   .shop-the-look-section__hotspots {

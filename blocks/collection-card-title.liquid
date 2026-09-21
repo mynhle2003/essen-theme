@@ -36,6 +36,11 @@
       assign collection_card_title_size = 'sm'
   endcase
 
+  assign collection_card_title_custom_size = block.settings.custom_heading_size | default: 24 | plus: 0
+  if collection_card_title_custom_size < 10 or collection_card_title_custom_size > 100
+    assign collection_card_title_custom_size = 24
+  endif
+
   assign collection_card_title_tag = block.settings.html_tag | default: 'h3'
   unless collection_card_title_tag == 'div' or collection_card_title_tag == 'h1' or collection_card_title_tag == 'h2' or collection_card_title_tag == 'h3' or collection_card_title_tag == 'h4' or collection_card_title_tag == 'h5' or collection_card_title_tag == 'h6'
     assign collection_card_title_tag = 'h3'
@@ -102,6 +107,7 @@
 %}
 
 {% capture collection_card_title_style %}
+  {% if collection_card_title_size == 'custom' %}--collection-card-title-custom-size: {{ collection_card_title_custom_size }}px;{% endif %}
   {% if collection_card_title_padding_top != 0 %}--collection-card-title-padding-top: {{ collection_card_title_padding_top }}px;{% endif %}
   {% if collection_card_title_padding_right != 0 %}--collection-card-title-padding-right: {{ collection_card_title_padding_right }}px;{% endif %}
   {% if collection_card_title_padding_bottom != 0 %}--collection-card-title-padding-bottom: {{ collection_card_title_padding_bottom }}px;{% endif %}
@@ -152,6 +158,8 @@
     overflow-wrap: anywhere;
   }
 
+  .collection-card-title__heading.heading-custom { font-size: var(--collection-card-title-custom-size, var(--font-heading-custom)); }
+
   .collection-card-title__count {
     display: inline-block;
     white-space: nowrap;
@@ -199,6 +207,17 @@
         { "value": "custom", "label": "t:options.heading_size.custom" }
       ],
       "default": "sm"
+    },
+    {
+      "type": "range",
+      "id": "custom_heading_size",
+      "label": "Custom size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24,
+      "visible_if": "{{ block.settings.heading_size == 'custom' }}"
     },
     {
       "type": "select",

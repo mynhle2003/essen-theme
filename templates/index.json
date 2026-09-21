@@ -490,7 +490,7 @@
           "blocks": {}
         },
         "collection-tabs-view-all": {
-          "type": "collection-tabs-view-all",
+          "type": "tabs-view-all-button",
           "static": true,
           "settings": {
             "button_label": "View all",
@@ -1215,7 +1215,7 @@
           "block_order": []
         },
         "featured-collection-view-all": {
-          "type": "collection-tabs-view-all",
+          "type": "tabs-view-all-button",
           "static": true,
           "settings": {
             "button_label": "View all",
@@ -2047,7 +2047,7 @@
           ]
         },
         "blog-posts-view-all": {
-          "type": "collection-tabs-view-all",
+          "type": "tabs-view-all-button",
           "static": true,
           "settings": {
             "button_label": "View all",

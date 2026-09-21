@@ -156,7 +156,7 @@
   assign padding_left_mobile = block.settings.padding_left_mobile | default: 0 | plus: 0
   assign padding_right_mobile = block.settings.padding_right_mobile | default: 0 | plus: 0
 
-  assign image_class = 'image-block'
+  assign image_class = 'image-block image-block--ratio-desktop-' | append: image_ratio_desktop_setting
   if block.settings.show_image_first_mobile
     assign image_class = image_class | append: ' image-block--first-mobile'
   endif

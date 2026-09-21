@@ -11,6 +11,10 @@
   unless banner_heading_size == 'display' or banner_heading_size == 'xl' or banner_heading_size == 'lg' or banner_heading_size == 'md' or banner_heading_size == 'sm' or banner_heading_size == 'xs' or banner_heading_size == 'custom'
     assign banner_heading_size = 'lg'
   endunless
+  assign banner_heading_custom_size = block.settings.custom_heading_size | default: 24 | plus: 0
+  if banner_heading_custom_size < 10 or banner_heading_custom_size > 100
+    assign banner_heading_custom_size = 24
+  endif
   assign banner_text_size = block.settings.text_size | default: 'md'
   unless banner_text_size == 'xs' or banner_text_size == 'sm' or banner_text_size == 'md' or banner_text_size == 'lg' or banner_text_size == 'xl' or banner_text_size == 'xxl'
     assign banner_text_size = 'md'
@@ -38,6 +42,7 @@
   --mega-banner-padding-bottom: {{ banner_padding_bottom }}px;
   --mega-banner-padding-left: {{ banner_padding_left }}px;
   --mega-banner-padding-right: {{ banner_padding_right }}px;
+  {% if banner_heading_size == 'custom' %}--mega-banner-heading-custom-size: {{ banner_heading_custom_size }}px;{% endif %}
   {% if block.settings.customize_mobile_padding %}
     {% if banner_padding_top_mobile != banner_padding_top %}--mega-banner-padding-top-mobile: {{ banner_padding_top_mobile }}px;{% endif %}
     {% if banner_padding_bottom_mobile != banner_padding_bottom %}--mega-banner-padding-bottom-mobile: {{ banner_padding_bottom_mobile }}px;{% endif %}
@@ -63,6 +68,7 @@
 </article>
 {% stylesheet %}
   .header-mega-menu__banner { position: relative; display: grid; overflow: hidden; min-width: 0; background: var(--background-color); color: var(--body-color); }.header-mega-menu__banner--limited { max-width: var(--mega-banner-max-width); }.header-mega-menu__banner-media { display: block; grid-area: 1 / 1; }.header-mega-menu__banner-image { display: block; width: 100%; height: 100%; min-height: 18rem; object-fit: cover; }.header-mega-menu__banner-media svg.header-mega-menu__banner-image { fill: color-mix(in srgb, var(--body-color) 32%, transparent); color: color-mix(in srgb, var(--body-color) 32%, transparent); }.header-mega-menu__banner--overlay::after { position: absolute; inset: 0; background: var(--mega-banner-overlay); content: ''; opacity: .45; }.header-mega-menu__banner-content { position: relative; z-index: 1; display: flex; flex-direction: column; gap: var(--mega-banner-content-gap); padding: var(--mega-banner-padding-top) var(--mega-banner-padding-right) var(--mega-banner-padding-bottom) var(--mega-banner-padding-left); }.header-mega-menu__banner--content_on_image .header-mega-menu__banner-content { grid-area: 1 / 1; }.header-mega-menu__banner-content--left { align-items: flex-start; text-align: start; }.header-mega-menu__banner-content--center { align-items: center; text-align: center; justify-content: center; }.header-mega-menu__banner-content--right { align-items: flex-end; text-align: end; }.header-mega-menu__banner-content--bottom { justify-content: flex-end; }.header-mega-menu__banner-text p { margin: 0; }.header-mega-menu__banner-button { margin-block-start: calc(var(--mega-banner-button-gap) - var(--mega-banner-content-gap)); }.header-mega-menu__banner-button--full-width { width: 100%; }.header-mega-menu__banner-button-icon { display: block; width: var(--button-icon-size, var(--icon-size-medium)); height: var(--button-icon-size, var(--icon-size-medium)); flex: 0 0 auto; }
+  .header-mega-menu__banner-title.heading-custom { font-size: var(--mega-banner-heading-custom-size, var(--font-heading-custom)); }
 
   @media (max-width: 767.98px) {
     .header-mega-menu__banner-content {
@@ -92,6 +98,7 @@
     { "type": "select", "id": "content_position", "label": "Position", "options": [{ "value": "top", "label": "Top" }, { "value": "center", "label": "Center" }, { "value": "bottom", "label": "Bottom" }], "default": "bottom" },
     { "type": "header", "content": "t:general.typography" },
     { "type": "select", "id": "heading_size", "label": "t:labels.heading_size", "options": [{ "value": "display", "label": "t:options.heading_size.display" }, { "value": "xl", "label": "t:options.heading_size.xl" }, { "value": "lg", "label": "t:options.heading_size.lg" }, { "value": "md", "label": "t:options.heading_size.md" }, { "value": "sm", "label": "t:options.heading_size.sm" }, { "value": "xs", "label": "t:options.heading_size.xs" }, { "value": "custom", "label": "t:options.heading_size.custom" }], "default": "lg" },
+    { "type": "range", "id": "custom_heading_size", "label": "Custom size", "min": 10, "max": 100, "step": 1, "unit": "px", "default": 24, "visible_if": "{{ block.settings.heading_size == 'custom' }}" },
     { "type": "select", "id": "text_size", "label": "t:labels.text_size", "options": [{ "value": "xs", "label": "t:options.text_size.xs" }, { "value": "sm", "label": "t:options.text_size.sm" }, { "value": "md", "label": "t:options.text_size.md" }, { "value": "lg", "label": "t:options.text_size.lg" }, { "value": "xl", "label": "t:options.text_size.xl" }, { "value": "xxl", "label": "t:options.text_size.xxl" }], "default": "md" },
     { "type": "header", "content": "t:general.button" },
     { "type": "text", "id": "label", "label": "t:labels.button_label", "default": "Shop now" },

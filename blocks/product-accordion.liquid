@@ -25,6 +25,10 @@
   unless accordion_heading_size == 'display' or accordion_heading_size == 'xl' or accordion_heading_size == 'lg' or accordion_heading_size == 'md' or accordion_heading_size == 'sm' or accordion_heading_size == 'xs' or accordion_heading_size == 'custom'
     assign accordion_heading_size = 'sm'
   endunless
+  assign accordion_custom_heading_size = block.settings.custom_heading_size | default: 24 | plus: 0
+  if accordion_custom_heading_size < 10 or accordion_custom_heading_size > 100
+    assign accordion_custom_heading_size = 24
+  endif
 
   assign accordion_heading_font = block.settings.heading_font | default: 'heading'
   unless accordion_heading_font == 'body' or accordion_heading_font == 'heading' or accordion_heading_font == 'accent'
@@ -101,6 +105,7 @@
 %}
 
 {% capture accordion_style %}
+  {% if accordion_heading_size == 'custom' %}--product-accordion-custom-heading-size: {{ accordion_custom_heading_size }}px;{% endif %}
   {% if accordion_gap_desktop != 16 %}--product-accordion-content-gap: {{ accordion_gap_desktop }}px;{% endif %}
   {% if accordion_gap_mobile != accordion_gap_desktop %}--product-accordion-content-gap-mobile: {{ accordion_gap_mobile }}px;{% endif %}
   {% if accordion_padding_top != 0 %}--product-accordion-padding-top: {{ accordion_padding_top }}px;{% endif %}
@@ -137,6 +142,10 @@
     </div>
   </details>
 {% endif %}
+
+{% stylesheet %}
+  .product-accordion__summary .heading-text.heading-custom { font-size: var(--product-accordion-custom-heading-size, var(--font-heading-custom)); }
+{% endstylesheet %}
 
 {% schema %}
 {
@@ -227,6 +236,17 @@
         { "value": "custom", "label": "t:options.heading_size.custom" }
       ],
       "default": "sm"
+    },
+    {
+      "type": "range",
+      "id": "custom_heading_size",
+      "label": "Custom size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24,
+      "visible_if": "{{ block.settings.heading_size == 'custom' }}"
     },
     {
       "type": "select",

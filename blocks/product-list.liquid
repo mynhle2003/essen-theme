@@ -85,10 +85,8 @@
   endif
 
   assign product_list_show_navigation = true
-  if product_list_navigation_position != 'top'
-    if block.settings.show_navigation_on_desktop == false or block.settings.show_navigation_on_desktop == 'false'
-      assign product_list_show_navigation = false
-    endif
+  if block.settings.show_navigation_on_desktop == false or block.settings.show_navigation_on_desktop == 'false'
+    assign product_list_show_navigation = false
   endif
 
   assign product_list_pagination_type = block.settings.pagination_type | default: 'progress_bar'
@@ -309,12 +307,9 @@
   }
 
   @media (max-width: 767.98px) {
-    .product-list__navigation {
-      display: none;
-    }
-
+    .product-list__navigation,
     .product-list__navigation.product-list__navigation--top {
-      display: flex;
+      display: none;
     }
   }
 

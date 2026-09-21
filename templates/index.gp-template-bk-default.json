@@ -138,7 +138,7 @@
           "blocks": {}
         },
         "collection-tabs-view-all": {
-          "type": "collection-tabs-view-all",
+          "type": "tabs-view-all-button",
           "static": true,
           "settings": {
             "button_label": "View all",

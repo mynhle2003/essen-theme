@@ -17,7 +17,6 @@
 
   assign collection_list_desktop_columns = block.settings.columns_desktop | default: 4 | plus: 0
   assign collection_list_mobile_columns = block.settings.columns_mobile | default: 1 | plus: 0
-  assign collection_list_placeholder_count = 6
   if collection_list_desktop_columns < 1 or collection_list_desktop_columns > 6
     assign collection_list_desktop_columns = 4
   endif
@@ -45,7 +44,7 @@
   endif
 
   assign collection_list_navigation_position = block.settings.navigation_position | default: 'inside'
-  unless collection_list_navigation_position == 'inside' or collection_list_navigation_position == 'outside'
+  unless collection_list_navigation_position == 'inside' or collection_list_navigation_position == 'outside' or collection_list_navigation_position == 'top'
     assign collection_list_navigation_position = 'inside'
   endunless
 
@@ -62,14 +61,20 @@
     assign collection_list_navigation_icon = 'chevron'
   endunless
 
-  assign collection_list_navigation_behavior = block.settings.navigation_behavior | default: 'show_on_hover'
-  unless collection_list_navigation_behavior == 'show_on_hover' or collection_list_navigation_behavior == 'always'
-    assign collection_list_navigation_behavior = 'show_on_hover'
-  endunless
+  assign collection_list_navigation_behavior = 'always'
+  if collection_list_navigation_position != 'top'
+    assign collection_list_navigation_behavior = block.settings.navigation_behavior | default: 'show_on_hover'
+    unless collection_list_navigation_behavior == 'show_on_hover' or collection_list_navigation_behavior == 'always'
+      assign collection_list_navigation_behavior = 'show_on_hover'
+    endunless
+  endif
 
   assign collection_list_show_navigation = false
   if collection_list_layout == 'carousel' and block.settings.show_navigation_on_desktop
     assign collection_list_show_navigation = true
+    if block.settings.show_navigation_on_desktop == false or block.settings.show_navigation_on_desktop == 'false'
+      assign collection_list_show_navigation = false
+    endif
   endif
 
   assign collection_list_pagination_type = block.settings.pagination_type | default: 'progress_bar'
@@ -128,6 +133,12 @@
   assign collection_list_pagination_class = 'collection-list__pagination collection-list__pagination--' | append: collection_list_pagination_type
   assign collection_list_previous_label = 'collection_list.previous' | t
   assign collection_list_next_label = 'collection_list.next' | t
+  assign collection_list_source_items = block.settings.collections
+  assign collection_list_is_placeholder = false
+  if collection_list_source_items == blank
+    assign collection_list_is_placeholder = true
+    assign collection_list_source_items = '1,2,3,4,5,6' | split: ','
+  endif
 %}
 
 {% capture collection_list_pagination_style %}
@@ -139,9 +150,47 @@
 {% assign collection_list_pagination_style = collection_list_pagination_style | strip %}
 
 {% capture collection_list_navigation_center_style %}
-  {% if collection_list_show_pagination %}--swiper-navigation-center-offset: calc(({{ collection_list_pagination_top_padding_desktop }}px + {{ collection_list_pagination_size }}) / 2);{% endif %}
+  {% if collection_list_show_pagination and collection_list_navigation_position != 'top' %}--swiper-navigation-center-offset: calc(({{ collection_list_pagination_top_padding_desktop }}px + {{ collection_list_pagination_size }}) / 2);{% endif %}
 {% endcapture %}
 {% assign collection_list_navigation_center_style = collection_list_navigation_center_style | strip %}
+
+{% capture collection_list_navigation %}
+  {% if collection_list_navigation_position == 'top' %}
+    {% render 'swiper-navigation',
+      show: collection_list_show_navigation,
+      position: 'inside',
+      style: collection_list_navigation_style,
+      icon: collection_list_navigation_icon,
+      behavior: collection_list_navigation_behavior,
+      centered: false,
+      wrapper_class: 'collection-card-list__navigation collection-card-list__navigation--top',
+      wrapper_attributes: 'data-collection-list-navigation',
+      button_class: 'collection-card-list__carousel-button',
+      previous_attribute: 'data-collection-list-previous',
+      next_attribute: 'data-collection-list-next',
+      previous_label: collection_list_previous_label,
+      next_label: collection_list_next_label
+    %}
+  {% else %}
+    {% render 'swiper-navigation',
+      show: collection_list_show_navigation,
+      position: collection_list_navigation_position,
+      style: collection_list_navigation_style,
+      icon: collection_list_navigation_icon,
+      behavior: collection_list_navigation_behavior,
+      centered: true,
+      wrapper_class: 'collection-card-list__navigation',
+      wrapper_attributes: 'data-collection-list-navigation',
+      button_class: 'collection-card-list__carousel-button',
+      previous_attribute: 'data-collection-list-previous',
+      next_attribute: 'data-collection-list-next',
+      previous_label: collection_list_previous_label,
+      next_label: collection_list_next_label,
+      center_style: collection_list_navigation_center_style
+    %}
+  {% endif %}
+{% endcapture %}
+{% assign collection_list_navigation = collection_list_navigation | strip %}
 
 {% if collection_list_layout == 'carousel' %}
   {% render 'swiper-stylesheet' %}
@@ -154,20 +203,13 @@
   data-layout="{{ collection_list_layout }}"
   {{ block.shopify_attributes }}
 >
+  {% if collection_list_navigation_position == 'top' %}{{ collection_list_navigation }}{% endif %}
   {% capture collection_list_items %}
-    {% if block.settings.collections != blank %}
-      {% for collection in block.settings.collections %}
-        <div class="{% if collection_list_layout == 'carousel' %}swiper-slide {% endif %}collection-card-list__item">
-          {% content_for 'block', type: 'collection-card', id: 'collection-card', closest.collection: collection %}
-        </div>
-      {% endfor %}
-    {% else %}
-      {% for index in (1..collection_list_placeholder_count) %}
-        <div class="{% if collection_list_layout == 'carousel' %}swiper-slide {% endif %}collection-card-list__item">
-          {% content_for 'block', type: 'collection-card', id: 'collection-card', placeholder: true %}
-        </div>
-      {% endfor %}
-    {% endif %}
+    {% for collection in collection_list_source_items %}
+      <div class="{% if collection_list_layout == 'carousel' %}swiper-slide {% endif %}collection-card-list__item">
+        {% content_for 'block', type: 'collection-card', id: 'collection-card', closest.collection: collection, placeholder: collection_list_is_placeholder %}
+      </div>
+    {% endfor %}
   {% endcapture %}
 
   {% if collection_list_layout == 'carousel' %}
@@ -207,21 +249,7 @@
         autoplay_delay: collection_list_autoplay_delay
       %}
 
-      {% render 'swiper-navigation',
-        show: collection_list_show_navigation,
-        position: collection_list_navigation_position,
-        style: collection_list_navigation_style,
-        icon: collection_list_navigation_icon,
-        behavior: collection_list_navigation_behavior,
-        wrapper_class: 'collection-card-list__navigation',
-        wrapper_attributes: 'data-collection-list-navigation',
-        button_class: 'collection-card-list__carousel-button',
-        previous_attribute: 'data-collection-list-previous',
-        next_attribute: 'data-collection-list-next',
-        previous_label: collection_list_previous_label,
-        next_label: collection_list_next_label,
-        center_style: collection_list_navigation_center_style
-      %}
+      {% if collection_list_navigation_position != 'top' %}{{ collection_list_navigation }}{% endif %}
     </div>
   {% else %}
     <div
@@ -266,6 +294,20 @@
 
   .collection-card-list__navigation.swiper-carousel__navigation--outside {
     padding-inline: 0;
+  }
+
+  .collection-card-list__navigation.collection-card-list__navigation--top {
+    position: relative;
+    inset: auto;
+    width: max-content;
+    max-width: 100%;
+    gap: 0.5rem;
+    padding-inline: 0;
+    transform: none;
+  }
+
+  .collection-card-list__navigation--top .swiper-nav-button {
+    flex: 0 0 auto;
   }
 
   .collection-card-list__navigation.swiper-carousel__navigation--outside .swiper-nav-button--prev {
@@ -313,7 +355,8 @@
       gap: var(--gap-mobile);
     }
 
-    .collection-card-list__navigation {
+    .collection-card-list__navigation,
+    .collection-card-list__navigation.collection-card-list__navigation--top {
       display: none;
     }
   }
@@ -432,7 +475,8 @@
       "label": "t:labels.position",
       "options": [
         { "value": "outside", "label": "t:options.collection_navigation_position.outside" },
-        { "value": "inside", "label": "t:options.collection_navigation_position.inside" }
+        { "value": "inside", "label": "t:options.collection_navigation_position.inside" },
+        { "value": "top", "label": "t:options.position.top" }
       ],
       "default": "inside",
       "visible_if": "{{ block.settings.layout == 'carousel' and block.settings.show_navigation_on_desktop }}"

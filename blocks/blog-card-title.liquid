@@ -30,6 +30,11 @@
       assign blog_card_title_size = 'sm'
   endcase
 
+  assign blog_card_title_custom_size = block.settings.custom_heading_size | default: 24 | plus: 0
+  if blog_card_title_custom_size < 10 or blog_card_title_custom_size > 100
+    assign blog_card_title_custom_size = 24
+  endif
+
   assign blog_card_title_tag = block.settings.html_tag | default: 'h3'
   unless blog_card_title_tag == 'div' or blog_card_title_tag == 'h1' or blog_card_title_tag == 'h2' or blog_card_title_tag == 'h3' or blog_card_title_tag == 'h4' or blog_card_title_tag == 'h5' or blog_card_title_tag == 'h6'
     assign blog_card_title_tag = 'h3'
@@ -47,6 +52,7 @@
 %}
 
 {% capture blog_card_title_style %}
+  {% if blog_card_title_size == 'custom' %}--blog-card-title-custom-size: {{ blog_card_title_custom_size }}px;{% endif %}
   {% if blog_card_title_padding_top != 0 %}--blog-card-title-padding-top: {{ blog_card_title_padding_top }}px;{% endif %}
   {% if blog_card_title_padding_bottom != 0 %}--blog-card-title-padding-bottom: {{ blog_card_title_padding_bottom }}px;{% endif %}
   {% if block.settings.customize_mobile_padding %}
@@ -87,6 +93,8 @@
     color: inherit;
     text-decoration: none;
   }
+
+  .blog-card-title__heading.heading-custom { font-size: var(--blog-card-title-custom-size, var(--font-heading-custom)); }
 
   .blog-card-title--limit-one .blog-card-title__heading,
   .blog-card-title--limit-two .blog-card-title__heading,
@@ -143,6 +151,17 @@
         { "value": "custom", "label": "t:options.heading_size.custom" }
       ],
       "default": "sm"
+    },
+    {
+      "type": "range",
+      "id": "custom_heading_size",
+      "label": "Custom size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24,
+      "visible_if": "{{ block.settings.heading_size == 'custom' }}"
     },
     {
       "type": "select",

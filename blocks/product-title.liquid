@@ -27,6 +27,11 @@
       assign title_size = 'xs'
   endcase
 
+  assign title_custom_size = block.settings.custom_heading_size | default: 24 | plus: 0
+  if title_custom_size < 10 or title_custom_size > 100
+    assign title_custom_size = 24
+  endif
+
   assign title_tag = block.settings.html_tag | default: 'h1'
   unless title_tag == 'div' or title_tag == 'h1' or title_tag == 'h2' or title_tag == 'h3' or title_tag == 'h4' or title_tag == 'h5' or title_tag == 'h6'
     assign title_tag = 'h1'
@@ -76,6 +81,7 @@
 %}
 
 {% capture title_style %}
+  {% if title_size == 'custom' %}--product-title-custom-size: {{ title_custom_size }}px;{% endif %}
   {% if title_padding_top != 0 %}--product-title-padding-top: {{ title_padding_top }}px;{% endif %}
   {% if title_padding_bottom != 0 %}--product-title-padding-bottom: {{ title_padding_bottom }}px;{% endif %}
   {% if title_padding_left != 0 %}--product-title-padding-left: {{ title_padding_left }}px;{% endif %}
@@ -96,6 +102,10 @@
     {{ 'products.product_title' | t }}
   {% endif %}
 </{{ title_tag }}>
+
+{% stylesheet %}
+  .product-title.heading-custom { font-size: var(--product-title-custom-size, var(--font-heading-custom)); }
+{% endstylesheet %}
 
 {% schema %}
 {
@@ -120,6 +130,17 @@
         { "value": "custom", "label": "t:options.heading_size.custom" }
       ],
       "default": "xl"
+    },
+    {
+      "type": "range",
+      "id": "custom_heading_size",
+      "label": "Custom size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24,
+      "visible_if": "{{ block.settings.heading_size == 'custom' }}"
     },
     {
       "type": "select",

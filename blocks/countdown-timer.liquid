@@ -180,6 +180,10 @@
   unless countdown_number_size == 'display' or countdown_number_size == 'xl' or countdown_number_size == 'lg' or countdown_number_size == 'md' or countdown_number_size == 'sm' or countdown_number_size == 'xs' or countdown_number_size == 'custom'
     assign countdown_number_size = 'md'
   endunless
+  assign countdown_number_custom_size = block.settings.custom_number_size | default: 24 | plus: 0
+  if countdown_number_custom_size < 10 or countdown_number_custom_size > 100
+    assign countdown_number_custom_size = 24
+  endif
 
   assign countdown_number_font_size = 'var(--font-heading-md)'
   assign countdown_number_line_height = 'var(--font-heading-md-line-height)'
@@ -212,7 +216,7 @@
       assign countdown_number_letter_spacing = 'var(--font-heading-xs-letter-spacing)'
       assign countdown_number_text_transform = 'var(--font-heading-xs-text-transform)'
     when 'custom'
-      assign countdown_number_font_size = 'var(--font-heading-custom)'
+      assign countdown_number_font_size = countdown_number_custom_size | append: 'px'
       assign countdown_number_line_height = 'var(--font-heading-custom-line-height)'
       assign countdown_number_letter_spacing = 'var(--font-heading-custom-letter-spacing)'
       assign countdown_number_text_transform = 'var(--font-heading-custom-text-transform)'
@@ -792,6 +796,17 @@
       ],
       "default": "md",
       "visible_if": "{{ block.settings.style == 'with_labels' }}"
+    },
+    {
+      "type": "range",
+      "id": "custom_number_size",
+      "label": "Custom size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24,
+      "visible_if": "{{ block.settings.style == 'with_labels' and block.settings.number_size == 'custom' }}"
     },
     {
       "type": "select",

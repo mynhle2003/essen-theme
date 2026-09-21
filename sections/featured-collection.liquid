@@ -66,11 +66,11 @@
     <div class="featured-collection__header">
       {% content_for 'block', type: 'header', id: 'header' %}
     </div>
+    <div class="featured-collection__actions" data-featured-collection-actions>
+      {% content_for 'block', type: 'view-all-button', id: 'featured-collection-view-all', closest.collection: featured_collection_collection %}
+    </div>
     <div class="featured-collection__products">
       {% content_for 'block', type: 'product-list', id: 'product-list' %}
-    </div>
-    <div class="featured-collection__actions" data-featured-collection-actions>
-      {% content_for 'block', type: 'collection-tabs-view-all', id: 'featured-collection-view-all', closest.collection: featured_collection_collection %}
     </div>
   </div>
 </div>
@@ -272,18 +272,22 @@
     const featuredCollectionSelector = '[data-featured-collection]';
 
     const synchronizeViewAll = (featuredCollection) => {
-      const viewAll = featuredCollection.querySelector('[data-featured-collection-actions] [data-collection-tabs-view-all]');
-      if (!viewAll) return;
+      const viewAllButtons = Array.from(featuredCollection.querySelectorAll('[data-featured-collection-actions] [data-view-all-button-dynamic]'));
+      if (!viewAllButtons.length) return;
 
       const collectionUrl = featuredCollection.querySelector('[data-product-list]')?.dataset.collectionUrl?.trim() || '';
       if (collectionUrl) {
-        viewAll.setAttribute('href', collectionUrl);
-        viewAll.removeAttribute('aria-disabled');
-        viewAll.removeAttribute('tabindex');
+        viewAllButtons.forEach((viewAllButton) => {
+          viewAllButton.setAttribute('href', collectionUrl);
+          viewAllButton.removeAttribute('aria-disabled');
+          viewAllButton.removeAttribute('tabindex');
+        });
       } else {
-        viewAll.removeAttribute('href');
-        viewAll.setAttribute('aria-disabled', 'true');
-        viewAll.setAttribute('tabindex', '-1');
+        viewAllButtons.forEach((viewAllButton) => {
+          viewAllButton.removeAttribute('href');
+          viewAllButton.setAttribute('aria-disabled', 'true');
+          viewAllButton.setAttribute('tabindex', '-1');
+        });
       }
     };
 
@@ -468,6 +472,20 @@
           ]
         },
         {
+          "type": "view-all-button",
+          "id": "featured-collection-view-all",
+          "static": true,
+          "settings": {
+            "button_label": "View all",
+            "button_style": "text",
+            "button_style_mobile": "outline",
+            "button_height_mobile": "inherit",
+            "full_width_mobile": true,
+            "show_icon": false,
+            "show_icon_mobile": false
+          }
+        },
+        {
           "type": "product-list",
           "id": "product-list",
           "static": true,
@@ -506,23 +524,6 @@
               }
             }
           ]
-        },
-        {
-          "type": "collection-tabs-view-all",
-          "id": "featured-collection-view-all",
-          "static": true,
-          "settings": {
-            "button_label": "View all",
-            "button_style": "tertiary",
-            "show_icon": false,
-            "icon": "arrow",
-            "icon_position": "after",
-            "icon_size": "inherit",
-            "icon_width": 20,
-            "width": "fit",
-            "width_mobile": "fit",
-            "customize_mobile_padding": false
-          }
         }
       ]
     }

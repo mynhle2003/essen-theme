@@ -1,24 +1,14 @@
 {% doc %}
-  Renders the fixed View all action for the Collection tabs and Featured
-  collection sections. Collection tabs assigns the destination from the
-  active tab at runtime; Featured collection passes its collection as the
-  closest resource, so this block intentionally has no link settings.
+  Renders the fixed View all action for the Collection tabs section. Collection
+  tabs assigns the destination from the active tab at runtime, so this block
+  intentionally keeps its resource-driven schema separate from the standard
+  View all button block.
 
   @example
-  {% content_for 'block', type: 'collection-tabs-view-all', id: 'collection-tabs-view-all' %}
+  {% content_for 'block', type: 'tabs-view-all-button', id: 'collection-tabs-view-all' %}
 {% enddoc %}
 
 {% liquid
-  assign collection_tabs_view_all_label = block.settings.button_label | strip
-  if collection_tabs_view_all_label == blank
-    assign collection_tabs_view_all_label = 'collection_tabs.view_all' | t
-  endif
-
-  assign collection_tabs_view_all_style = block.settings.button_style | default: 'tertiary'
-  unless collection_tabs_view_all_style == 'primary' or collection_tabs_view_all_style == 'secondary' or collection_tabs_view_all_style == 'tertiary'
-    assign collection_tabs_view_all_style = 'tertiary'
-  endunless
-
   assign collection_tabs_view_all_width = block.settings.width | default: 'fit'
   unless collection_tabs_view_all_width == 'fit' or collection_tabs_view_all_width == 'fill'
     assign collection_tabs_view_all_width = 'fit'
@@ -27,29 +17,6 @@
   unless collection_tabs_view_all_width_mobile == 'fit' or collection_tabs_view_all_width_mobile == 'fill'
     assign collection_tabs_view_all_width_mobile = 'fit'
   endunless
-
-  assign collection_tabs_view_all_icon = blank
-  if block.settings.show_icon
-    assign collection_tabs_view_all_icon = block.settings.icon | default: 'arrow'
-    unless collection_tabs_view_all_icon == 'arrow' or collection_tabs_view_all_icon == 'cart'
-      assign collection_tabs_view_all_icon = 'arrow'
-    endunless
-  endif
-
-  assign collection_tabs_view_all_icon_position = block.settings.icon_position | default: 'after'
-  unless collection_tabs_view_all_icon_position == 'before' or collection_tabs_view_all_icon_position == 'after'
-    assign collection_tabs_view_all_icon_position = 'after'
-  endunless
-
-  assign collection_tabs_view_all_icon_size = block.settings.icon_size | default: 'inherit'
-  unless collection_tabs_view_all_icon_size == 'inherit' or collection_tabs_view_all_icon_size == 'custom'
-    assign collection_tabs_view_all_icon_size = 'inherit'
-  endunless
-
-  assign collection_tabs_view_all_icon_width = block.settings.icon_width | default: 20 | plus: 0
-  if collection_tabs_view_all_icon_width < 12 or collection_tabs_view_all_icon_width > 32
-    assign collection_tabs_view_all_icon_width = 20
-  endif
 
   assign collection_tabs_view_all_url = blank
   if closest.collection != blank
@@ -88,21 +55,28 @@
 {% endcapture %}
 {% assign collection_tabs_view_all_style_attribute = collection_tabs_view_all_style_attribute | strip %}
 
+{% assign collection_tabs_view_all_label = block.settings.button_label | strip %}
+{% if collection_tabs_view_all_label == blank %}
+  {% assign collection_tabs_view_all_label = 'collection_tabs.view_all' | t %}
+{% endif %}
+
 {% if collection_tabs_view_all_label != blank or request.design_mode %}
   <div
     class="{{ collection_tabs_view_all_class }}"
     {% if collection_tabs_view_all_style_attribute != blank %}style="{{ collection_tabs_view_all_style_attribute }}"{% endif %}
     {{ block.shopify_attributes }}
   >
-    {% render 'theme-button',
+    {% render 'view-all-button',
       label: collection_tabs_view_all_label,
       url: collection_tabs_view_all_url,
       force_link: true,
-      variant: collection_tabs_view_all_style,
-      icon: collection_tabs_view_all_icon,
-      icon_position: collection_tabs_view_all_icon_position,
-      icon_size: collection_tabs_view_all_icon_size,
-      icon_width: collection_tabs_view_all_icon_width,
+      variant: block.settings.button_style,
+      fallback_variant: 'tertiary',
+      show_icon: block.settings.show_icon,
+      icon: block.settings.icon,
+      icon_position: block.settings.icon_position,
+      icon_size: block.settings.icon_size,
+      icon_width: block.settings.icon_width,
       class: 'collection-tabs-view-all__button',
       attributes: collection_tabs_view_all_attributes
     %}

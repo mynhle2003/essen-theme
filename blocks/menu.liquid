@@ -35,6 +35,10 @@
   unless heading_size == 'display' or heading_size == 'xl' or heading_size == 'lg' or heading_size == 'md' or heading_size == 'sm' or heading_size == 'xs' or heading_size == 'custom'
     assign heading_size = 'lg'
   endunless
+  assign heading_custom_size = block.settings.custom_heading_size | default: 24 | plus: 0
+  if heading_custom_size < 10 or heading_custom_size > 100
+    assign heading_custom_size = 24
+  endif
 
   assign heading_tag = block.settings.html_tag | default: 'h2'
   unless heading_tag == 'div' or heading_tag == 'h1' or heading_tag == 'h2' or heading_tag == 'h3' or heading_tag == 'h4' or heading_tag == 'h5' or heading_tag == 'h6'
@@ -86,6 +90,7 @@
 %}
 
 {% capture menu_style %}
+  {% if heading_size == 'custom' %}--menu-block-heading-custom-size: {{ heading_custom_size }}px;{% endif %}
   {% if heading_gap != 16 %}--menu-block-heading-gap: {{ heading_gap }}px;{% endif %}
   {% if menu_gap != 8 %}--menu-block-menu-gap: {{ menu_gap }}px;{% endif %}
   {% if heading_color != blank %}--menu-block-heading-color: {{ heading_color | escape }};{% endif %}
@@ -169,6 +174,10 @@
   </nav>
 {% endif %}
 
+{% stylesheet %}
+  .menu-block__heading.heading-custom { font-size: var(--menu-block-heading-custom-size, var(--font-heading-custom)); }
+{% endstylesheet %}
+
 {% schema %}
 {
   "name": "t:general.menu",
@@ -248,6 +257,17 @@
         { "value": "custom", "label": "t:options.heading_size.custom" }
       ],
       "default": "lg"
+    },
+    {
+      "type": "range",
+      "id": "custom_heading_size",
+      "label": "Custom size",
+      "min": 10,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24,
+      "visible_if": "{{ block.settings.heading_size == 'custom' }}"
     },
     {
       "type": "select",

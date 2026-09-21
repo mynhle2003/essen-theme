@@ -67,7 +67,7 @@
       {% content_for 'block', type: 'header', id: 'header' %}
     </div>
     <div class="blog-posts__actions">
-      {% content_for 'block', type: 'collection-tabs-view-all', id: 'blog-posts-view-all', closest.collection: blog_posts_source %}
+      {% content_for 'block', type: 'view-all-button', id: 'blog-posts-view-all', closest.collection: blog_posts_source %}
     </div>
     <div class="blog-posts__list">
       {% content_for 'block', type: 'blog-list', id: 'blog-list', closest.blog: blog_posts_source %}
@@ -420,20 +420,17 @@
           ]
         },
         {
-          "type": "collection-tabs-view-all",
+          "type": "view-all-button",
           "id": "blog-posts-view-all",
           "static": true,
           "settings": {
             "button_label": "View all",
-            "button_style": "tertiary",
+            "button_style": "text",
+            "button_style_mobile": "outline",
+            "button_height_mobile": "inherit",
+            "full_width_mobile": true,
             "show_icon": false,
-            "icon": "arrow",
-            "icon_position": "after",
-            "icon_size": "inherit",
-            "icon_width": 20,
-            "width": "fit",
-            "width_mobile": "fit",
-            "customize_mobile_padding": false
+            "show_icon_mobile": false
           }
         },
         {
