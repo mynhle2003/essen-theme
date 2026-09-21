@@ -723,7 +723,7 @@
             "image_link": "",
             "open_in_new_tab": false,
             "alt_text": "",
-            "image_ratio_desktop": "auto",
+            "image_ratio_desktop": "square",
             "image_ratio_custom_width_desktop": 16,
             "image_ratio_custom_height_desktop": 9,
             "width_desktop": "fill",
