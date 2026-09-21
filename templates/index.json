@@ -359,7 +359,7 @@
           "type": "collection-tab",
           "settings": {
             "label": "Best sellers",
-            "collection": ""
+            "collection": "hydrogen"
           },
           "blocks": {
             "product-card": {
@@ -568,19 +568,19 @@
             "width_custom_desktop": 100,
             "limit_width_desktop": false,
             "max_width_desktop": 1600,
-            "height_desktop": "ratio_1_1",
+            "height_desktop": "ratio_4_3",
             "width_mobile": "fill",
             "width_custom_mobile": 100,
             "limit_width_mobile": false,
             "max_width_mobile": 1600,
             "height_mobile": "ratio_1_1",
             "enable_sticky": true,
-            "position_desktop": "top_center",
+            "position_desktop": "center_center",
             "position_mobile": "top_center",
             "gap_desktop": 20,
             "gap_mobile": 16,
             "corner_radius": "square",
-            "color_scheme": "",
+            "color_scheme": "scheme-3",
             "padding_top": 32,
             "padding_bottom": 32,
             "padding_left": 32,
@@ -592,34 +592,11 @@
             "padding_right_mobile": 0
           },
           "blocks": {
-            "eyebrow_KR3hai": {
-              "type": "eyebrow",
-              "settings": {
-                "text": "<p>Eyebrow</p>",
-                "color": "",
-                "show_background": false,
-                "show_icon": false,
-                "icon": "circle",
-                "border_thickness": 0,
-                "corner_radius": "square",
-                "color_scheme": "",
-                "padding_top": 0,
-                "padding_bottom": 0,
-                "padding_left": 0,
-                "padding_right": 0,
-                "customize_mobile_padding": false,
-                "padding_top_mobile": 0,
-                "padding_bottom_mobile": 0,
-                "padding_left_mobile": 0,
-                "padding_right_mobile": 0
-              },
-              "blocks": {}
-            },
             "heading_hJBnXV": {
               "type": "heading",
               "settings": {
-                "text": "<p>Heading</p>",
-                "heading_size": "lg",
+                "text": "<p>Tops</p>",
+                "heading_size": "xl",
                 "custom_heading_size": 24,
                 "html_tag": "h2",
                 "text_color": "",
@@ -639,38 +616,10 @@
                 "padding_right_mobile": 0
               },
               "blocks": {}
-            },
-            "button_KAcHLm": {
-              "type": "button",
-              "settings": {
-                "button_label": "Button label",
-                "button_link": "",
-                "button_open_in_new_tab": false,
-                "button_style": "primary",
-                "show_icon": false,
-                "icon": "arrow",
-                "icon_position": "after",
-                "icon_size": "inherit",
-                "icon_width": 20,
-                "width": "fit",
-                "width_mobile": "fit",
-                "padding_top": 0,
-                "padding_bottom": 0,
-                "padding_left": 0,
-                "padding_right": 0,
-                "customize_mobile_padding": false,
-                "padding_top_mobile": 0,
-                "padding_bottom_mobile": 0,
-                "padding_left_mobile": 0,
-                "padding_right_mobile": 0
-              },
-              "blocks": {}
             }
           },
           "block_order": [
-            "eyebrow_KR3hai",
-            "heading_hJBnXV",
-            "button_KAcHLm"
+            "heading_hJBnXV"
           ]
         },
         "image_card_MeqYPT": {
@@ -685,19 +634,19 @@
             "width_custom_desktop": 100,
             "limit_width_desktop": false,
             "max_width_desktop": 1600,
-            "height_desktop": "ratio_1_1",
+            "height_desktop": "fill",
             "width_mobile": "fill",
             "width_custom_mobile": 100,
             "limit_width_mobile": false,
             "max_width_mobile": 1600,
             "height_mobile": "ratio_1_1",
             "enable_sticky": true,
-            "position_desktop": "top_center",
+            "position_desktop": "center_center",
             "position_mobile": "top_center",
             "gap_desktop": 20,
             "gap_mobile": 16,
             "corner_radius": "square",
-            "color_scheme": "",
+            "color_scheme": "scheme-3",
             "padding_top": 32,
             "padding_bottom": 32,
             "padding_left": 32,
@@ -709,34 +658,11 @@
             "padding_right_mobile": 0
           },
           "blocks": {
-            "eyebrow_qR3wbe": {
-              "type": "eyebrow",
-              "settings": {
-                "text": "<p>Eyebrow</p>",
-                "color": "",
-                "show_background": false,
-                "show_icon": false,
-                "icon": "circle",
-                "border_thickness": 0,
-                "corner_radius": "square",
-                "color_scheme": "",
-                "padding_top": 0,
-                "padding_bottom": 0,
-                "padding_left": 0,
-                "padding_right": 0,
-                "customize_mobile_padding": false,
-                "padding_top_mobile": 0,
-                "padding_bottom_mobile": 0,
-                "padding_left_mobile": 0,
-                "padding_right_mobile": 0
-              },
-              "blocks": {}
-            },
             "heading_J3Ywrx": {
               "type": "heading",
               "settings": {
-                "text": "<p>Heading</p>",
-                "heading_size": "lg",
+                "text": "<p>Pants</p>",
+                "heading_size": "xl",
                 "custom_heading_size": 24,
                 "html_tag": "h2",
                 "text_color": "",
@@ -756,38 +682,10 @@
                 "padding_right_mobile": 0
               },
               "blocks": {}
-            },
-            "button_XFkttM": {
-              "type": "button",
-              "settings": {
-                "button_label": "Button label",
-                "button_link": "",
-                "button_open_in_new_tab": false,
-                "button_style": "primary",
-                "show_icon": false,
-                "icon": "arrow",
-                "icon_position": "after",
-                "icon_size": "inherit",
-                "icon_width": 20,
-                "width": "fit",
-                "width_mobile": "fit",
-                "padding_top": 0,
-                "padding_bottom": 0,
-                "padding_left": 0,
-                "padding_right": 0,
-                "customize_mobile_padding": false,
-                "padding_top_mobile": 0,
-                "padding_bottom_mobile": 0,
-                "padding_left_mobile": 0,
-                "padding_right_mobile": 0
-              },
-              "blocks": {}
             }
           },
           "block_order": [
-            "eyebrow_qR3wbe",
-            "heading_J3Ywrx",
-            "button_XFkttM"
+            "heading_J3Ywrx"
           ]
         }
       },
