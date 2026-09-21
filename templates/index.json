@@ -621,77 +621,10 @@
           "block_order": [
             "heading_hJBnXV"
           ]
-        },
-        "image_card_MeqYPT": {
-          "type": "image-card",
-          "settings": {
-            "link": "",
-            "open_in_new_tab": false,
-            "background_type": "image",
-            "show_overlay": false,
-            "device": "desktop",
-            "width_desktop": "fill",
-            "width_custom_desktop": 100,
-            "limit_width_desktop": false,
-            "max_width_desktop": 1600,
-            "height_desktop": "fill",
-            "width_mobile": "fill",
-            "width_custom_mobile": 100,
-            "limit_width_mobile": false,
-            "max_width_mobile": 1600,
-            "height_mobile": "ratio_1_1",
-            "enable_sticky": true,
-            "position_desktop": "center_center",
-            "position_mobile": "top_center",
-            "gap_desktop": 20,
-            "gap_mobile": 16,
-            "corner_radius": "square",
-            "color_scheme": "scheme-3",
-            "padding_top": 32,
-            "padding_bottom": 32,
-            "padding_left": 32,
-            "padding_right": 32,
-            "customize_mobile_padding": false,
-            "padding_top_mobile": 0,
-            "padding_bottom_mobile": 0,
-            "padding_left_mobile": 0,
-            "padding_right_mobile": 0
-          },
-          "blocks": {
-            "heading_J3Ywrx": {
-              "type": "heading",
-              "settings": {
-                "text": "<p>Pants</p>",
-                "heading_size": "xl",
-                "custom_heading_size": 24,
-                "html_tag": "h2",
-                "text_color": "",
-                "width": "fit",
-                "max_width": 640,
-                "customize_mobile_size": false,
-                "width_mobile": "fit",
-                "max_width_mobile": 480,
-                "padding_top": 0,
-                "padding_bottom": 0,
-                "padding_left": 0,
-                "padding_right": 0,
-                "customize_mobile_padding": false,
-                "padding_top_mobile": 0,
-                "padding_bottom_mobile": 0,
-                "padding_left_mobile": 0,
-                "padding_right_mobile": 0
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "heading_J3Ywrx"
-          ]
         }
       },
       "block_order": [
-        "image_card_CNhfhR",
-        "image_card_MeqYPT"
+        "image_card_CNhfhR"
       ],
       "name": "t:general.image_cards",
       "settings": {
@@ -710,11 +643,152 @@
         "padding_top_mobile": 0,
         "padding_bottom_mobile": 56
       }
+    },
+    "featured_collection_wAkDME": {
+      "type": "featured-collection",
+      "blocks": {
+        "header": {
+          "type": "header",
+          "static": true,
+          "settings": {
+            "width": "fit",
+            "max_width": 750,
+            "customize_mobile_size": false,
+            "width_mobile": "fit",
+            "max_width_mobile": 480,
+            "alignment": "left",
+            "customize_mobile_alignment": false,
+            "alignment_mobile": "left",
+            "gap_desktop": 12,
+            "gap_mobile": 8,
+            "padding_top": 0,
+            "padding_bottom": 0,
+            "padding_left": 0,
+            "padding_right": 0,
+            "customize_mobile_padding": false,
+            "padding_top_mobile": 0,
+            "padding_bottom_mobile": 0,
+            "padding_left_mobile": 0,
+            "padding_right_mobile": 0
+          },
+          "blocks": {
+            "heading_cQzqNT": {
+              "type": "heading",
+              "settings": {
+                "text": "<p>Explore our wardrobe essentials. Built to define your daily code.</p>",
+                "heading_size": "lg",
+                "custom_heading_size": 24,
+                "html_tag": "h2",
+                "text_color": "",
+                "width": "custom",
+                "max_width": 760,
+                "customize_mobile_size": false,
+                "width_mobile": "fit",
+                "max_width_mobile": 480,
+                "padding_top": 0,
+                "padding_bottom": 0,
+                "padding_left": 0,
+                "padding_right": 0,
+                "customize_mobile_padding": false,
+                "padding_top_mobile": 0,
+                "padding_bottom_mobile": 0,
+                "padding_left_mobile": 0,
+                "padding_right_mobile": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "heading_cQzqNT"
+          ]
+        },
+        "product-list": {
+          "type": "product-list",
+          "static": true,
+          "settings": {
+            "collection": "",
+            "max_products": 6,
+            "layout_type": "carousel",
+            "columns_desktop": "4",
+            "columns_mobile": "1",
+            "show_next_slide_preview_on_desktop": false,
+            "product_gap_desktop": 4,
+            "product_gap_mobile": 4,
+            "show_navigation_on_desktop": true,
+            "navigation_position": "top",
+            "navigation_style": "icon_only",
+            "navigation_icon": "chevron",
+            "navigation_behavior": "show_on_hover",
+            "show_pagination_on_desktop": true,
+            "pagination_type": "progress_bar",
+            "pagination_top_padding_desktop": 50,
+            "pagination_top_padding_mobile": 24,
+            "pagination_limit_width": true,
+            "pagination_max_width": 260,
+            "autoplay": false,
+            "autoplay_pause_on_hover": true,
+            "autoplay_speed": 4
+          },
+          "blocks": {
+            "product-card": {
+              "type": "product-card",
+              "static": true,
+              "settings": {
+                "show_ranking": false,
+                "color_type": "inherit",
+                "color_scheme": "scheme-1"
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": []
+        },
+        "featured-collection-view-all": {
+          "type": "collection-tabs-view-all",
+          "static": true,
+          "settings": {
+            "button_label": "View all",
+            "button_style": "tertiary",
+            "show_icon": false,
+            "icon": "arrow",
+            "icon_position": "after",
+            "icon_size": "inherit",
+            "icon_width": 20,
+            "width": "fit",
+            "width_mobile": "fit",
+            "padding_top": 0,
+            "padding_bottom": 0,
+            "padding_left": 0,
+            "padding_right": 0,
+            "customize_mobile_padding": false,
+            "padding_top_mobile": 0,
+            "padding_bottom_mobile": 0,
+            "padding_left_mobile": 0,
+            "padding_right_mobile": 0
+          },
+          "blocks": {}
+        }
+      },
+      "name": "t:general.featured_collection",
+      "settings": {
+        "section_width": "page_width",
+        "desktop_alignment": "left",
+        "mobile_alignment": "left",
+        "gap_desktop": 40,
+        "gap_mobile": 36,
+        "color_scheme": "scheme-1",
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "customize_mobile_padding": false,
+        "padding_top_mobile": 0,
+        "padding_bottom_mobile": 0
+      }
     }
   },
   "order": [
     "slideshow_eYcpcr",
     "collection_tabs_dk8Qbd",
-    "image_cards_YeMfE4"
+    "image_cards_YeMfE4",
+    "featured_collection_wAkDME"
   ]
 }
