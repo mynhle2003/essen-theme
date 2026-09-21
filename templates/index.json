@@ -1619,6 +1619,7 @@
               "blocks": {
                 "product_badges_88aT6a": {
                   "type": "product-badges",
+                  "disabled": true,
                   "settings": {
                     "show_sale_badge": true,
                     "show_sold_out_badge": true,
@@ -1638,7 +1639,7 @@
                 "product_title_Xn9B4P": {
                   "type": "product-title",
                   "settings": {
-                    "heading_size": "xl",
+                    "heading_size": "sm",
                     "custom_heading_size": 24,
                     "html_tag": "h2",
                     "text_case": "original",
@@ -1681,8 +1682,26 @@
                 "product_price_FdPmBm"
               ]
             },
+            "divider_f8iX46": {
+              "type": "divider",
+              "name": "t:general.divider",
+              "settings": {
+                "style": "solid",
+                "thickness": "thin",
+                "custom_thickness": 1,
+                "color": "scheme",
+                "custom_color": "",
+                "width": "full",
+                "custom_width": 50,
+                "alignment": "left",
+                "desktop_spacing": 24,
+                "mobile_spacing": 16
+              },
+              "blocks": {}
+            },
             "product_description_GiTAGF": {
               "type": "product-description",
+              "disabled": true,
               "settings": {
                 "height_limit": "none",
                 "text_size": "md",
@@ -1747,7 +1766,7 @@
               "type": "button-view-details",
               "settings": {
                 "label": "View details",
-                "show_icon": true,
+                "show_icon": false,
                 "icon": "arrow",
                 "icon_position": "after",
                 "icon_size": "inherit",
@@ -1763,6 +1782,7 @@
           },
           "block_order": [
             "group_yBUVBe",
+            "divider_f8iX46",
             "product_description_GiTAGF",
             "product_variant_picker_iYTaB9",
             "product_buy_buttons_dykJPk",
@@ -1772,7 +1792,7 @@
       },
       "name": "t:general.featured_product",
       "settings": {
-        "product": "",
+        "product": "ts-01-essence-regular-heavyweight-black-2-0",
         "sticky_content": true,
         "width": "page",
         "media_width": "medium",
