@@ -199,7 +199,7 @@
   top: calc(50% - var(--swiper-navigation-center-offset, 0px));
 }
 
-@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+@media (min-width: 768px) and (hover: hover) and (pointer: fine) {
   .swiper-carousel__container > .swiper-carousel__navigation--show_on_hover .swiper-nav-button {
     --swiper-navigation-hover-translate: 0;
     opacity: 0;

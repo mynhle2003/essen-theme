@@ -225,7 +225,7 @@
           assign blog_list_card_placeholder = true
         endif
       %}
-      <div class="{% if blog_list_layout == 'carousel' %}swiper-slide carousel-slide {% endif %}blog-list__item">
+      <div class="{% if blog_list_layout == 'carousel' %}swiper-slide {% endif %}blog-list__item">
         {% content_for 'block', type: 'blog-card', id: 'blog-card', closest.article: blog_list_article, placeholder: blog_list_card_placeholder %}
       </div>
     {% endfor %}
@@ -305,8 +305,17 @@
   }
 
   .blog-list__item {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
     min-width: 0;
     height: auto;
+  }
+
+  .blog-list__item > .blog-card {
+    width: 100%;
+    max-width: 100%;
   }
 
   .blog-list__navigation {

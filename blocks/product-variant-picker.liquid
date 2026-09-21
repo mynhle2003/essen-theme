@@ -123,7 +123,8 @@
       "id": "size_chart_option_name",
       "label": "t:labels.size_guide_option",
       "info": "t:info.size_guide_option",
-      "default": "Size"
+      "default": "Size",
+      "visible_if": "{{ block.settings.size_chart_page != blank }}"
     },
     {
       "type": "page",
@@ -143,7 +144,8 @@
         { "value": "modal", "label": "t:options.size_guide_layout.modal" },
         { "value": "drawer", "label": "t:options.size_guide_layout.drawer" }
       ],
-      "default": "modal"
+      "default": "modal",
+      "visible_if": "{{ block.settings.size_chart_page != blank }}"
     },
     {
       "type": "range",
@@ -154,7 +156,8 @@
       "max": 960,
       "step": 10,
       "unit": "px",
-      "default": 600
+      "default": 600,
+      "visible_if": "{{ block.settings.size_chart_page != blank }}"
     },
     {
       "type": "select",
@@ -164,7 +167,8 @@
         { "value": "bottom_sheet", "label": "t:options.size_guide_layout.bottom_sheet" },
         { "value": "drawer", "label": "t:options.size_guide_layout.drawer" }
       ],
-      "default": "bottom_sheet"
+      "default": "bottom_sheet",
+      "visible_if": "{{ block.settings.size_chart_page != blank }}"
     },
     {
       "type": "header",

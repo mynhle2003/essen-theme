@@ -100,7 +100,8 @@
   if logo_width_mobile == blank
     assign logo_width_mobile = 140
   endif
-  assign page_width = settings.max_page_width | default: '1600px'
+  assign page_width = settings.max_page_width | default: 1600
+  assign page_width = page_width | remove: 'px' | append: 'px'
   assign page_margin_desktop = settings.layout_desktop_margin
   if page_margin_desktop == blank
     assign page_margin_desktop = 48

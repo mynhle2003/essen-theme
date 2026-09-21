@@ -79,6 +79,11 @@
   class Overlay {
     constructor(dialog) {
       this.dialog = dialog;
+      this.originalParent = null;
+      this.originalNextSibling = null;
+      this.portaled = false;
+      this.portalContextClass = null;
+      this.portalToBody();
       this.controller = new AbortController();
       const options = { signal: this.controller.signal };
       this.gesture = new SheetGesture({
@@ -113,6 +118,39 @@
         if (dialog.open) return;
         this.finishClose();
       }, options);
+    }
+
+    portalToBody() {
+      if (!this.dialog.hasAttribute?.('data-append-to-body') || !document.body || this.dialog.parentElement === document.body) return;
+
+      this.originalParent = this.dialog.parentNode;
+      this.originalNextSibling = this.dialog.nextSibling;
+
+      const context = this.dialog.closest('[data-overlay-color-scheme], .color-scheme');
+      const contextClass = context?.dataset.overlayColorScheme
+        || [...(context?.classList || [])].find((className) => /^scheme-[a-z0-9_-]+$/i.test(className));
+      if (contextClass && !this.dialog.classList.contains(contextClass)) {
+        this.portalContextClass = contextClass;
+        this.dialog.classList.add(contextClass);
+      }
+
+      document.body.append(this.dialog);
+      this.portaled = true;
+    }
+
+    restoreFromBody() {
+      if (!this.portaled) return;
+
+      if (this.portalContextClass) this.dialog.classList.remove(this.portalContextClass);
+      if (this.originalParent) {
+        const nextSibling = this.originalNextSibling?.parentNode === this.originalParent
+          ? this.originalNextSibling
+          : null;
+        this.originalParent.insertBefore(this.dialog, nextSibling);
+      } else {
+        this.dialog.remove();
+      }
+      this.portaled = false;
     }
 
     finishClose() {
@@ -158,6 +196,7 @@
       this.gesture.destroy();
       this.controller.abort();
       instances.delete(this.dialog);
+      this.restoreFromBody();
     }
   }
 

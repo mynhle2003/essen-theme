@@ -26,7 +26,7 @@
   endunless
 
   assign icon_name = icon | default: 'arrow-right'
-  unless icon_name == 'arrow' or icon_name == 'arrow-left' or icon_name == 'arrow-right' or icon_name == 'bars-3' or icon_name == 'menu' or icon_name == 'chevron' or icon_name == 'chevron-down' or icon_name == 'chevron-left' or icon_name == 'chevron-right' or icon_name == 'x-mark' or icon_name == 'close' or icon_name == 'magnifying-glass' or icon_name == 'search' or icon_name == 'shopping-bag' or icon_name == 'bag' or icon_name == 'cart' or icon_name == 'shopping-cart' or icon_name == 'user' or icon_name == 'account' or icon_name == 'truck' or icon_name == 'shipping' or icon_name == 'tag' or icon_name == 'discount' or icon_name == 'trash' or icon_name == 'remove' or icon_name == 'document-text' or icon_name == 'note' or icon_name == 'receipt-percent' or icon_name == 'coupon' or icon_name == 'share' or icon_name == 'play' or icon_name == 'pause' or icon_name == 'plus' or icon_name == 'minus' or icon_name == 'check' or icon_name == 'circle' or icon_name == 'square' or icon_name == 'triangle' or icon_name == 'diamond'
+  unless icon_name == 'arrow' or icon_name == 'arrow-left' or icon_name == 'arrow-right' or icon_name == 'bars-3' or icon_name == 'menu' or icon_name == 'chevron' or icon_name == 'chevron-down' or icon_name == 'chevron-left' or icon_name == 'chevron-right' or icon_name == 'x-mark' or icon_name == 'close' or icon_name == 'magnifying-glass' or icon_name == 'search' or icon_name == 'shopping-bag' or icon_name == 'bag' or icon_name == 'cart' or icon_name == 'shopping-cart' or icon_name == 'user' or icon_name == 'account' or icon_name == 'truck' or icon_name == 'shipping' or icon_name == 'tag' or icon_name == 'discount' or icon_name == 'trash' or icon_name == 'remove' or icon_name == 'document-text' or icon_name == 'note' or icon_name == 'receipt-percent' or icon_name == 'coupon' or icon_name == 'share' or icon_name == 'play' or icon_name == 'pause' or icon_name == 'plus' or icon_name == 'minus' or icon_name == 'check' or icon_name == 'circle' or icon_name == 'square' or icon_name == 'triangle' or icon_name == 'diamond' or icon_name == 'star' or icon_name == 'four-stars' or icon_name == 'five-stars'
     assign icon_name = 'arrow-right'
   endunless
 
@@ -114,8 +114,14 @@
           echo '<svg viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true"><rect x="4" y="4" width="16" height="16" stroke="currentColor" stroke-linejoin="round" stroke-width="var(--icon-stroke-width)" /></svg>'
         when 'triangle'
           echo '<svg viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true"><path d="m12 4 8 16H4L12 4Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="var(--icon-stroke-width)" /></svg>'
-        when 'diamond'
-          echo '<svg viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true"><path d="m12 3 9 9-9 9-9-9 9-9Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="var(--icon-stroke-width)" /></svg>'
+          when 'diamond'
+            echo '<svg viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true"><path d="m12 3 9 9-9 9-9-9 9-9Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="var(--icon-stroke-width)" /></svg>'
+          when 'star'
+            echo '<svg viewBox="0 0 24 24" fill="currentColor" focusable="false" aria-hidden="true"><path d="m12 2.5 2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L12 17.06l-5.7 3 1.09-6.35-4.62-4.5 6.38-.93L12 2.5Z" /></svg>'
+          when 'four-stars'
+            echo '<svg viewBox="0 0 145 24" fill="none" focusable="false" aria-hidden="true"><path d="m12 2.5 2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L12 17.06l-5.7 3 1.09-6.35-4.62-4.5 6.38-.93L12 2.5Z" fill="currentColor"/><path d="m42 2.5 2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L42 17.06l-5.7 3 1.09-6.35-4.62-4.5 6.38-.93L42 2.5Z" fill="currentColor"/><path d="m72 2.5 2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L72 17.06l-5.7 3 1.09-6.35-4.62-4.5 6.38-.93L72 2.5Z" fill="currentColor"/><path d="m102 2.5 2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L102 17.06l-5.7 3 1.09-6.35-4.62-4.5 6.38-.93L102 2.5Z" fill="currentColor"/><path opacity="0.15" d="m132 2.5 2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L132 17.06l-5.7 3 1.09-6.35-4.62-4.5 6.38-.93L132 2.5Z" fill="currentColor"/></svg>'
+          when 'five-stars'
+            echo '<svg viewBox="0 0 144 24" fill="none" focusable="false" aria-hidden="true"><path d="m12 2.5 2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L12 17.06l-5.7 3 1.09-6.35-4.62-4.5 6.38-.93L12 2.5Z" fill="currentColor"/><path d="m42 2.5 2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L42 17.06l-5.7 3 1.09-6.35-4.62-4.5 6.38-.93L42 2.5Z" fill="currentColor"/><path d="m72 2.5 2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L72 17.06l-5.7 3 1.09-6.35-4.62-4.5 6.38-.93L72 2.5Z" fill="currentColor"/><path d="m102 2.5 2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L102 17.06l-5.7 3-1.09-6.35-4.62-4.5 6.38-.93L102 2.5Z" fill="currentColor"/><path d="m132 2.5 2.85 5.78 6.38.93-4.62 4.5 1.09 6.35L132 17.06l-5.7 3-1.09-6.35-4.62-4.5 6.38-.93L132 2.5Z" fill="currentColor"/></svg>'
         when 'chevron'
           echo '<svg viewBox="0 0 20 20" fill="none" focusable="false" aria-hidden="true"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="var(--icon-stroke-width)" /></svg>'
       endcase
@@ -172,7 +178,7 @@
     align-items: center;
     justify-content: center;
     width: var(--icon-width, var(--icon-size-medium, 20px));
-    height: var(--icon-width, var(--icon-size-medium, 20px));
+    height: auto;
     max-width: 100%;
     padding: var(--icon-padding, 0px);
     color: inherit;
@@ -183,7 +189,7 @@
   .icon-renderer > svg {
     display: block;
     width: 100%;
-    height: 100%;
+    height: auto;
     max-width: none;
   }
 

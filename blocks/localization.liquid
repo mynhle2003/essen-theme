@@ -45,6 +45,9 @@
 
   assign country_selector_label = 'localization.country_label' | t
   assign language_selector_label = 'localization.language_label' | t
+  assign localization_id_prefix = 'FooterLocalization-' | append: section.id | append: '-' | append: block.id
+  assign country_dialog_id = localization_id_prefix | append: '-country'
+  assign language_dialog_id = localization_id_prefix | append: '-language'
 
   assign has_country_selector = false
   if show_country_selector and localization.available_countries.size > 1
@@ -74,8 +77,8 @@
   <div class="{{ localization_class }}" {{ block.shopify_attributes }}>
     {% if has_localization %}
       {% if has_country_selector %}
-        <details class="header-localization__details" data-header-submenu-trigger="{{ localization_trigger }}">
-          <summary class="header-localization__summary">
+        <details class="header-localization__details" data-header-submenu-trigger="{{ localization_trigger }}" data-localization-dialog-id="{{ country_dialog_id }}">
+          <summary class="header-localization__summary" aria-controls="{{ country_dialog_id }}" aria-expanded="false">
             <span class="header-localization__country">
               {% if show_country_flag %}
                 {{ localization.country | image_url: width: 24 | image_tag: class: 'header-localization__flag', alt: '' }}
@@ -89,13 +92,7 @@
             {% render 'icon', icon: 'chevron-down', class: 'header-localization__icon' %}
           </summary>
 
-          <button class="header-localization__sheet-backdrop" type="button" aria-label="{{ country_selector_label | escape }}" data-header-localization-close></button>
-          <div class="header-localization__panel component-sheet--mobile">
-            <header class="header-localization__sheet-header component-sheet__header">
-              <span class="bottom-sheet__handle header-localization__sheet-handle" aria-hidden="true"></span>
-              <h2 class="heading-text heading-sm">{{ country_selector_label }}</h2>
-              <button class="overlay-close header-localization__sheet-close" type="button" aria-label="{{ country_selector_label | escape }}" data-header-localization-close>{% render 'icon', icon: 'x-mark', bare: true, class: 'overlay-close__icon' %}</button>
-            </header>
+          <div class="header-localization__panel header-localization__desktop-panel">
             {% form 'localization', class: 'header-localization__form' %}
               <input type="hidden" name="return_to" value="{{ request.path }}">
               <div class="header-localization__country-list">
@@ -116,22 +113,17 @@
               </div>
             {% endform %}
           </div>
+          {% render 'localization-overlay', id: country_dialog_id, selector_type: 'country', localization: localization, label: country_selector_label, show_country_flag: show_country_flag %}
         </details>
       {% endif %}
 
       {% if has_language_selector %}
-        <details class="header-localization__details header-localization__details--language" data-header-submenu-trigger="{{ localization_trigger }}">
-          <summary class="header-localization__summary">
+        <details class="header-localization__details header-localization__details--language" data-header-submenu-trigger="{{ localization_trigger }}" data-localization-dialog-id="{{ language_dialog_id }}">
+          <summary class="header-localization__summary" aria-controls="{{ language_dialog_id }}" aria-expanded="false">
             <span class="header-localization__language">{{ localization.language.endonym_name }}</span>
             {% render 'icon', icon: 'chevron-down', class: 'header-localization__icon' %}
           </summary>
-          <button class="header-localization__sheet-backdrop" type="button" aria-label="{{ language_selector_label | escape }}" data-header-localization-close></button>
-          <div class="header-localization__panel component-sheet--mobile">
-            <header class="header-localization__sheet-header component-sheet__header">
-              <span class="bottom-sheet__handle header-localization__sheet-handle" aria-hidden="true"></span>
-              <h2 class="heading-text heading-sm">{{ language_selector_label }}</h2>
-              <button class="overlay-close header-localization__sheet-close" type="button" aria-label="{{ language_selector_label | escape }}" data-header-localization-close>{% render 'icon', icon: 'x-mark', bare: true, class: 'overlay-close__icon' %}</button>
-            </header>
+          <div class="header-localization__panel header-localization__desktop-panel">
             {% form 'localization', class: 'header-localization__form' %}
               <input type="hidden" name="return_to" value="{{ request.path }}">
               <div class="header-localization__language-list">
@@ -146,6 +138,7 @@
               </div>
             {% endform %}
           </div>
+          {% render 'localization-overlay', id: language_dialog_id, selector_type: 'language', localization: localization, label: language_selector_label %}
         </details>
       {% endif %}
     {% else %}
@@ -314,11 +307,6 @@
     min-height: var(--button-height);
   }
 
-  .header-localization__sheet-backdrop,
-  .header-localization__sheet-header {
-    display: none;
-  }
-
   @media (max-width: 1149.98px) {
     .header-localization__panel {
       inset-inline-start: auto;
@@ -341,24 +329,6 @@
   }
 
   @media (max-width: 767.98px) {
-    .footer:has(.localization-block .header-localization__details[open]),
-    .section-footer:has(.localization-block .header-localization__details[open]) {
-      position: relative;
-      z-index: var(--z-modal);
-    }
-
-    .footer:has(.localization-block .header-localization__details[open]) .motion-block,
-    .section-footer:has(.localization-block .header-localization__details[open]) .motion-block {
-      animation: none;
-      transform: none;
-    }
-
-    .footer:has(.localization-block .header-localization__details[open]) .group:has(.localization-block),
-    .section-footer:has(.localization-block .header-localization__details[open]) .group:has(.localization-block) {
-      z-index: calc(var(--z-modal) + 1);
-      overflow: visible;
-    }
-
     .header-localization__summary,
     .header-localization__placeholder {
       min-height: var(--button-height-mobile);
@@ -372,92 +342,8 @@
       display: none;
     }
 
-    .header-localization__sheet-backdrop {
-      position: fixed;
-      z-index: 0;
-      inset: 0;
-      display: block;
-      width: 100%;
-      height: 100%;
-      padding: 0;
-      border: 0;
-      background: var(--overlay-color);
-      -webkit-backdrop-filter: blur(var(--overlay-backdrop-blur));
-      backdrop-filter: blur(var(--overlay-backdrop-blur));
-      cursor: pointer;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity var(--motion-duration-standard) var(--motion-ease-standard);
-    }
-
-    .header-localization__panel {
-      position: fixed;
-      z-index: 1;
-      inset-block-start: auto;
-      inset-inline: 0;
-      inset-block-end: 0;
-      width: 100%;
-      max-height: min(70dvh, 32rem);
-      min-width: 0;
-      padding: 0 var(--page-margin-mobile) 1.25rem;
-      overflow-y: auto;
-
-      box-shadow: none;
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(100%);
-      transition: transform var(--motion-duration-standard) var(--motion-ease-standard);
-    }
-
-    .localization-block:has(.header-localization__details[open]) {
-      position: relative;
-      z-index: calc(var(--z-modal) + 1);
-    }
-
-    .localization-block .header-localization__sheet-backdrop {
-      z-index: calc(var(--z-modal) - 1);
-    }
-
-    .localization-block .header-localization__panel {
-      z-index: var(--z-modal);
-    }
-
-    .header-localization__details[open] > .header-localization__sheet-backdrop {
-      pointer-events: auto;
-    }
-
-    .header-localization__details.is-sheet-open > .header-localization__sheet-backdrop {
-      opacity: var(--overlay-opacity);
-    }
-
-    .header-localization__details[open] > .header-localization__panel {
-      pointer-events: auto;
-    }
-
-    .header-localization__details.is-sheet-open > .header-localization__panel {
-      transform: translateY(0);
-    }
-
-    .header-localization__sheet-header {
-      position: relative;
-      display: flex;
-      min-height: 4.75rem;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      border-bottom: 1px solid var(--border-color);
-      cursor: grab;
-      touch-action: none;
-      user-select: none;
-    }
-
-    .header-localization__sheet-header h2 {
-      margin: 0;
-      color: var(--heading-color);
-    }
-
-    .header-localization__sheet-close {
-      color: var(--heading-color);
+    .header-localization__desktop-panel {
+      display: none !important;
     }
 
     .header-localization__form {
@@ -466,7 +352,6 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .header-localization__panel,
     .header-localization__icon {
       transition-duration: 0.01ms;
     }

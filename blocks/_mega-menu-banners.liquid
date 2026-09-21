@@ -29,7 +29,7 @@
         {% if block.settings.collections != blank %}
           <ul class="header-mega-menu__featured {{ mega_typography_class }}" role="list">
             {% for collection in block.settings.collections %}
-              <li><a href="{{ collection.url }}">{{ collection.title | escape }}</a></li>
+              <li><a class="link-underline" href="{{ collection.url }}">{{ collection.title | escape }}</a></li>
             {% endfor %}
           </ul>
         {% endif %}

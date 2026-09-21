@@ -45,6 +45,19 @@
     assign carousel_navigation_behavior = 'always'
   endunless
 
+  assign carousel_controls_style = block.settings.controls_style | default: 'standard'
+  unless carousel_controls_style == 'standard' or carousel_controls_style == 'fraction'
+    assign carousel_controls_style = 'standard'
+  endunless
+  assign carousel_controls_alignment = block.settings.controls_alignment | default: 'center'
+  unless carousel_controls_alignment == 'left' or carousel_controls_alignment == 'center' or carousel_controls_alignment == 'right'
+    assign carousel_controls_alignment = 'center'
+  endunless
+  assign carousel_controls_alignment_mobile = block.settings.controls_alignment_mobile | default: carousel_controls_alignment
+  unless carousel_controls_alignment_mobile == 'left' or carousel_controls_alignment_mobile == 'center' or carousel_controls_alignment_mobile == 'right'
+    assign carousel_controls_alignment_mobile = carousel_controls_alignment
+  endunless
+
   assign carousel_show_navigation = true
   if block.settings.show_navigation_on_desktop == false or block.settings.show_navigation_on_desktop == 'false'
     assign carousel_show_navigation = false
@@ -87,6 +100,12 @@
   assign carousel_customize_mobile_padding = block.settings.customize_mobile_padding
   assign carousel_id = 'Carousel-' | append: block.id
   assign carousel_delay = carousel_speed | times: 1000
+  assign carousel_previous_label = 'collection_tabs.previous' | t
+  assign carousel_next_label = 'collection_tabs.next' | t
+  assign carousel_has_multiple_items = false
+  if block.blocks != blank and block.blocks.size > 1
+    assign carousel_has_multiple_items = true
+  endif
 %}
 
 {% render 'swiper-stylesheet' %}
@@ -94,13 +113,15 @@
 
 {% capture carousel_slides %}{% content_for 'blocks' %}{% endcapture %}
 {% capture carousel_pagination %}
-  {% if carousel_pagination_desktop or carousel_pagination_mobile %}
-    <div
-      class="swiper-pagination swiper-pagination--below carousel-block__pagination carousel-block__pagination--{{ carousel_pagination_type }}{% if carousel_pagination_limit_width %} carousel-block__pagination--limited{% endif %}"
-      data-carousel-pagination
-      data-pagination-type="{{ carousel_pagination_type }}"
-      {% if carousel_pagination_limit_width %}style="--carousel-pagination-max-width: {{ carousel_pagination_max_width }}px; --swiper-pagination-width: {{ carousel_pagination_max_width }}px;"{% endif %}
-    ></div>
+  {% if carousel_has_multiple_items and carousel_controls_style == 'standard' %}
+    {% if carousel_pagination_desktop or carousel_pagination_mobile %}
+      <div
+        class="swiper-pagination swiper-pagination--below carousel-block__pagination carousel-block__pagination--{{ carousel_pagination_type }}{% if carousel_pagination_limit_width %} carousel-block__pagination--limited{% endif %}"
+        data-carousel-pagination
+        data-pagination-type="{{ carousel_pagination_type }}"
+        {% if carousel_pagination_limit_width %}style="--carousel-pagination-max-width: {{ carousel_pagination_max_width }}px; --swiper-pagination-width: {{ carousel_pagination_max_width }}px;"{% endif %}
+      ></div>
+    {% endif %}
   {% endif %}
 {% endcapture %}
 
@@ -131,6 +152,8 @@
   data-swiper-pagination-type="{{ carousel_pagination_type }}"
   data-swiper-pagination-desktop="{{ carousel_pagination_desktop }}"
   data-swiper-pagination-mobile="{{ carousel_pagination_mobile }}"
+  data-carousel-controls-style="{{ carousel_controls_style }}"
+  data-carousel-loop="{{ block.settings.loop }}"
   data-swiper-autoplay="{{ carousel_autoplay }}"
   data-swiper-autoplay-pause-on-hover="{{ carousel_pause_on_hover }}"
   data-swiper-autoplay-delay="{{ carousel_speed | times: 1000 }}"
@@ -147,12 +170,31 @@
       pause_on_hover: carousel_pause_on_hover,
       autoplay_delay: carousel_delay
     %}
-    {% if carousel_show_navigation %}
-      <div class="carousel-block__navigation swiper-carousel__navigation--{{ carousel_navigation_behavior }}">
-        <button class="btn btn-{{ carousel_navigation_style }} btn--{{ carousel_navigation_style }} btn--icon swiper-nav-button swiper-nav-button--prev" type="button" data-carousel-previous aria-label="{{ 'collection_tabs.previous' | t | escape }}">
+    {% if carousel_has_multiple_items and carousel_controls_style == 'standard' %}
+      {% render 'swiper-navigation',
+        show: carousel_show_navigation,
+        position: 'inside',
+        style: carousel_navigation_style,
+        icon: carousel_navigation_icon,
+        behavior: carousel_navigation_behavior,
+        centered: true,
+        wrapper_class: 'carousel-block__navigation',
+        wrapper_attributes: 'data-carousel-navigation',
+        previous_attribute: 'data-carousel-previous',
+        next_attribute: 'data-carousel-next',
+        previous_label: carousel_previous_label,
+        next_label: carousel_next_label
+      %}
+    {% endif %}
+    {% if carousel_has_multiple_items and carousel_show_navigation and carousel_controls_style == 'fraction' %}
+      <div class="carousel-block__fraction-controls carousel-block__fraction-controls--{{ carousel_controls_alignment }} carousel-block__fraction-controls--mobile-{{ carousel_controls_alignment_mobile }}">
+        <button class="btn btn--unstyled btn--icon swiper-nav-button carousel-block__fraction-button" type="button" data-carousel-fraction-previous aria-label="{{ 'collection_tabs.previous' | t | escape }}">
           {% render 'carousel-navigation-icon', icon: carousel_navigation_icon, direction: 'previous' %}
         </button>
-        <button class="btn btn-{{ carousel_navigation_style }} btn--{{ carousel_navigation_style }} btn--icon swiper-nav-button swiper-nav-button--next" type="button" data-carousel-next aria-label="{{ 'collection_tabs.next' | t | escape }}">
+        <span class="carousel-block__fraction" aria-live="polite">
+          <span data-carousel-fraction-current>1</span>/<span data-carousel-fraction-total>1</span>
+        </span>
+        <button class="btn btn--unstyled btn--icon swiper-nav-button carousel-block__fraction-button" type="button" data-carousel-fraction-next aria-label="{{ 'collection_tabs.next' | t | escape }}">
           {% render 'carousel-navigation-icon', icon: carousel_navigation_icon, direction: 'next' %}
         </button>
       </div>
@@ -168,6 +210,21 @@
   .carousel-block__navigation { position: absolute; z-index: 2; inset: 50% 0 auto; display: flex; justify-content: space-between; padding-inline: 0.5rem; transform: translateY(-50%); pointer-events: none; }
   .carousel-block__navigation .swiper-nav-button { pointer-events: auto; }
   .carousel-block__navigation .swiper-nav-button.swiper-button-disabled { pointer-events: none; }
+  .carousel-block__fraction-controls { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
+  .carousel-block__fraction-controls--left { justify-content: flex-start; }
+  .carousel-block__fraction-controls--center { justify-content: center; }
+  .carousel-block__fraction-controls--right { justify-content: flex-end; }
+  @media (max-width: 767.98px) {
+    .carousel-block__fraction-controls--mobile-left { justify-content: flex-start; }
+    .carousel-block__fraction-controls--mobile-center { justify-content: center; }
+    .carousel-block__fraction-controls--mobile-right { justify-content: flex-end; }
+  }
+  .carousel-block__fraction-button { --swiper-nav-size: 24px; width: 24px; min-width: 24px; height: 24px; padding: 0; }
+  .carousel-block__fraction-button svg { width: 24px; height: 24px; }
+  .carousel-block__fraction { min-width: 2.5rem; font-size: 16px; line-height: 24px; text-align: center; }
+  .carousel-block--locked .carousel-block__navigation,
+  .carousel-block--locked .carousel-block__fraction-controls,
+  .carousel-block--locked .carousel-block__viewport > .swiper-pagination { display: none !important; }
   .carousel-block__navigation--show_on_hover { opacity: 1; }
   .carousel-block__viewport > .swiper-pagination { width: var(--carousel-pagination-width, 100%); margin-block: var(--carousel-pagination-padding-desktop, 0px) 0; margin-inline: auto; padding-top: 0; }
   .carousel-block__viewport > .carousel-block__pagination--limited { width: min(100%, var(--carousel-pagination-max-width, 100%)); }
@@ -176,6 +233,7 @@
   @media (max-width: 767.98px) {
     .carousel-block { padding-block: var(--carousel-padding-top-mobile, var(--carousel-padding-top)) var(--carousel-padding-bottom-mobile, var(--carousel-padding-bottom)); }
     .carousel-block__navigation { display: none; }
+    .carousel-block__fraction-controls { margin-top: 1rem; }
     .carousel-block__viewport > .swiper-pagination { margin-block-start: var(--carousel-pagination-padding-mobile, 0px); }
     .carousel-block__viewport > .swiper-pagination:not([data-pagination-visible-mobile='true']) { display: none; }
   }
@@ -366,6 +424,46 @@
       ],
       "default": "always",
       "visible_if": "{{ block.settings.show_navigation_on_desktop }}"
+    },
+    {
+      "type": "select",
+      "id": "controls_style",
+      "label": "Controls style",
+      "options": [
+        { "value": "standard", "label": "Standard" },
+        { "value": "fraction", "label": "Number / total" }
+      ],
+      "default": "standard"
+    },
+    {
+    "type": "select",
+    "id": "controls_alignment",
+      "label": "Controls alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center",
+      "visible_if": "{{ block.settings.controls_style == 'fraction' }}"
+    },
+    {
+      "type": "select",
+      "id": "controls_alignment_mobile",
+      "label": "Controls alignment (mobile)",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center",
+      "visible_if": "{{ block.settings.controls_style == 'fraction' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "loop",
+      "label": "Loop slides",
+      "default": false
     },
     {
       "type": "header",

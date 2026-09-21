@@ -147,6 +147,7 @@
   data-zoom="{{ media_zoom }}"
   data-block-animations="{{ media_block_motion_enabled }}"
   data-current-variant-id="{{ current_variant.id | default: '' }}"
+  data-current-variant-media-id="{{ current_variant.featured_media.id | default: '' }}"
   data-filter-variant-media="{{ settings.variant_picker_only_selected_media }}"
   style="--product-media-thumbnail-aspect-ratio: {{ media_thumbnail_ratio }};--product-media-thumbnail-width: {{ media_thumbnail_width }}px;--product-media-thumbnail-width-mobile: {{ media_thumbnail_width_mobile }}px;--product-media-thumbnail-gap: {{ media_thumbnail_gap }}px;--product-media-thumbnail-gap-mobile: {{ media_thumbnail_gap_mobile }}px;{% if media_gap != 12 %}--product-media-gap: {{ media_gap }}px;{% endif %}{% if media_gap_mobile != 10 %}--product-media-gap-mobile: {{ media_gap_mobile }}px;{% endif %}"
   {{ block.shopify_attributes }}

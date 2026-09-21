@@ -146,6 +146,7 @@
     "product_composition": "Product composition",
     "gallery_controls": "Gallery controls",
     "gallery_spacing": "Gallery spacing",
+    "gallery_custom": "Gallery (custom)",
     "playback_and_zoom": "Playback & zoom",
     "primary_button": "Primary button",
     "secondary_button": "Secondary button",
@@ -1109,7 +1110,10 @@
       "circle": "Circle",
       "square": "Square",
       "triangle": "Triangle",
-      "diamond": "Diamond"
+      "diamond": "Diamond",
+      "star": "Star",
+      "four_stars": "4 stars",
+      "five_stars": "5 stars"
     },
     "icon_source": {
       "library": "Library",
@@ -1241,6 +1245,7 @@
   },
   "info": {
     "target_section_number": "Enter the one-based position of the destination section in this page's main content.",
+    "variant_picker_swatches": "Choose whether product-page swatches use colors or selected variant images. Product cards have a separate swatch setting.",
     "configure_product_card_swatches": "Configure swatches for product cards in [theme settings](/editor?context=theme&category=product%20cards).",
     "product_card_settings": "Edit card styling in [theme settings](/editor?context=theme&category=product%20cards).",
     "policy_links": "[Manage policies](https://admin.shopify.com/settings/legal)",

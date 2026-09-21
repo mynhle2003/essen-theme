@@ -318,14 +318,15 @@
     margin-inline-end: calc(-1 * var(--swiper-nav-size) / 2);
   }
 
-  .swiper-carousel__navigation--show_on_hover {
-    opacity: 0;
-    transition: opacity var(--motion-duration-standard) var(--motion-ease-standard);
-  }
+  @media (min-width: 768px) and (hover: hover) and (pointer: fine) {
+    .swiper-carousel__navigation--show_on_hover {
+      opacity: 0;
+      transition: opacity var(--motion-duration-standard) var(--motion-ease-standard);
+    }
 
-  .collection-card-list__carousel-wrap:hover .swiper-carousel__navigation--show_on_hover,
-  .collection-card-list__carousel-wrap:focus-within .swiper-carousel__navigation--show_on_hover {
-    opacity: 1;
+    .collection-card-list__carousel-wrap:is(:hover, :focus-within) .swiper-carousel__navigation--show_on_hover {
+      opacity: 1;
+    }
   }
 
   .collection-card-list__carousel-button {

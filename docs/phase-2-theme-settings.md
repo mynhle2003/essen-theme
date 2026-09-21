@@ -827,8 +827,9 @@ section.
 ### Mục đích
 
 Chuẩn hóa swatch màu hoặc ảnh cho variant picker và product card. Dữ liệu
-`product_option_value.swatch` là nguồn ưu tiên; ảnh variant, màu và label là
-fallback tuần tự khi dữ liệu không đầy đủ.
+`product_option_value.swatch` là nguồn ưu tiên. Color mode dùng màu từ swatch
+hoặc palette fallback theo tên option; variant-image mode dùng ảnh variant, sau
+đó ảnh swatch đã lưu, và cuối cùng là nền neutral.
 
 ### Consumer và file liên quan
 

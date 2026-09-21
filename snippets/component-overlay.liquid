@@ -9,8 +9,9 @@
   @param {string} [attributes] - Feature data hooks
   @param {string} [body_class] - Content-only feature class
   @param {number} [width] - Optional panel width in pixels
+  @param {boolean} [append_to_body] - Move the dialog to document.body when initialized
 {% enddoc %}
-<dialog id="{{ id }}" class="component-overlay" data-component-overlay data-desktop-layout="{{ desktop_layout | default: 'drawer' }}" data-mobile-layout="{{ mobile_layout | default: 'bottom_sheet' }}" data-state="closed" aria-label="{{ label | escape }}"{% if title != blank %} aria-labelledby="{{ id }}-heading"{% endif %}{% if width %} style="--component-overlay-width: {{ width }}px;"{% endif %} scroll-lock {{ attributes }}>
+<dialog id="{{ id }}" class="component-overlay" data-component-overlay{% if append_to_body %} data-append-to-body{% endif %} data-desktop-layout="{{ desktop_layout | default: 'drawer' }}" data-mobile-layout="{{ mobile_layout | default: 'bottom_sheet' }}" data-state="closed" aria-label="{{ label | escape }}"{% if title != blank %} aria-labelledby="{{ id }}-heading"{% endif %}{% if width %} style="--component-overlay-width: {{ width }}px;"{% endif %} scroll-lock {{ attributes }}>
   <header class="component-overlay__header{% if title == blank %} component-overlay__header--untitled{% endif %}">
     <span class="bottom-sheet__handle component-overlay__handle" aria-hidden="true"></span>
     {% if title != blank %}<h2 id="{{ id }}-heading" class="component-overlay__title heading-text heading-sm">{{ title }}</h2>{% endif %}

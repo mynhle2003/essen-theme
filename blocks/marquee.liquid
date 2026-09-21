@@ -181,7 +181,8 @@
       if (!marquee || instances.has(marquee)) return;
 
       const track = marquee.querySelector('.marquee__track');
-      if (!track || track.children.length === 0) return;
+      const viewport = marquee.querySelector('.marquee__viewport');
+      if (!track || !viewport || track.children.length === 0) return;
 
       let clones = [];
       let isSyncing = false;
@@ -193,14 +194,33 @@
 
         clones.forEach((clone) => clone.remove());
         const originalItems = [...track.children].filter((item) => !item.hasAttribute('data-marquee-clone'));
-        clones = originalItems.map((item, index) => {
-          const clone = item.cloneNode(true);
-          setFocusableState(clone);
-          clone.dataset.marqueeClone = 'true';
-          clone.dataset.marqueeCloneIndex = String(index);
-          track.appendChild(clone);
-          return clone;
-        });
+        if (originalItems.length === 0) {
+          isSyncing = false;
+          return;
+        }
+
+        const appendCloneSet = (setIndex) => {
+          originalItems.forEach((item, itemIndex) => {
+            const clone = item.cloneNode(true);
+            setFocusableState(clone);
+            clone.dataset.marqueeClone = 'true';
+            clone.dataset.marqueeCloneIndex = String(setIndex * originalItems.length + itemIndex);
+            track.appendChild(clone);
+          });
+        };
+
+        // One clone set is the loop distance. Add more sets until the track
+        // still covers the viewport after it has moved by that distance.
+        appendCloneSet(1);
+        const firstClone = track.querySelector('[data-marquee-clone]');
+        const loopDistance = firstClone.getBoundingClientRect().left - track.getBoundingClientRect().left;
+        let setIndex = 2;
+        while (track.scrollWidth < viewport.clientWidth + loopDistance && setIndex <= 100) {
+          appendCloneSet(setIndex);
+          setIndex += 1;
+        }
+
+        clones = [...track.children].filter((item) => item.hasAttribute('data-marquee-clone'));
 
         mutationObserver.observe(track, {
           attributes: true,
@@ -229,13 +249,11 @@
         track.style.setProperty('--marquee-loop-distance', `${distance}px`);
       };
 
-      const resizeObserver = new ResizeObserver(updateDistance);
-      mutationObserver.observe(track, {
-        attributes: true,
-        childList: true,
-        subtree: true
+      const resizeObserver = new ResizeObserver(() => {
+        syncClones();
+        updateDistance();
       });
-      resizeObserver.observe(track);
+      resizeObserver.observe(viewport);
       updateDistance();
       marquee.classList.add('marquee--ready');
 

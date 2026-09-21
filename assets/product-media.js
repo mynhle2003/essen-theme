@@ -17,6 +17,17 @@ class ProductMediaGallery extends HTMLElement {
     this.signal = this.abortController.signal;
     this.mobileQuery = window.matchMedia('(max-width: 767.98px)');
     this.productInformation = this.closest('[data-product-information]');
+    const variantPicker = this.productInformation?.querySelector('[data-product-variant-picker]');
+    const currentVariantId = variantPicker?.dataset.currentVariantId || this.dataset.currentVariantId;
+    const currentVariant = variantPicker?.findVariantById?.(currentVariantId);
+    const linkedVariantMedia = Array.from(this.querySelectorAll('[data-product-media]')).find((media) =>
+      this.variantIdsFor(media).includes(String(currentVariantId || '')),
+    );
+    const preferredMediaId = currentVariant?.featured_media?.id
+      ? String(currentVariant.featured_media.id)
+      : this.dataset.currentVariantMediaId || linkedVariantMedia?.dataset.mediaId || '';
+    if (currentVariantId) this.dataset.currentVariantId = currentVariantId;
+    if (preferredMediaId) this.dataset.currentVariantMediaId = preferredMediaId;
 
     this.handleClick = this.handleClick.bind(this);
     this.handleKeydown = this.handleKeydown.bind(this);
@@ -52,7 +63,7 @@ class ProductMediaGallery extends HTMLElement {
 
     this.applyVariantMediaFilter(this.dataset.currentVariantId);
     this.syncThumbnailVisibility();
-    this.initializeGallery();
+    this.initializeGallery(preferredMediaId);
     this.initializeShopifyMedia();
   }
 
@@ -252,6 +263,7 @@ class ProductMediaGallery extends HTMLElement {
       const mediaId = featuredMediaId && visibleMediaIds.has(String(featuredMediaId))
         ? String(featuredMediaId)
         : this.activeMediaId();
+      this.dataset.currentVariantMediaId = mediaId || '';
 
       if (filtersVariantMedia) {
         this.destroyGallery();

@@ -271,7 +271,7 @@
   >
     {% if buy_product != blank %}
       {% form 'product', buy_product, id: form_id, class: 'product-buy-buttons__form', data-product-form: '', data-add-to-cart-label: add_to_cart_label, data-add-to-cart-show-price: show_price, data-current-variant-id: current_variant_id %}
-        <input type="hidden" name="id" value="{{ current_variant_id }}" data-variant-id>
+        <input type="hidden" name="id" value="{{ current_variant_id }}" data-variant-id data-variant-id-input>
 
         {% if render_recipient_form %}
           <fieldset class="product-buy-buttons__gift-card" data-gift-card-recipient-form>
@@ -480,7 +480,7 @@
                 {% endform %}
           {% endcapture %}
           {% assign notify_title = 'products.back_in_stock_title' | t %}
-          {% render 'component-overlay', id: back_in_stock_dialog_id, label: notify_title, title: notify_title, content: notify_content, desktop_layout: back_in_stock_layout_desktop, mobile_layout: back_in_stock_layout_mobile, attributes: 'data-back-in-stock-dialog data-form-state="idle"' %}
+          {% render 'component-overlay', id: back_in_stock_dialog_id, label: notify_title, title: notify_title, content: notify_content, append_to_body: true, desktop_layout: back_in_stock_layout_desktop, mobile_layout: back_in_stock_layout_mobile, attributes: 'data-back-in-stock-dialog data-form-state="idle"' %}
         </div>
       {% endif %}
     {% elsif request.design_mode %}

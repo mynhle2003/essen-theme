@@ -48,22 +48,62 @@ const initialize = (root) => {
 
   const paginationType = root.dataset.swiperPaginationType === 'progress_bar' ? 'progressbar' : 'bullets';
   const autoplay = root.dataset.swiperAutoplay === 'true';
+  const fractionControls = root.dataset.carouselControlsStyle === 'fraction';
+  const loop = root.dataset.carouselLoop === 'true';
   const options = {
+    loop,
     slidesPerView: number(root.dataset.swiperColumnsMobile, 1),
     spaceBetween: number(root.dataset.swiperGapMobile, 12),
     breakpoints: { [desktopBreakpoint]: { slidesPerView: number(root.dataset.swiperColumnsDesktop, 4), spaceBetween: number(root.dataset.swiperGapDesktop, 16) } },
     controls: {
       scope: root,
-      previous: '[data-carousel-previous]',
-      next: '[data-carousel-next]'
+      previous: fractionControls ? '[data-carousel-fraction-previous]' : '[data-carousel-previous]',
+      next: fractionControls ? '[data-carousel-fraction-next]' : '[data-carousel-next]'
     },
     ...(pagination ? { modules: [Pagination], pagination: { el: pagination, type: paginationType, clickable: paginationType === 'bullets' } } : {})
   };
 
   const swiper = createSwiperCarousel(viewport, options);
   if (!swiper) return;
+  const testimonialItem = root.querySelector('.testimonial-item');
+  let testimonialGapCleanup = null;
+  if (testimonialItem) {
+    const syncTestimonialGap = () => {
+      const styles = window.getComputedStyle(testimonialItem);
+      const gap = Number.parseFloat(styles.getPropertyValue('--testimonial-gap-desktop'));
+      if (Number.isFinite(gap)) root.style.setProperty('--testimonial-controls-gap-half', `${gap / 2}px`);
+    };
+    syncTestimonialGap();
+    window.addEventListener('resize', syncTestimonialGap);
+    testimonialGapCleanup = () => window.removeEventListener('resize', syncTestimonialGap);
+  }
+  const updateLockedState = () => {
+    if (!swiper.destroyed) root.classList.toggle('carousel-block--locked', Boolean(swiper.isLocked));
+  };
+  swiper.on('resize breakpoint update observerUpdate', updateLockedState);
+  updateLockedState();
+  const lockedCleanup = () => swiper.off('resize breakpoint update observerUpdate', updateLockedState);
+  let fractionCleanup = null;
+  if (fractionControls) {
+    const current = root.querySelector('[data-carousel-fraction-current]');
+    const total = root.querySelector('[data-carousel-fraction-total]');
+    const updateFraction = () => {
+      if (swiper.destroyed) return;
+      const realSlides = swiper.slides.filter((slide) => !slide.classList.contains('swiper-slide-duplicate'));
+      const slideCount = loop ? realSlides.length : swiper.slides.length;
+      const currentIndex = loop ? swiper.realIndex + 1 : swiper.activeIndex + 1;
+      if (current) current.textContent = String(currentIndex);
+      if (total) total.textContent = String(slideCount);
+    };
+    swiper.on('init slideChange update', updateFraction);
+    updateFraction();
+    fractionCleanup = () => swiper.off('init slideChange update', updateFraction);
+  }
   const state = {
     swiper,
+    testimonialGapCleanup,
+    lockedCleanup,
+    fractionCleanup,
     autoplayCleanup: autoplay
       ? bindCarouselAutoplay(
           swiper,
@@ -80,6 +120,9 @@ const destroy = (root) => {
   const state = instances.get(root);
   if (!state) return;
   state.autoplayCleanup?.();
+  state.testimonialGapCleanup?.();
+  state.lockedCleanup?.();
+  state.fractionCleanup?.();
   destroySwiperCarousel(state.swiper);
   instances.delete(root);
 };
@@ -103,7 +146,7 @@ document.addEventListener('shopify:block:select', (event) => {
 
   initialize(root);
   const state = instances.get(root);
-  const slide = target.closest('.carousel-slide');
+  const slide = target.closest('.carousel-slide, .testimonial-item');
   const index = slide ? Array.from(state?.swiper.slides || []).indexOf(slide) : -1;
   if (index >= 0) state.swiper.slideTo(index, 0);
 });

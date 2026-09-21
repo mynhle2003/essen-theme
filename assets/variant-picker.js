@@ -7,7 +7,9 @@ class VariantPicker extends HTMLElement {
     this.sectionRoot =
       this.closest('[data-product-information]') || this.closest('.shopify-section') || this.parentElement;
     this.variants = this.readVariants();
-    this.variantIdInput = this.querySelector('[data-variant-id]');
+    this.variantIdInput = this.querySelector('[data-variant-id-input]')
+      || this.querySelector('[data-variant-id]:not([data-option-control])');
+    this.sizeChartDialogElement = this.querySelector('[data-size-chart-dialog]');
     this.initialVariantId = String(this.dataset.currentVariantId || this.variantIdInput?.value || '');
     this.sizeChartOpener = null;
 
@@ -40,7 +42,7 @@ class VariantPicker extends HTMLElement {
   }
 
   get sizeChartDialog() {
-    return this.querySelector('[data-size-chart-dialog]');
+    return this.sizeChartDialogElement || this.querySelector('[data-size-chart-dialog]');
   }
 
   readVariants() {
@@ -174,6 +176,11 @@ class VariantPicker extends HTMLElement {
         status.hidden = state === 'available';
       }
     });
+
+    this.optionGroups().forEach((group, optionIndex) => {
+      const selectedValue = group.querySelector('[data-variant-selected-value]');
+      if (selectedValue) selectedValue.textContent = selectedOptions[optionIndex] ? `: ${selectedOptions[optionIndex]}` : '';
+    });
   }
 
   productForm() {
@@ -188,6 +195,12 @@ class VariantPicker extends HTMLElement {
       document.getElementById(this.dataset.productFormId) ||
       this.closest('form')
     );
+  }
+
+  productFormController(productForm = this.productForm()) {
+    return productForm?.closest('[data-product-buy-buttons]')
+      || this.sectionRoot?.querySelector('[data-product-buy-buttons]')
+      || null;
   }
 
   updateQuantityInput(variant, productForm) {
@@ -233,16 +246,30 @@ class VariantPicker extends HTMLElement {
     const variantId = variant?.id ? String(variant.id) : '';
     const isAvailable = Boolean(variant?.available);
     const productForm = this.productForm();
+    const productFormController = this.productFormController(productForm);
 
-    if (this.variantIdInput) {
-      this.variantIdInput.value = variantId;
-      this.variantIdInput.setAttribute('value', variantId);
-    }
+    const variantInputs = [
+      this.variantIdInput,
+      ...this.querySelectorAll('[data-variant-id-input]'),
+      ...Array.from(productForm?.querySelectorAll('[data-variant-id-input]') || []),
+    ].filter((input, index, inputs) => input && inputs.indexOf(input) === index);
 
-    productForm?.querySelectorAll('[data-variant-id]').forEach((input) => {
+    variantInputs.forEach((input) => {
       input.value = variantId;
       input.setAttribute('value', variantId);
     });
+
+    this.dataset.currentVariantId = variantId;
+    this.dataset.currentVariantAvailable = String(isAvailable);
+
+    // Keep every cart form input synchronized even when the modern buy-button
+    // controller has not upgraded yet. This also makes the initial lifecycle
+    // deterministic when the picker script is defined before the form script.
+    // Product buy buttons owns the modern product form. The picker only keeps
+    // its own state in sync and emits the shared variant:change contract;
+    // legacy product forms still use the fallback branch below.
+    if (productFormController) return;
+
     if (productForm) {
       productForm.dataset.currentVariantId = variantId;
       productForm.dataset.variantAvailable = String(isAvailable);
@@ -254,17 +281,8 @@ class VariantPicker extends HTMLElement {
       button.dataset.variantAvailable = String(isAvailable);
     });
 
-    const buyButtons =
-      productForm?.closest('[data-product-buy-buttons]') ||
-      this.sectionRoot?.querySelector('[data-product-buy-buttons]');
-    if (buyButtons) {
-      buyButtons.dataset.backInStockVariantId = variantId;
-      buyButtons.dataset.variantAvailable = String(isAvailable);
-    }
-
     this.updateQuantityInput(variant, productForm);
     this.updateAddToCartLabel(productForm, variant);
-    this.dataset.currentVariantId = variantId;
   }
 
   updateAddToCartLabel(productForm, variant) {
@@ -341,7 +359,7 @@ class VariantPicker extends HTMLElement {
     container.replaceChildren(template?.content.cloneNode(true) || document.createDocumentFragment());
   }
 
-  updateMedia(variantId) {
+  updateLegacyMedia(variantId) {
     const galleryId = this.dataset.mediaGalleryId;
     const gallery = galleryId
       ? Array.from(this.sectionRoot?.querySelectorAll('[data-product-media-gallery]') || []).find(
@@ -349,6 +367,11 @@ class VariantPicker extends HTMLElement {
         )
       : null;
     const mediaItems = gallery ? Array.from(gallery.querySelectorAll('[data-product-media]')) : [];
+
+    // ProductMediaGallery is the single owner of modern media filtering and
+    // featured-media selection. Keep this fallback only for the legacy
+    // product section, which renders a plain gallery element.
+    if (gallery?.matches('product-media-gallery')) return;
 
     if (!mediaItems.length) {
       return;
@@ -454,7 +477,7 @@ class VariantPicker extends HTMLElement {
     this.updateStatus(variant);
     this.updatePrice(variant);
     this.updateSaleBadge(variant);
-    this.updateMedia(variant?.id || '');
+    this.updateLegacyMedia(variant?.id || '');
     if (updateUrl) this.updateUrl(variant?.id || '');
 
     this.dispatchEvent(

@@ -21,7 +21,8 @@
     assign search_letter_spacing = 'relaxed'
   endunless
 
-  assign search_class = 'header-search header-search--type-' | append: search_type | append: ' body-text body-' | append: search_font_size | append: ' font-' | append: search_font | append: ' tracking-' | append: search_letter_spacing | append: ' text-case-original'
+  assign search_typography_class = 'body-text body-' | append: search_font_size | append: ' font-' | append: search_font | append: ' tracking-' | append: search_letter_spacing | append: ' text-case-original'
+  assign search_class = 'header-search header-search--type-' | append: search_type | append: ' ' | append: search_typography_class
   if search_type == 'icon'
     assign search_class = search_class | append: ' header-action--type-icon'
   endif
@@ -76,7 +77,7 @@
     <span class="icon" aria-hidden="true">
       {% render 'icon', icon: 'magnifying-glass', bare: true %}
     </span>
-    {% unless search_type == 'icon' %}<span class="header-action__label">{{ search_label | escape }}</span>{% endunless %}
+    {% unless search_type == 'icon' %}<span class="header-action__label {{ search_typography_class }}">{{ search_label | escape }}</span>{% endunless %}
   </button>
 {% endif %}
 
@@ -140,11 +141,20 @@
     background: var(--input-background-color);
   }
 
-  .header-search--type-search_bar .header-search__input.form__control--input {
+  .header-search--type-search_bar input.header-search__input.form__control--input {
     border: 0;
-    border-radius: 0;
     box-shadow: none;
     outline: 0;
+  }
+
+  .header-search__input::-webkit-search-cancel-button,
+  .header-search__input::-ms-clear {
+    display: none;
+  }
+
+  .header-search__input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
   }
 
   .header-search__submit {

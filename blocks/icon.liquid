@@ -15,7 +15,7 @@
   endunless
 
   assign icon_name = block.settings.icon | default: 'arrow-right'
-  unless icon_name == 'arrow' or icon_name == 'arrow-left' or icon_name == 'arrow-right' or icon_name == 'bars-3' or icon_name == 'menu' or icon_name == 'chevron-down' or icon_name == 'chevron-left' or icon_name == 'chevron-right' or icon_name == 'x-mark' or icon_name == 'close' or icon_name == 'magnifying-glass' or icon_name == 'search' or icon_name == 'shopping-bag' or icon_name == 'bag' or icon_name == 'cart' or icon_name == 'shopping-cart' or icon_name == 'user' or icon_name == 'account' or icon_name == 'truck' or icon_name == 'shipping' or icon_name == 'tag' or icon_name == 'discount' or icon_name == 'trash' or icon_name == 'remove' or icon_name == 'document-text' or icon_name == 'note' or icon_name == 'receipt-percent' or icon_name == 'coupon' or icon_name == 'share' or icon_name == 'play' or icon_name == 'pause' or icon_name == 'plus' or icon_name == 'minus' or icon_name == 'check' or icon_name == 'circle' or icon_name == 'square' or icon_name == 'triangle' or icon_name == 'diamond'
+  unless icon_name == 'arrow' or icon_name == 'arrow-left' or icon_name == 'arrow-right' or icon_name == 'bars-3' or icon_name == 'menu' or icon_name == 'chevron-down' or icon_name == 'chevron-left' or icon_name == 'chevron-right' or icon_name == 'x-mark' or icon_name == 'close' or icon_name == 'magnifying-glass' or icon_name == 'search' or icon_name == 'shopping-bag' or icon_name == 'bag' or icon_name == 'cart' or icon_name == 'shopping-cart' or icon_name == 'user' or icon_name == 'account' or icon_name == 'truck' or icon_name == 'shipping' or icon_name == 'tag' or icon_name == 'discount' or icon_name == 'trash' or icon_name == 'remove' or icon_name == 'document-text' or icon_name == 'note' or icon_name == 'receipt-percent' or icon_name == 'coupon' or icon_name == 'share' or icon_name == 'play' or icon_name == 'pause' or icon_name == 'plus' or icon_name == 'minus' or icon_name == 'check' or icon_name == 'circle' or icon_name == 'square' or icon_name == 'triangle' or icon_name == 'diamond' or icon_name == 'star' or icon_name == 'four-stars' or icon_name == 'five-stars'
     assign icon_name = 'arrow-right'
   endunless
 
@@ -201,7 +201,10 @@
         { "value": "circle", "label": "t:options.icon_library.circle" },
         { "value": "square", "label": "t:options.icon_library.square" },
         { "value": "triangle", "label": "t:options.icon_library.triangle" },
-        { "value": "diamond", "label": "t:options.icon_library.diamond" }
+        { "value": "diamond", "label": "t:options.icon_library.diamond" },
+        { "value": "star", "label": "t:options.icon_library.star" },
+        { "value": "four-stars", "label": "t:options.icon_library.four_stars" },
+        { "value": "five-stars", "label": "t:options.icon_library.five_stars" }
       ],
       "default": "arrow-right",
       "visible_if": "{{ block.settings.source == 'library' }}"

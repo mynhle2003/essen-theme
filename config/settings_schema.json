@@ -231,16 +231,14 @@
     "name": "Layout",
     "settings": [
       {
-        "type": "select",
+        "type": "range",
         "id": "max_page_width",
+        "min": 1000,
+        "max": 2000,
+        "step": 10,
+        "unit": "px",
         "label": "t:labels.page_width",
-        "options": [
-          { "value": "1200px", "label": "t:options.page_width.1200" },
-          { "value": "1400px", "label": "t:options.page_width.1400" },
-          { "value": "1600px", "label": "t:options.page_width.1600" },
-          { "value": "1800px", "label": "t:options.page_width.1800" }
-        ],
-        "default": "1600px"
+        "default": 1600
       },
       {
         "type": "range",
@@ -1607,7 +1605,7 @@
           { "value": "variant_image", "label": "t:options.swatch_type.variant_image" }
         ],
         "default": "color",
-        "info": "t:info.configure_product_card_swatches"
+        "info": "t:info.variant_picker_swatches"
       },
       {
         "type": "range",

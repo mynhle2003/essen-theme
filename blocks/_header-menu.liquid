@@ -1,4 +1,10 @@
 {% liquid
+  assign country_selector_label = 'localization.country_label' | t
+  assign language_selector_label = 'localization.language_label' | t
+  assign localization_id_prefix = 'MobileHeaderLocalization-' | append: section.id | append: '-' | append: block.id
+  assign country_dialog_id = localization_id_prefix | append: '-country'
+  assign language_dialog_id = localization_id_prefix | append: '-language'
+
   assign dropdown_trigger = block.settings.dropdown_trigger | default: 'hover'
   unless dropdown_trigger == 'hover' or dropdown_trigger == 'click'
     assign dropdown_trigger = 'hover'
@@ -107,7 +113,11 @@
                   <ul class="header-menu__submenu {{ submenu_typography_class }}" role="list">
                     {% for child_link in link.links %}
                       <li class="header-menu__submenu-item">
-                        <a class="header-menu__link link-underline-trigger{% if child_link.links != blank %} header-menu__link--has-tertiary{% endif %}" href="{{ child_link.url }}"><span class="header-menu__link-label link-underline">{{ child_link.title | escape }}</span>{% if child_link.links != blank %}{% render 'icon', icon: 'chevron-right', class: 'header-menu__tertiary-arrow' %}{% endif %}</a>
+                        {% if child_link.links != blank and child_link.url == '#' %}
+                          <span class="header-menu__link header-menu__link--has-tertiary" aria-label="{{ child_link.title | escape }}"><span class="header-menu__link-label">{{ child_link.title | escape }}</span>{% render 'icon', icon: 'chevron-right', class: 'header-menu__tertiary-arrow' %}</span>
+                        {% else %}
+                          <a class="header-menu__link link-underline-trigger{% if child_link.links != blank %} header-menu__link--has-tertiary{% endif %}" href="{{ child_link.url }}"><span class="header-menu__link-label link-underline">{{ child_link.title | escape }}</span>{% if child_link.links != blank %}{% render 'icon', icon: 'chevron-right', class: 'header-menu__tertiary-arrow' %}{% endif %}</a>
+                        {% endif %}
                         {% if child_link.links != blank %}
                           <ul class="header-menu__tertiary {{ submenu_typography_class }}" role="list">
                             {% for grandchild_link in child_link.links %}
@@ -137,7 +147,7 @@
       <header class="header__mobile-drawer-header">
         <span class="header__mobile-drawer-title heading-text heading-sm">{{ shop.name | escape }}</span>
         <button class="overlay-close header__mobile-drawer-close" type="button" aria-label="Close menu" aria-controls="HeaderMobileDrawer-{{ section.id }}" data-header-menu-toggle>{% render 'icon', icon: 'x-mark', bare: true, class: 'overlay-close__icon' %}</button>
-        <button class="header__mobile-drawer-back" type="button" hidden data-header-menu-back>
+        <button class="header__mobile-drawer-back heading-text heading-sm" type="button" hidden data-header-menu-back>
           {% render 'icon', icon: 'chevron-left', class: 'header__mobile-drawer-back-icon' %}<span data-header-menu-back-label data-header-menu-back-default-label="{{ 'accessibility.menu' | t }}">{{ 'accessibility.menu' | t }}</span>
         </button>
       </header>
@@ -150,16 +160,26 @@
                   <details class="header__mobile-drawer-details" data-mobile-drawer-details>
                     <summary><span>{{ link.title | escape }}</span>{% render 'icon', icon: 'chevron-right', class: 'header__mobile-drawer-chevron' %}</summary>
                     <div class="header__mobile-drawer-submenu {{ submenu_typography_class }}">
+                      <div class="header__mobile-drawer-mega-featured-slot" data-mobile-mega-featured-slot="{{ link.title | handleize }}"></div>
                       <ul role="list">
                         {% for child_link in link.links %}
-                          <li>
-                            <a href="{{ child_link.url }}">{{ child_link.title | escape }}</a>
+                          <li class="header__mobile-drawer-submenu-item{% if child_link.links != blank %} header__mobile-drawer-submenu-item--has-children{% endif %}">
                             {% if child_link.links != blank %}
-                              <ul class="header__mobile-drawer-tertiary" role="list">
-                                {% for grandchild_link in child_link.links %}
-                                  <li><a href="{{ grandchild_link.url }}">{{ grandchild_link.title | escape }}</a></li>
-                                {% endfor %}
-                              </ul>
+                              <details class="header__mobile-drawer-submenu-details" data-mobile-drawer-submenu-details>
+                                <summary>
+                                  <span>{{ child_link.title | escape }}</span>
+                                  {% render 'icon', icon: 'chevron-right', class: 'header__mobile-drawer-chevron' %}
+                                </summary>
+                                <div class="header__mobile-drawer-tertiary-panel">
+                                  <ul class="header__mobile-drawer-tertiary" role="list">
+                                    {% for grandchild_link in child_link.links %}
+                                      <li><a href="{{ grandchild_link.url }}">{{ grandchild_link.title | escape }}</a></li>
+                                    {% endfor %}
+                                  </ul>
+                                </div>
+                              </details>
+                            {% else %}
+                              <a href="{{ child_link.url }}">{{ child_link.title | escape }}</a>
                             {% endif %}
                           </li>
                         {% endfor %}
@@ -191,17 +211,15 @@
         {% if localization.available_countries.size > 1 or localization.available_languages.size > 0 %}
           <div class="header__mobile-drawer-localization header-localization">
             {% if localization.available_countries.size > 1 %}
-              <details class="header-localization__details" data-header-submenu-trigger="click">
-                <summary class="header-localization__summary">
+              <details class="header-localization__details" data-header-submenu-trigger="click" data-localization-dialog-id="{{ country_dialog_id }}">
+                <summary class="header-localization__summary" aria-controls="{{ country_dialog_id }}" aria-expanded="false">
                   <span class="header-localization__country">
                     {{ localization.country | image_url: width: 24 | image_tag: class: 'header-localization__flag', alt: '' }}
                     <span>{{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }}</span>
                   </span>
                   {% render 'icon', icon: 'chevron-down', class: 'header-localization__icon' %}
                 </summary>
-                <button class="header-localization__sheet-backdrop" type="button" aria-label="Close country selector" data-header-localization-close></button>
-                <div class="header-localization__panel component-sheet--mobile">
-                  <header class="header-localization__sheet-header component-sheet__header"><span class="bottom-sheet__handle header-localization__sheet-handle" aria-hidden="true"></span><h2 class="heading-text heading-sm">Country</h2><button class="overlay-close header-localization__sheet-close" type="button" aria-label="Close country selector" data-header-localization-close>{% render 'icon', icon: 'x-mark', bare: true, class: 'overlay-close__icon' %}</button></header>
+                <div class="header-localization__panel header-localization__desktop-panel">
                   {% form 'localization', class: 'header-localization__form' %}
                     <input type="hidden" name="return_to" value="{{ request.path }}">
                     <div class="header-localization__country-list">
@@ -214,19 +232,19 @@
                     </div>
                   {% endform %}
                 </div>
+                {% render 'localization-overlay', id: country_dialog_id, selector_type: 'country', localization: localization, label: country_selector_label, show_country_flag: true %}
               </details>
             {% endif %}
             {% if localization.language != blank %}
-              <details class="header-localization__details header-localization__details--language" data-header-submenu-trigger="click">
-                <summary class="header-localization__summary"><span class="header-localization__language">{{ localization.language.endonym_name }}</span>{% render 'icon', icon: 'chevron-down', class: 'header-localization__icon' %}</summary>
-                <button class="header-localization__sheet-backdrop" type="button" aria-label="Close language selector" data-header-localization-close></button>
-                <div class="header-localization__panel component-sheet--mobile">
-                  <header class="header-localization__sheet-header component-sheet__header"><span class="bottom-sheet__handle header-localization__sheet-handle" aria-hidden="true"></span><h2 class="heading-text heading-sm">Language</h2><button class="overlay-close header-localization__sheet-close" type="button" aria-label="Close language selector" data-header-localization-close>{% render 'icon', icon: 'x-mark', bare: true, class: 'overlay-close__icon' %}</button></header>
+              <details class="header-localization__details header-localization__details--language" data-header-submenu-trigger="click" data-localization-dialog-id="{{ language_dialog_id }}">
+                <summary class="header-localization__summary" aria-controls="{{ language_dialog_id }}" aria-expanded="false"><span class="header-localization__language">{{ localization.language.endonym_name }}</span>{% render 'icon', icon: 'chevron-down', class: 'header-localization__icon' %}</summary>
+                <div class="header-localization__panel header-localization__desktop-panel">
                   {% form 'localization', class: 'header-localization__form' %}
                     <input type="hidden" name="return_to" value="{{ request.path }}">
                     <div class="header-localization__language-list">{% for language in localization.available_languages %}<button class="header-localization__language-option{% if language.iso_code == localization.language.iso_code %} is-selected{% endif %}" type="submit" name="language_code" value="{{ language.iso_code }}">{{ language.endonym_name }}</button>{% endfor %}</div>
                   {% endform %}
                 </div>
+                {% render 'localization-overlay', id: language_dialog_id, selector_type: 'language', localization: localization, label: language_selector_label %}
               </details>
             {% endif %}
           </div>
@@ -285,7 +303,6 @@
 
   .header-menu__item--highlight > .header-menu__details > .header-menu__summary {
     color: var(--header-menu-highlight-color, currentColor);
-    font-weight: 600;
   }
 
   .header-menu__dropdown-icon {
@@ -390,7 +407,7 @@
   .header-mega-menu__content { min-width: 0; }
   .header-mega-menu__content--with-featured { display: grid; grid-template-columns: minmax(10rem, 0.35fr) minmax(0, 1fr); gap: 2rem; }
   .header-mega-menu__featured { display: grid; align-content: start; gap: 0.65rem; margin: 0; padding: 0; list-style: none; }
-  .header-mega-menu__featured a { color: inherit; }
+  .header-mega-menu__featured a { color: inherit; text-decoration: none; }
 
   .header-mega-menu__navigation .header-menu__submenu {
     position: static;
@@ -405,6 +422,14 @@
     visibility: visible;
     pointer-events: auto;
     transform: none;
+  }
+
+  .header-mega-menu__navigation .header-menu__link--has-tertiary {
+    text-decoration: none;
+  }
+
+  .header-mega-menu__navigation .header-menu__link--has-tertiary .link-underline::after {
+    display: none;
   }
 
   .header-mega-menu--submenu-limited .header-mega-menu__navigation .header-menu__submenu { max-width: var(--mega-menu-max-width); }
@@ -770,6 +795,7 @@
 
     .header__mobile-drawer-close {
       flex: 0 0 auto;
+      margin-inline-start: auto;
     }
 
     .header__mobile-drawer-back {
@@ -786,7 +812,6 @@
     }
 
     .header__mobile-drawer-back[hidden],
-    .header__mobile-drawer--submenu-active .header__mobile-drawer-close,
     .header__mobile-drawer--submenu-active .header__mobile-drawer-title {
       display: none;
     }
@@ -829,7 +854,8 @@
     }
 
     .header__mobile-drawer-link,
-    .header__mobile-drawer-details > summary {
+    .header__mobile-drawer-details > summary,
+    .header__mobile-drawer-submenu-details > summary {
       display: flex;
       min-height: 2.9rem;
       align-items: center;
@@ -844,7 +870,8 @@
       list-style: none;
     }
 
-    .header__mobile-drawer-details > summary::-webkit-details-marker {
+    .header__mobile-drawer-details > summary::-webkit-details-marker,
+    .header__mobile-drawer-submenu-details > summary::-webkit-details-marker {
       display: none;
     }
 
@@ -879,10 +906,16 @@
 
     .header__mobile-drawer-submenu > ul > li {
       padding: 10px 0;
-      border-bottom: 1px solid var(--border-color);
+      border: 0;
     }
 
-    .header__mobile-drawer-submenu > ul > li > a:not(.btn) {
+    .header__mobile-drawer-submenu > ul > .header__mobile-drawer-submenu-item--has-children {
+      margin-block-start: 0.75rem;
+      border-block-end: 1px solid var(--border-color);
+    }
+
+    .header__mobile-drawer-submenu > ul > li > a:not(.btn),
+    .header__mobile-drawer-submenu-details > summary {
       display: flex;
       width: 100%;
       min-height: 2.9rem;
@@ -890,16 +923,55 @@
       padding: 0;
     }
 
-    .header__mobile-drawer-item.has-mobile-mega .header__mobile-drawer-submenu > ul {
-      display: none;
+    .header__mobile-drawer-submenu-details > summary {
+      cursor: pointer;
+      justify-content: space-between;
+      list-style: none;
     }
 
     .header__mobile-drawer-tertiary {
-      padding-inline-start: 1rem;
+      gap: 0.5rem;
+    }
+
+    .header__mobile-drawer-tertiary-panel {
+      position: absolute;
+      z-index: 2;
+      inset: 0;
+      display: block;
+      overflow-y: auto;
+      padding: 1rem var(--page-margin-mobile);
+      background: var(--background-color);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(100%);
+      transition:
+        transform var(--motion-duration-standard) var(--motion-ease-standard),
+        opacity var(--motion-duration-fast) var(--motion-ease-standard);
+    }
+
+    .header__mobile-drawer-submenu-details.is-mobile-submenu-active > .header__mobile-drawer-tertiary-panel {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .header__mobile-drawer-tertiary > li > a:not(.btn) {
+      display: flex;
+      min-height: 2.9rem;
+      align-items: center;
+      padding: 0;
     }
 
     .header__mobile-drawer-mega-slot:empty {
       display: none;
+    }
+
+    .header__mobile-drawer-mega-featured-slot:empty {
+      display: none;
+    }
+
+    .header__mobile-drawer-mega-featured-slot .header-mega-menu__featured {
+      margin-block-end: 1rem;
     }
 
     .header__mobile-drawer-mega-slot .header-mega-menu {
@@ -923,29 +995,24 @@
     }
 
     .header__mobile-drawer-mega-slot .header-mega-menu__layout,
-    .header__mobile-drawer-mega-slot .header-mega-menu__content,
-    .header__mobile-drawer-mega-slot .header-mega-menu__navigation {
+    .header__mobile-drawer-mega-slot .header-mega-menu__content {
       display: block;
     }
 
-    .header__mobile-drawer-mega-slot .header-mega-menu__navigation .header-menu__submenu-item > .header-menu__link {
-      min-height: 1.5rem;
-      padding-inline: 0;
-      font-weight: 600;
-      line-height: 1.25;
+    .header__mobile-drawer-mega-slot .header-mega-menu__navigation {
+      display: none;
     }
 
     .header__mobile-drawer-mega-slot .header-mega-menu__banners {
       display: grid;
-      grid-auto-columns: calc((100% - 1.25rem) / 1.2);
-      grid-auto-flow: column;
-      grid-template-columns: none;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem;
+      margin-block-start: 1.25rem;
+      overflow: visible;
     }
 
     .header__mobile-drawer-mega-slot .header-mega-menu__banner {
-      scroll-snap-align: start;
+      min-width: 0;
     }
 
     .header__mobile-drawer-placeholder {

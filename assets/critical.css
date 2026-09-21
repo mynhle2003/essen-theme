@@ -34,6 +34,14 @@ html:has(dialog[scroll-lock][open], details[scroll-lock][open]) {
   overflow: clip;
 }
 
+@media (min-width: 768px) {
+  /* Mega menus use native details state rather than a dialog, so they need the
+   * same document scroll lock while their desktop panel is open. */
+  html:has(.header-menu__details--mega[open]) {
+    overflow: clip;
+  }
+}
+
 body.header-menu-open {
   overflow: clip;
 }
@@ -555,6 +563,11 @@ h6 {
   text-transform: var(--font-body-text-transform);
 }
 
+/* Shopify account labels are slotted through a separate button rendering context. */
+.header-account .header-action__label {
+  font-synthesis: weight style small-caps;
+}
+
 /* Typography role utilities keep component markup tied to the global settings. */
 .font-body {
   font-family: var(--font-body-family);
@@ -1042,10 +1055,15 @@ input[type='submit'].btn.btn--tertiary:hover {
 
 .btn:disabled,
 .btn[aria-disabled='true'] {
-  cursor: not-allowed;
   opacity: var(--button-disabled-opacity);
   pointer-events: none;
   transform: none;
+}
+
+.swiper-nav-button:disabled,
+.swiper-nav-button[aria-disabled='true'],
+.swiper-nav-button.swiper-button-disabled {
+  pointer-events: none;
 }
 
 .btn.link-underline[data-underline='persistent']:is(:disabled, [aria-disabled='true']) {
@@ -1637,6 +1655,10 @@ legend {
   grid-column: 1 / -1;
 }
 
+.variant-picker__selected-value {
+  color: var(--body-color);
+}
+
 .variant-picker__size-chart-trigger {
   grid-column: 2;
   grid-row: 1;
@@ -1759,12 +1781,12 @@ legend {
 
 .swatch {
   display: block;
-  width: var(--swatch-width);
-  aspect-ratio: var(--swatch-height-ratio);
+  width: var(--swatch-width, 40px);
+  aspect-ratio: var(--swatch-height-ratio, 3 / 1);
   overflow: hidden;
   border: var(--shape-border-width) solid var(--border-color);
   border-radius: var(--swatch-radius);
-  background: var(--swatch-color, var(--input-background-color));
+  background-color: var(--swatch-color, var(--input-background-color));
 }
 
 .swatches--selected-border [data-swatch-selected] .swatch,
@@ -1785,7 +1807,7 @@ legend {
 
 .variant-picker__option--swatches .swatch__label {
   display: block;
-  width: var(--swatch-width);
+  width: var(--swatch-width, 40px);
   min-height: 0;
   padding: 0;
   overflow: visible;
@@ -1850,6 +1872,43 @@ legend {
 .swatch--green,
 .swatch--olive {
   --swatch-color: #4b6b3c;
+}
+
+.swatch--silver,
+.swatch--platinum,
+.swatch--steel,
+.swatch--gray,
+.swatch--grey {
+  --swatch-color: #b7bcc3;
+}
+
+.swatch--gold,
+.swatch--yellow {
+  --swatch-color: #d4af37;
+}
+
+.swatch--orange {
+  --swatch-color: #d97706;
+}
+
+.swatch--purple,
+.swatch--violet {
+  --swatch-color: #7c3aed;
+}
+
+.swatch--pink,
+.swatch--rose,
+.swatch--rose-gold {
+  --swatch-color: #d98b8b;
+}
+
+.swatch--brown {
+  --swatch-color: #8b5e3c;
+}
+
+.swatch--beige,
+.swatch--tan {
+  --swatch-color: #d8c3a5;
 }
 
 .product-badge {

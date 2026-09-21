@@ -6,13 +6,10 @@
   const menuToggleButtons = new WeakSet();
   const megaMenuBackdropControls = new WeakSet();
   const accountElements = new WeakSet();
-  const localizationSheetControls = new WeakSet();
   const localizationSheetDetails = new WeakSet();
-  const localizationSheetCloseTimers = new WeakMap();
   const footerLocalizationStates = new WeakMap();
   const openAccountSheets = new WeakSet();
   const mobileMegaMenuOrigins = new Map();
-  let localizationSheetDrag = null;
   let lastScrollY = window.scrollY;
   let frameId = null;
 
@@ -26,10 +23,15 @@
     drawer?.setAttribute('aria-hidden', String(!isOpen));
 
     if (!isOpen) {
+      closeLocalizationDialogs(header);
       drawer?.classList.remove('header__mobile-drawer--submenu-active');
       drawer?.querySelectorAll('.header__mobile-drawer-item.is-mobile-submenu-active').forEach((item) => {
         item.classList.remove('is-mobile-submenu-active');
         item.querySelector(':scope > .header__mobile-drawer-details')?.removeAttribute('open');
+      });
+      drawer?.querySelectorAll('[data-mobile-drawer-submenu-details]').forEach((details) => {
+        details.classList.remove('is-mobile-submenu-active');
+        details.removeAttribute('open');
       });
       drawer?.querySelectorAll('[data-header-menu-back]').forEach((back) => {
         back.hidden = true;
@@ -68,70 +70,61 @@
     account.querySelector('[slot="signed-out-avatar"]')?.click();
   };
 
-  const getTransitionTotalMs = (element) => {
-    if (!element) return 0;
-    const styles = window.getComputedStyle(element);
-    const toMilliseconds = (value) => {
-      const duration = Number.parseFloat(value) || 0;
-      return value.trim().endsWith('ms') ? duration : duration * 1000;
-    };
-    const durations = styles.transitionDuration.split(',').map(toMilliseconds);
-    const delays = styles.transitionDelay.split(',').map(toMilliseconds);
-    return durations.reduce((maximum, duration, index) => (
-      Math.max(maximum, duration + (delays[index] ?? delays[delays.length - 1] ?? 0))
-    ), 0);
+  const getLocalizationDialog = (details) => {
+    const id = details?.dataset.localizationDialogId;
+    return id ? document.getElementById(id) : null;
   };
 
-  const clearLocalizationSheetClose = (details) => {
-    const closeState = localizationSheetCloseTimers.get(details);
-    if (!closeState) return;
-    window.clearTimeout(closeState.timer);
-    closeState.panel?.removeEventListener('transitionend', closeState.onTransitionEnd);
-    localizationSheetCloseTimers.delete(details);
+  const closeLocalizationDialogs = (header, activeDetails = null) => {
+    header.querySelectorAll('.header-localization__details').forEach((details) => {
+      if (details === activeDetails) return;
+      const dialog = getLocalizationDialog(details);
+      if (!dialog?.open) return;
+      window.ThemeOverlay?.get(dialog)?.close({ restoreFocus: false });
+    });
   };
 
   const closeLocalizationSheet = (details, { restoreFocus = false } = {}) => {
-    const panel = details.querySelector(':scope > .header-localization__panel');
-    let finished = false;
-
-    const finishClose = () => {
-      if (finished) return;
-      finished = true;
-      clearLocalizationSheetClose(details);
-      details.classList.remove('is-sheet-open');
-      details.removeAttribute('open');
-      if (restoreFocus) {
-        details.querySelector(':scope > .header-localization__summary')?.focus({ preventScroll: true });
-      }
-      scheduleUpdate();
-    };
-
-    clearLocalizationSheetClose(details);
-    if (window.innerWidth > 767 || !details.classList.contains('is-sheet-open') || !panel) {
-      finishClose();
+    const dialog = getLocalizationDialog(details);
+    if (dialog?.open) {
+      const overlay = window.ThemeOverlay?.get(dialog);
+      if (overlay) overlay.close({ restoreFocus });
+      else dialog.close();
       return;
     }
 
-    const onTransitionEnd = (event) => {
-      if (event.target === panel && event.propertyName === 'transform') finishClose();
-    };
-    panel.addEventListener('transitionend', onTransitionEnd);
-    details.classList.remove('is-sheet-open');
+    details.classList.remove('is-submenu-closing');
+    details.removeAttribute('open');
+    if (restoreFocus) {
+      details.querySelector(':scope > .header-localization__summary')?.focus({ preventScroll: true });
+    }
+    scheduleUpdate();
+  };
 
-    const transitionMs = getTransitionTotalMs(panel);
-    const timer = window.setTimeout(finishClose, transitionMs + 50);
-    localizationSheetCloseTimers.set(details, { timer, panel, onTransitionEnd });
+  const releaseHoverSubmenuFocus = (details) => {
+    if (details?.dataset.headerSubmenuTrigger !== 'hover') return;
+
+    const summary = details.querySelector(':scope > summary');
+    if (summary?.matches(':focus') && !summary.matches(':focus-visible')) {
+      summary.blur();
+    }
+  };
+
+  const closeHeaderDetails = (details) => {
+    details.removeAttribute('open');
+    details.classList.remove('is-submenu-closing');
+    releaseHoverSubmenuFocus(details);
   };
 
   const closeHeaderSurfaces = (header, active = {}) => {
+    closeLocalizationDialogs(header, active.details);
     header.querySelectorAll('details[open], details.is-submenu-closing').forEach((details) => {
       if (details === active.details) return;
       if (details.classList.contains('header-localization__details')) {
         closeLocalizationSheet(details);
         return;
       }
-      details.removeAttribute('open');
-      details.classList.remove('is-submenu-closing');
+      closeHeaderDetails(details);
     });
 
     if (!active.menu) setHeaderMenuState(header, false);
@@ -372,15 +365,14 @@
           details.matches(':focus-within') &&
           (trigger === 'click' || details.querySelector(':scope > summary')?.matches(':focus-visible'));
         if (!details.dataset.editorSelected && !details.matches(':hover') && !keepFocusOpen) {
-          details.removeAttribute('open');
-          details.classList.remove('is-submenu-closing');
+          closeHeaderDetails(details);
           scheduleUpdate();
         }
       }, 100);
       submenuCloseTimers.set(details, timer);
     };
 
-    header.querySelectorAll('details:not([data-mobile-drawer-details])').forEach((details) => {
+    header.querySelectorAll('details:not([data-mobile-drawer-details]):not([data-mobile-drawer-submenu-details])').forEach((details) => {
       const trigger = details.dataset.headerSubmenuTrigger || 'click';
       const summary = details.querySelector(':scope > summary');
 
@@ -508,33 +500,68 @@
     if (!drawer || drawer.dataset.ready === 'true') return;
     drawer.dataset.ready = 'true';
 
+    const setBackLabel = (title) => {
+      drawer.querySelectorAll('[data-header-menu-back]').forEach((back) => { back.hidden = false; });
+      drawer.querySelectorAll('[data-header-menu-back-label]').forEach((label) => {
+        label.textContent = title || label.dataset.headerMenuBackDefaultLabel || 'Menu';
+      });
+    };
+
+    const clearActiveSubmenu = () => {
+      drawer.querySelectorAll('[data-mobile-drawer-submenu-details]').forEach((details) => {
+        details.classList.remove('is-mobile-submenu-active');
+        details.removeAttribute('open');
+      });
+      drawer.querySelectorAll('.header__mobile-drawer-item.is-mobile-submenu-active').forEach((item) => {
+        item.classList.remove('is-mobile-submenu-active');
+        item.querySelector(':scope > .header__mobile-drawer-details')?.removeAttribute('open');
+      });
+    };
+
     const resetSubmenu = (animate = true) => {
       drawer.classList.remove('header__mobile-drawer--submenu-active');
       drawer.querySelectorAll('[data-header-menu-back]').forEach((back) => { back.hidden = true; });
       drawer.querySelectorAll('[data-header-menu-back-label]').forEach((label) => {
         label.textContent = label.dataset.headerMenuBackDefaultLabel || 'Menu';
       });
-      const clearActiveSubmenu = () => {
-        drawer.querySelectorAll('.header__mobile-drawer-item.is-mobile-submenu-active').forEach((item) => {
-          item.classList.remove('is-mobile-submenu-active');
-          item.querySelector(':scope > .header__mobile-drawer-details')?.removeAttribute('open');
-        });
-      };
       if (animate) window.setTimeout(clearActiveSubmenu, 320);
       else clearActiveSubmenu();
     };
 
+    const backToParentSubmenu = () => {
+      const activeNestedDetails = drawer.querySelector('[data-mobile-drawer-submenu-details].is-mobile-submenu-active');
+      if (!activeNestedDetails) {
+        resetSubmenu();
+        return;
+      }
+
+      activeNestedDetails.classList.remove('is-mobile-submenu-active');
+      activeNestedDetails.removeAttribute('open');
+      const rootSummary = activeNestedDetails.closest('[data-mobile-drawer-details]')?.querySelector(':scope > summary');
+      setBackLabel(rootSummary?.querySelector('span')?.textContent?.trim());
+    };
+
     const moveMegaMenuToMobileDrawer = (item) => {
       const trigger = item.dataset.menuTitle;
+      const featuredSlot = trigger
+        ? drawer.querySelector(`[data-mobile-mega-featured-slot="${CSS.escape(trigger)}"]`)
+        : null;
       const slot = trigger ? drawer.querySelector(`[data-mobile-mega-slot="${CSS.escape(trigger)}"]`) : null;
       const megaMenu = trigger
         ? Array.from(header.querySelectorAll('[data-header-mega-menu]')).find((menu) => menu.dataset.megaMenuTrigger === trigger)
         : null;
-      if (!slot || !megaMenu) return;
+      const featured = megaMenu?.querySelector(':scope .header-mega-menu__featured');
+      if (!featuredSlot || !slot || !megaMenu) return;
 
       if (!mobileMegaMenuOrigins.has(megaMenu)) {
-        mobileMegaMenuOrigins.set(megaMenu, megaMenu.parentElement);
+        mobileMegaMenuOrigins.set(megaMenu, {
+          parent: megaMenu.parentElement,
+          featured,
+          featuredParent: featured?.parentElement,
+          featuredNextSibling: featured?.nextSibling,
+        });
       }
+      if (featured) featuredSlot.append(featured);
       slot.append(megaMenu);
       megaMenu.hidden = false;
       item.classList.add('has-mobile-mega');
@@ -553,29 +580,62 @@
         window.requestAnimationFrame(() => {
           item.classList.add('is-mobile-submenu-active');
           drawer.classList.add('header__mobile-drawer--submenu-active');
-          drawer.querySelectorAll('[data-header-menu-back]').forEach((back) => { back.hidden = false; });
-          drawer.querySelectorAll('[data-header-menu-back-label]').forEach((label) => {
-            label.textContent = summary.querySelector('span')?.textContent?.trim() || label.dataset.headerMenuBackDefaultLabel || 'Menu';
-          });
+          setBackLabel(summary.querySelector('span')?.textContent?.trim());
+        });
+      });
+    });
+
+    drawer.querySelectorAll('[data-mobile-drawer-submenu-details] > summary').forEach((summary) => {
+      summary.addEventListener('click', (event) => {
+        if (window.innerWidth > 767) return;
+        event.preventDefault();
+
+        const details = summary.parentElement;
+        const rootDetails = details?.closest('[data-mobile-drawer-details]');
+        const rootItem = rootDetails?.closest('.header__mobile-drawer-item');
+        if (!details || !rootItem?.classList.contains('is-mobile-submenu-active')) return;
+
+        drawer.querySelectorAll('[data-mobile-drawer-submenu-details].is-mobile-submenu-active').forEach((activeDetails) => {
+          if (activeDetails === details) return;
+          activeDetails.classList.remove('is-mobile-submenu-active');
+          activeDetails.removeAttribute('open');
+        });
+
+        details.open = true;
+        window.requestAnimationFrame(() => {
+          details.classList.add('is-mobile-submenu-active');
+          setBackLabel(summary.querySelector('span')?.textContent?.trim());
         });
       });
     });
 
     drawer.querySelectorAll('[data-header-menu-back]').forEach((back) => {
-      back.addEventListener('click', resetSubmenu);
+      back.addEventListener('click', backToParentSubmenu);
     });
     drawer.querySelectorAll('[data-header-menu-backdrop]').forEach((backdrop) => {
       backdrop.addEventListener('click', () => setHeaderMenuState(header, false));
     });
     drawer.addEventListener('click', (event) => {
-      if (event.target.closest('a')) setHeaderMenuState(header, false);
+      const link = event.target.closest?.('a[href]');
+      if (!link) return;
+
+      // Let the anchor's default navigation run before collapsing the drawer.
+      // Closing the active <details> during the same click event can remove the
+      // active submenu before the browser activates a real child-link URL.
+      window.setTimeout(() => setHeaderMenuState(header, false), 0);
     });
   };
 
   const restoreMobileMegaMenus = () => {
     if (window.innerWidth <= 767) return;
-    mobileMegaMenuOrigins.forEach((parent, megaMenu) => {
-      if (parent?.isConnected) parent.append(megaMenu);
+    mobileMegaMenuOrigins.forEach((origin, megaMenu) => {
+      if (origin.featured?.isConnected && origin.featuredParent?.isConnected) {
+        const nextSibling = origin.featuredNextSibling?.parentNode === origin.featuredParent
+          ? origin.featuredNextSibling
+          : null;
+        origin.featuredParent.insertBefore(origin.featured, nextSibling);
+      }
+      if (origin.parent?.isConnected) origin.parent.append(megaMenu);
       mobileMegaMenuOrigins.delete(megaMenu);
     });
   };
@@ -585,40 +645,26 @@
       if (localizationSheetDetails.has(details)) return;
       localizationSheetDetails.add(details);
 
-      details.querySelector(':scope > .header-localization__summary')?.addEventListener('click', (event) => {
+      const summary = details.querySelector(':scope > .header-localization__summary');
+      summary?.addEventListener('click', (event) => {
         if (window.innerWidth > 767) return;
         event.preventDefault();
 
-        if (details.open && details.classList.contains('is-sheet-open')) {
-          closeLocalizationSheet(details);
+        const dialog = getLocalizationDialog(details);
+        const overlay = dialog ? window.ThemeOverlay?.get(dialog) : null;
+        if (!dialog || !overlay) return;
+
+        if (dialog.open) {
+          overlay.close({ restoreFocus: true });
           return;
         }
 
-        clearLocalizationSheetClose(details);
         closeHeaderSurfaces(header, { details, menu: true });
-        details.open = true;
-        details.classList.remove('is-sheet-open');
-
-        // Closed details children have no computed layout. Flush the closed sheet
-        // position before making it visible so its very first opening can animate.
-        void details.querySelector(':scope > .header-localization__panel')?.offsetHeight;
-        window.requestAnimationFrame(() => {
-          if (details.open) details.classList.add('is-sheet-open');
-        });
+        overlay.open({ opener: summary });
         scheduleUpdate();
       });
     });
 
-    header.querySelectorAll('[data-header-localization-close]').forEach((control) => {
-      if (localizationSheetControls.has(control)) return;
-      localizationSheetControls.add(control);
-
-      control.addEventListener('click', () => {
-        const details = control.closest('.header-localization__details');
-        if (!details) return;
-        closeLocalizationSheet(details, { restoreFocus: true });
-      });
-    });
   };
 
   const initializeFooterLocalizations = (root = document) => {
@@ -695,18 +741,16 @@
     });
   };
 
-  const beginLocalizationSheetDrag = (event) => {
-    const header = event.target.closest?.('.header-localization__sheet-header');
-    const panel = header?.closest('.header-localization__panel');
-    const details = panel?.closest('.header-localization__details[open]');
-    if (!details || !window.ThemeOverlay.mobile.matches) return;
-    localizationSheetDrag?.destroy();
-    localizationSheetDrag = new window.ThemeOverlay.SheetGesture({
-      panel, header, delegated: true,
-      enabled: () => details.open && window.ThemeOverlay.mobile.matches,
-      close: () => closeLocalizationSheet(details, { restoreFocus: true }),
+  const destroyLocalizationOverlays = (root) => {
+    const details = [];
+    if (root.matches?.('.header-localization__details')) details.push(root);
+    root.querySelectorAll?.('.header-localization__details').forEach((item) => details.push(item));
+
+    details.forEach((item) => {
+      const dialog = getLocalizationDialog(item);
+      if (dialog?.parentElement !== document.body) return;
+      window.ThemeOverlay?.get(dialog)?.destroy();
     });
-    localizationSheetDrag.start(event);
   };
 
   const initializeAccountSheets = (header) => {
@@ -757,7 +801,6 @@
     restoreMobileMegaMenus();
     scheduleUpdate();
   });
-  document.addEventListener('pointerdown', beginLocalizationSheetDrag);
 
   document.addEventListener('focusin', (event) => {
     const headerTop = event.target.closest?.(HEADER_SELECTOR);
@@ -797,10 +840,7 @@
   });
 
   document.addEventListener('shopify:section:unload', (event) => {
-    if (event.target.contains(localizationSheetDrag?.panel)) {
-      localizationSheetDrag.destroy();
-      localizationSheetDrag = null;
-    }
+    destroyLocalizationOverlays(event.target);
     removeFooterLocalizations(event.target);
     removeHeaders(event.target);
   });
