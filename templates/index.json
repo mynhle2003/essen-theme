@@ -359,7 +359,7 @@
           "type": "collection-tab",
           "settings": {
             "label": "Best sellers",
-            "collection": "hydrogen"
+            "collection": "essen-best-sellers"
           },
           "blocks": {
             "product-card": {
@@ -380,7 +380,7 @@
           "type": "collection-tab",
           "settings": {
             "label": "Work-Casual",
-            "collection": ""
+            "collection": "essen-best-sellers"
           },
           "blocks": {
             "product-card": {
@@ -401,7 +401,7 @@
           "type": "collection-tab",
           "settings": {
             "label": "Weekend basics",
-            "collection": ""
+            "collection": "essen-best-sellers"
           },
           "blocks": {
             "product-card": {
